@@ -1,0 +1,107 @@
+.mainNav{
+    width: 100%;
+    height: 100px;
+    /* background-color:#171718; */
+    padding:0 3rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    position:fixed;
+}
+.mainNavContainer{
+    width:100%;
+    height:64px;
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: bottom;
+}
+/*Main Logo*/
+.navLogo{
+    height:64px;
+    width: fit-content;
+    display:flex;
+    flex-direction: row;
+    gap:0.75rem;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+}
+.navLogoSymbol{
+    height:50px;
+    width:48px;
+    background-image: url("../images/icons/Logo_GCA_grey.png");
+    background-size: cover;
+    background-position: center;
+    position:relative;
+}
+.navLogoSymbol::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:50px;
+    width:48px;
+    background-image: url("../images/icons/Logo_GCA_white.png");
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.navLogoTitle{
+    height:48px;
+    display:flex;
+    flex-direction:column;
+    margin-top:1.4rem;
+}
+.navLogo h1{
+    font-family: "Audiowide", serif;
+    font-weight: 400;
+    font-style: normal;
+    color:#b4b4b5;
+    font-size: 24px;
+    margin:0;
+    transition: color 0.3s ease-in-out;
+}
+.navLogo h2{
+    font-family: "Sarala", serif;
+    font-weight: 400;
+    font-style: normal;
+    color:#b4b4b5;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.9rem;
+    margin-left:0.2rem;
+    transition: color 0.3s ease-in-out;
+}
+.navLogo:hover h1,
+.navLogo:hover h2 {
+    color: white; 
+}
+.navLogo:hover .navLogoSymbol::after {
+    opacity: 1;
+}
+.navLinks{
+    margin-top:1.5rem;
+    padding-right:1rem;
+    height:36px;
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    gap:1rem;
+    border-right:#b4b4b5 2px solid;
+}
+.navLinks a{
+    color:#b4b4b5;
+    font-family: "Sarala", serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    transition: color 0.3s ease-in-out;
+}
+.navLinks a:hover{
+color:white;
+}
+
