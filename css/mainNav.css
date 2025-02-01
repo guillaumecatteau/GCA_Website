@@ -17,7 +17,7 @@
     justify-content: space-between;
     align-items: bottom;
 }
-/*Main Logo*/
+/*///// Main Logo /////*/
 .navLogo{
     height:64px;
     width: fit-content;
@@ -49,6 +49,7 @@
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
 }
+
 .navLogoTitle{
     height:48px;
     display:flex;
@@ -82,6 +83,11 @@
 .navLogo:hover .navLogoSymbol::after {
     opacity: 1;
 }
+/*///// Main Links /////*/
+.globalLinks{
+    display:flex;
+    flex-direction: row;
+}
 .navLinks{
     margin-top:1.5rem;
     padding-right:1rem;
@@ -104,4 +110,123 @@
 .navLinks a:hover{
 color:white;
 }
-
+/*///// Social Links /////*/
+.socialLinks{
+    margin-top:1.5rem;
+    padding:0 1rem 0 1rem;
+    height:36px;
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    gap:1rem;
+    border-right:#b4b4b5 2px solid;
+}
+.socialLinks a{
+ 
+}
+.slArtstation{
+    position:relative;
+    height:18px;
+    width:20px;
+    aspect-ratio: auto 1 / 1;
+    background-image: url("../images/icons/icon_artstation_grey.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+    image-rendering: -webkit-optimize-contrast;
+}
+.slArtstation::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:18px;
+    width:20px;
+    aspect-ratio: auto 1 / 1;
+    background-image: url("../images/icons/icon_artstation_white.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    image-rendering: -webkit-optimize-contrast;
+}
+.slArtstation:hover::after {
+    opacity: 1;
+}
+.slLinkedin{
+    position:relative;
+    height:18px;
+    width:18px;
+    aspect-ratio: auto 1 / 1;
+    background-image: url("../images/icons/icon_linkedin_grey.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+    image-rendering: -webkit-optimize-contrast;
+}
+.slLinkedin::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:18px;
+    width:18px;
+    aspect-ratio: auto 1 / 1;
+    background-image: url("../images/icons/icon_linkedin_white.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    image-rendering: -webkit-optimize-contrast;
+}
+.slLinkedin:hover::after {
+    opacity: 1;
+}
+.slYoutube{
+    position:relative;
+    height:18px;
+    width:25px;
+    aspect-ratio: auto 1 / 1;
+    background-image: url("../images/icons/icon_youtube_grey.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+    image-rendering: -webkit-optimize-contrast;
+    transform: translate3d(0, 0, 0); 
+  will-change: transform;
+}
+.slYoutube::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:18px;
+    width:25px;
+    aspect-ratio: auto 1 / 1;
+    background-image: url("../images/icons/icon_youtube_white.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    image-rendering: -webkit-optimize-contrast;
+}
+.slYoutube:hover::after {
+    opacity: 1;
+}
+.slFacebook{
+    position:relative;
+    height:18px;
+    width:25px;
+    aspect-ratio: auto 1 / 1;
+    display: inline-block;
+    fill:#b4b4b5;
+}
