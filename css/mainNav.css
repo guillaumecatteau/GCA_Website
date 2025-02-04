@@ -90,7 +90,7 @@
 }
 .navLinks{
     margin-top:1.5rem;
-    padding-right:1rem;
+    padding-right:2rem;
     height:36px;
     display:flex;
     flex-direction: row;
@@ -113,16 +113,13 @@ color:white;
 /*///// Social Links /////*/
 .socialLinks{
     margin-top:1.5rem;
-    padding:0 1rem 0 1rem;
+    padding:0 2rem 0 2rem;
     height:36px;
     display:flex;
     flex-direction: row;
     align-items: center;
     gap:1rem;
-    border-right:#b4b4b5 2px solid;
-}
-.socialLinks a{
- 
+    /* border-right:#b4b4b5 2px solid; */
 }
 .slArtstation{
     position:relative;
@@ -134,7 +131,6 @@ color:white;
     background-repeat: no-repeat;
     background-position: center;
     display: inline-block;
-    image-rendering: -webkit-optimize-contrast;
 }
 .slArtstation::after {
     content: "";
@@ -151,7 +147,6 @@ color:white;
     display: inline-block;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
-    image-rendering: -webkit-optimize-contrast;
 }
 .slArtstation:hover::after {
     opacity: 1;
@@ -166,7 +161,6 @@ color:white;
     background-repeat: no-repeat;
     background-position: center;
     display: inline-block;
-    image-rendering: -webkit-optimize-contrast;
 }
 .slLinkedin::after {
     content: "";
@@ -183,7 +177,6 @@ color:white;
     display: inline-block;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
-    image-rendering: -webkit-optimize-contrast;
 }
 .slLinkedin:hover::after {
     opacity: 1;
@@ -198,9 +191,6 @@ color:white;
     background-repeat: no-repeat;
     background-position: center;
     display: inline-block;
-    image-rendering: -webkit-optimize-contrast;
-    transform: translate3d(0, 0, 0); 
-  will-change: transform;
 }
 .slYoutube::after {
     content: "";
@@ -217,7 +207,6 @@ color:white;
     display: inline-block;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
-    image-rendering: -webkit-optimize-contrast;
 }
 .slYoutube:hover::after {
     opacity: 1;
@@ -225,8 +214,135 @@ color:white;
 .slFacebook{
     position:relative;
     height:18px;
-    width:25px;
+    width:9px;
     aspect-ratio: auto 1 / 1;
+    background-image: url("../images/icons/icon_facebook_grey.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
     display: inline-block;
-    fill:#b4b4b5;
+}
+.slFacebook::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:18px;
+    width:9px;
+    aspect-ratio: auto 1 / 1;
+    background-image: url("../images/icons/icon_facebook_white.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.slFacebook:hover::after {
+    opacity: 1;
+}
+.slX{
+    position:relative;
+    height:18px;
+    width:20px;
+    aspect-ratio: auto 1 / 1;
+    background-image: url("../images/icons/icon_x_grey.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+}
+.slX::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:18px;
+    width:20px;
+    aspect-ratio: auto 1 / 1;
+    background-image: url("../images/icons/icon_x_white.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.slX:hover::after {
+    opacity: 1;
+}
+.slInstagram{
+    position:relative;
+    height:18px;
+    width:18px;
+    aspect-ratio: auto 1 / 1;
+    background-image: url("../images/icons/icon_instagram_grey.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+}
+.slInstagram::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height:18px;
+    width:18px;
+    aspect-ratio: auto 1 / 1;
+    background-image: url("../images/icons/icon_instagram_white.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.slInstagram:hover::after {
+    opacity: 1;
+}
+/*///// Language selector /////*/
+.languageSelector {
+    margin-top:1.5rem;
+    color: #b4b4b5;
+    font-family: "Sarala", serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    position: relative;
+    display: inline-block;
+}
+
+.languageSelector select {
+    padding: 5px 40px 5px 10px; /* Espace à droite pour la flèche */
+    border: 2px solid #b4b4b5;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    color: #b4b4b5;
+    background-color: transparent;
+    font-family: inherit;
+    text-transform: uppercase;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+    width: auto;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23b4b4b5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+}
+
+.languageSelector select:focus {
+    border-color: #888;
+}
+.lsGlobe{
+    height:18px;
+    width:18px;
+    aspect-ratio: auto 1 / 1;
+    background-image: url("../images/icons/icon_world_grey.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block;
 }
