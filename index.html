@@ -4,10 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/reset.css" />
-    
-    <link rel="stylesheet" href="css/mainNav.css" />
-    <link rel="stylesheet" href="css/homePage.css" />
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/backgrounds.css" />
+    <link rel="stylesheet" href="css/mainNav.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,53 +16,169 @@
     <title>Document</title>
   </head>
   <body>
-    <div class="mainNav">
-      <div class="mainNavContainer">
-        <a href="index.html" class="navLogo">
-          <div class="navLogoSymbol"></div>
-          <div class="navLogoTitle">
+    <div class="background">
+      <div class="navDesktop">
+        <div class="topBar">
+          <a href="index.html" class="mainLogo" id="mainLogo">
             <h1>Guillaume Catteau</h1>
-            <h2>Digital arts</h2>
-          </div>
-        </a>
-        <div class="globalLinks">
-          <ul class="navLinks" lang="FR">
-            <li><a href="index.html">Compétences</a></li>
-            <li><a href="about.html">Projects</a></li>
-            <li><a href="contact.html">Blog</a></li>
-            <li><a href="contact.html">Bio</a></li>
-            <li><a href="contact.html">Contact</a></li>
-          </ul>
-          <ul class="navLinks hidden" lang="EN">
-            <li><a href="index.html">Skills</a></li>
-            <li><a href="about.html">Projects</a></li>
-            <li><a href="contact.html">Blog</a></li>
-            <li><a href="contact.html">Bio</a></li>
-            <li><a href="contact.html">Contact</a></li>
-          </ul>
-          <ul class="socialLinks">
-            <li><a href="index.html" class="slArtstation"></a></li>
-            <li><a href="about.html" class="slLinkedin"></a></li>
-            <li><a href="contact.html" class="slYoutube"></a></li>
-            <li><a href="contact.html" class="slFacebook"></a></li>
-            <li><a href="contact.html" class="slX"></a></li>
-            <li><a href="contact.html" class="slInstagram"></a></li>
-          </ul>
-          <div class="languageSelector">
-            <!-- <div class="lsGlobe"></div> -->
+            <h2>Digital designer</h2>
+          </a>
+          <div class="languageSelector" id="languageSelector">
             <select id="lang">
               <option value="fr">FR</option>
               <option value="en">EN</option>
             </select>
           </div>
         </div>
+        <div class="navLateral">
+          <div class="mainNavContainer">
+            <div class="globalLinks">
+              <ul class="navLinks">
+                <li>
+                  <a class="btnLateral" id="btnHome">
+                    <div class="btnLateralIcon iconHome"></div>
+                    <h2 class="linkText" lang="FR">Accueil</h2>
+                    <h2 class="linkText" lang="EN">Home</h2>
+                  </a>
+                </li>
+                <li>
+                  <a class="btnLateral" id="btnProfil">
+                    <div class="btnLateralIcon iconProfil"></div>
+                    <h2 class="linkText" lang="FR">Profil</h2>
+                    <h2 class="linkText" lang="EN">Profile</h2>
+                  </a>
+                </li>
+                <li>
+                  <a class="btnLateral" id="btnGames">
+                    <div class="btnLateralIcon iconGames"></div>
+                    <h2 class="linkText" lang="FR">Jeux</h2>
+                    <h2 class="linkText" lang="EN">Games</h2>
+                  </a>
+                </li>
+                <li>
+                  <a class="btnLateral" id="btnUxUi">
+                    <div class="btnLateralIcon iconUx"></div>
+                    <h2 class="linkText" lang="FR">Ux/Ui</h2>
+                    <h2 class="linkText" lang="EN">Ux/Ui</h2>
+                  </a>
+                </li>
+                <li>
+                  <a class="btnLateral" id="btn3D">
+                    <div class="btnLateralIcon icon3d"></div>
+                    <h2 class="linkText" lang="FR">3d</h2>
+                    <h2 class="linkText" lang="EN">3d</h2>
+                  </a>
+                </li>
+                <li>
+                  <a class="btnLateral" id="btn2D">
+                    <div class="btnLateralIcon icon2d"></div>
+                    <h2 class="linkText" lang="FR">2d</h2>
+                    <h2 class="linkText" lang="EN">2d</h2>
+                  </a>
+                </li>
+                <li>
+                  <a class="btnLateral" id="btnVideo">
+                    <div class="btnLateralIcon iconVideo"></div>
+                    <h2 class="linkText" lang="FR">Video</h2>
+                    <h2 class="linkText" lang="EN">Video</h2>
+                  </a>
+                </li>
+                <li>
+                  <a class="btnLateral" id="btnWeb">
+                    <div class="btnLateralIcon iconWeb"></div>
+                    <h2 class="linkText" lang="FR">Web</h2>
+                    <h2 class="linkText" lang="EN">Web</h2>
+                  </a>
+                </li>
+                <li>
+                  <a class="btnLateral" id="btnPixel">
+                    <div class="btnLateralIcon iconPixel"></div>
+                    <h2 class="linkText" lang="FR">Pixel</h2>
+                    <h2 class="linkText" lang="EN">Pixel</h2>
+                  </a>
+                </li>
+                <li>
+                  <a class="btnLateral" id="btnPortfolio">
+                    <div class="btnLateralIcon iconWorks"></div>
+                    <h2 class="linkText" lang="FR">Portfolio</h2>
+                    <h2 class="linkText" lang="EN">Portefolio</h2>
+                  </a>
+                </li>
+                <li>
+                  <a class="btnLateral" id="btnGalleries">
+                    <div class="btnLateralIcon iconGalleries"></div>
+                    <h2 class="linkText" lang="FR">Galleries</h2>
+                    <h2 class="linkText" lang="EN">Galleries</h2>
+                  </a>
+                </li>
+                <li>
+                  <a class="btnLateral" id="btnBlog">
+                    <div class="btnLateralIcon iconBlog"></div>
+                    <h2 class="linkText" lang="FR">Blog</h2>
+                    <h2 class="linkText" lang="EN">Blog</h2>
+                  </a>
+                </li>
+                <li>
+                  <a class="btnLateral" id="btnBio">
+                    <div class="btnLateralIcon iconBio"></div>
+                    <h2 class="linkText" lang="FR">Bio</h2>
+                    <h2 class="linkText" lang="EN">Bio</h2>
+                  </a>
+                </li>
+                <li>
+                  <a class="btnLateral" id="btnContact">
+                    <div class="btnLateralIcon iconContact"></div>
+                    <h2 class="linkText" lang="FR">Contact</h2>
+                    <h2 class="linkText" lang="EN">Contact</h2>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <ul class="socialLinks">
+              <li>
+                <a class="btnLateral" id="btnArtstation" href="index.html">
+                  <div class="btnLateralIcon iconArtstation"></div>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnLinkedin" href="index.html">
+                  <div class="btnLateralIcon iconLinkedin"></div>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnYoutube" href="index.html">
+                  <div class="btnLateralIcon iconYoutube"></div>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnFacebook" href="index.html">
+                  <div class="btnLateralIcon iconFacebook"></div>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnX" href="index.html">
+                  <div class="btnLateralIcon iconX"></div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="backgrounds">
+        <div class="backgroundHome">
+          <img
+            src="images/Backgrounds/bck_homeLight1080.png"
+            alt="background"
+          />
+        </div>
       </div>
     </div>
+
     <div class="heroBanner">
       <div class="scroll-down-icon"></div>
     </div>
     <div class="headerWelcome"></div>
-    
   </body>
   <script src="js/language.js"></script>
+  <script src="js/start.js"></script>
 </html>

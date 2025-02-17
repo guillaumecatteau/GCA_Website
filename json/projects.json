@@ -1,0 +1,69 @@
+{
+  "projects": [
+    {
+      "id": "prj_01",
+      "name": "Yoghana",
+      "year": "2005",
+      "client": "AC'T",
+      "thumbnail": "/images/Thumbnails/Thumb_Yoghana.png",
+      "txt-FR": "<em>Yoghana</em> est un court-métrage d'animation 3D co-réalisé par <b>Renaud Berger</b>, <b>Thomas Marcotte</b> et moi-même, présenté comme projet de fin d'études à l'<b>Académie des Beaux-Arts de Tournai</b> en juin 2005. Entièrement réalisé avec les logiciels Maya et Combustion, le film dépeint une faune et une flore imaginaires peuplant une planète fictive. Nous avons pris en charge le design, la modélisation et l'animation de toutes les créatures et environnements, ainsi que l'intégralité du travail de storyboarding, rendu, compositing, montage et sound design.",
+      "txt-EN": "<em>Yoghana</em> is a 3D animated short film co-directed by <b>Renaud Berger</b>, <b>Thomas Marcotte</b> and myself, presented as a graduation project at the <b>Tournai Academy of Fine Arts</b> in June 2005. Entirely produced with Maya and Combustion software, the film depicts an imaginary flora and fauna inhabiting a fictitious planet. We took charge of the design, modeling and animation of all creatures and environments, as well as all storyboarding, rendering, compositing, editing and sound design.",
+      "categories": ["3D","Animation","Motion design","Storyboard","Concept art","Editing","Sound design"],
+      "softwares": ["Maya","Combustion","Adobe Premiere Pro","Adobe Photoshop","Adobe Audition"],
+      "visible": true,
+      "gallerie": ["Yog_01","Yog_02","Yog_03","Yog_04","Yog_05","Yog_06","Yog_07","Yog_08","Yog_09","Yog_10","Yog_11","Yog_12","Yog_13","Yog_14","Yog_15","Yog_16","Yog_17","Yog_18","Yog_19","Yog_20"]
+    },
+    {
+      "id": "prj_02",
+      "name": "TAATU World",
+      "year": "2006",
+      "client": "TAATU S.A.",
+      "thumbnail": "/images/Thumbnails/Thumb_TaatuWorld.png",
+      "txt-FR": "<em>TAATU World</em> était un monde virtuel en ligne créé par la société belge <b>Taatu S.A.</b> Cet univers en 2D pixel art isométrique permettait aux utilisateurs de créer des avatars et d'interagir dans un environnement riche et diversifié. J'y ai travaillé en tant que 3D & pixel artist, ainsi qu'intégrateur flash. J'ai imaginé et produit la quasi-totalité du catalogue d'objets numériques proposé aux utilisateurs. Mon travail allait de la conception sur papier à la production 3D, en passant par la post-production 2D pixel art, l'animation, l'intégration et le testing final. J'ai également conçu plusieurs environnements privés et publics.",
+      "txt-EN": "<em>TAATU World</em> was an online virtual world created by the Belgian company <b>Taatu S.A.</b> This 2D pixel art isometric universe allowed users to create avatars and interact in a rich and diverse environment. I worked there as a 3D & pixel artist, as well as a flash integrator. I imagined and produced almost the entire catalog of digital objects offered to users. My work ranged from conception on paper to 3D production, via 2D pixel art post-production, animation, integration and final testing. I also designed several private and public environments.",
+      "categories": ["3D", "Pixel art", "Level design", "Concept art"],
+      "softwares": ["Maya", "Adobe Photoshop", "Flash"],
+      "visible": true,
+      "galerie": ["TaW_01","TaW_02","TaW_03","TaW_04","TaW_05","TaW_06","TaW_07","TaW_08","TaW_09","TaW_10","TaW_11","TaW_12","TaW_13","TaW_01","TaW_14","TaW_15","TaW_16","TaW_17","TaW_18","TaW_19","TaW_20","TaW_21","TaW_22","TaW_23"]
+    },
+    {
+      "id": "prj_03",
+      "name": "Portal Places",
+      "year": "2010",
+      "client": "TAATU Studio",
+      "thumbnail": "/images/Thumbnails/Thumb_PortalPlaces.png",
+      "txt-FR": "<em>Portal Places</em>, développé par <b>TAATU Studio</b>, était un jeu Facebook qui se distinguait par son mélange unique de simulation sociale et d'exploration. Le jeu encourageait la création de communautés en ligne et offrait une expérience variée et engageante grâce à des défis spécifiques et des objets à collectionner dans chaque monde. J'ai travaillé sur ce projet en tant qu'artiste 3D et pixel, level designer et intégrateur Flash. J'ai principalement contribué à la création de l'environnement TikiBar ainsi qu'au design et au fonctionnement des blocs de construction mis à disposition des joueurs pour bâtir leurs espaces privés.",
+      "txt-EN": "<em>Portal Places</em>, developed by <b>TAATU Studio</b>, was a Facebook game distinguished by its unique blend of social simulation and exploration. The game encouraged the creation of online communities and offered a varied and engaging experience through specific challenges and collectibles in each world. I worked on this project as a 3D and pixel artist, level designer and Flash integrator. I mainly contributed to the creation of the TikiBar environment, as well as to the design and operation of the building blocks made available to players to build their private spaces.",
+      "categories": ["3D", "Pixel art", "Level design"],
+      "softwares": ["Maya", "Adobe Photoshop", "Flash"],
+      "visible": true,
+      "galerie": ["PoP_01","PoP_02","PoP_03","PoP_04","PoP_05","PoP_06","PoP_07"]
+    },
+    {
+      "id": "prj_04",
+      "name": "Turtle Surf",
+      "year": "2011",
+      "client": "TAATU Studio",
+      "thumbnail": "/images/Thumbnails/Thumb_TurtleSurf.png",
+      "txt-FR": "<em>Turtle Surf</em>, développé par <b>TAATU Studio</b>, est un jeu de course mobile où les joueurs incarnent un surfeur naviguant à dos de tortue dans un univers coloré rempli d'ennemis et d'obstacles à éviter pour atteindre la fin des niveaux. J'ai travaillé sur ce projet en tant qu'artiste 3D et, pour la première fois, en tant que game designer et UX/UI designer. En plus de concevoir les mécaniques de base du gameplay et la génération des niveaux, j'ai également créé l'intégralité de l'interface et du parcours utilisateur pour les joueurs.",
+      "txt-EN": "<em>Turtle Surf</em>, developed by <b>TAATU Studio</b>, is a mobile racing game in which players take on the role of a surfer navigating on the back of a turtle in a colorful world full of enemies and obstacles to avoid in order to reach the end of the levels. I worked on this project as a 3D artist and, for the first time, as a game designer and UX/UI designer. As well as designing the basic gameplay mechanics and level generation, I also created the entire interface and navigation for the players.",
+      "categories": ["3D", "Game design", "Level design", "UX-UI design"],
+      "softwares": ["Maya", "Adobe Photoshop", "Unity3D", "Zbrush"],
+      "visible": true,
+      "galerie": ["TuS_01","TuS_02","TuS_03","TuS_04","TuS_05","TuS_06","TuS_07","TuS_08","TuS_09","TuS_10","TuS_11"]
+    },
+    {
+      "id": "prj_05",
+      "name": "Jungle's Games",
+      "year": "2012",
+      "client": "PlayMe Studio",
+      "thumbnail": "/images/Thumbnails/Thumb_JungleGames.png",
+      "txt-FR": "<em>Jungle's Games</em>, développé par <b>PlayMe Studio</b>, est un jeu festif conçu pour fonctionner avec des contrôles basés sur la reconnaissance de mouvements. Les différents mini-jeux exigent du joueur qu'il mémorise et reproduise des séquences sous des contraintes de temps et de gameplay spécifiques à chaque jeu. J'ai participé à ce projet en tant que designer de jeux, analyste de gestes et designer UX. En plus de concevoir les mécaniques de base du gameplay et analyser les possibilités et contraintes liées aux gestes des joueurs, j'ai également créé le parcours utilisateur et contribué à la production 3D.",
+      "txt-EN": "<em>Jungle's Games</em>, developed by <b>PlayMe Studio</b>, is a festive game designed to work with motion-recognition-based controls. The various mini-games require the player to memorize and reproduce sequences under time and gameplay constraints specific to each game. I took part in this project as a game designer, gesture analyst and UX designer. In addition to designing the basic gameplay mechanics and analyzing the possibilities and constraints linked to player gestures, I also created the user experience and contributed to the 3D production.",
+      "categories": ["3D", "Game design", "UX-UI design"],
+      "softwares": ["Maya", "Adobe Photoshop", "Zbrush"],
+      "visible": true,
+      "galerie": ["JuG_01","JuG_02","JuG_03","JuG_04","JuG_05","JuG_06","JuG_07","JuG_08","JuG_09","JuG_10","JuG_11"]
+    }
+  ]
+}

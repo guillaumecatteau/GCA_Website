@@ -2,6 +2,8 @@ body {
   height:100vh;
   width:calc(100vw - var(--scrollbar-width, 0px));
   overflow-x: hidden;
+  background-color: #040508;
+  z-index: 0;
 }
 .audiowide-regular {
   font-family: "Audiowide", serif;
