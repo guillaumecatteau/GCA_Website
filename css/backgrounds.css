@@ -21,7 +21,7 @@
   background-repeat: repeat;
   position: center;
   z-index: 25;
-  opacity: 0.5;
+  opacity: 0;
 }
 .backgrounds::after {
   content: "";

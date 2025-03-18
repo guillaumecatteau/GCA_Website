@@ -131,12 +131,6 @@
   margin-bottom: 0;
   /* border: 2px solid red; */
 }
-.navLinks li:nth-child(2) {
-  margin-bottom: 3rem;
-}
-.navLinks li:nth-child(9) {
-  margin-bottom: 3rem;
-}
 
 .navLinks li {
   display: block;
@@ -425,7 +419,7 @@
 .btnLateral:active .iconPixel::after {
   opacity: 1;
 }
-/*///// Icon Works /////*/
+/*///// Icon Projects /////*/
 .iconWorks {
   position: relative;
   background-image: url("../images/icons/icon_works_grey.png");
@@ -448,12 +442,12 @@
 .btnLateral:active .iconWorks::after {
   opacity: 1;
 }
-/*///// Icon Galleries /////*/
-.iconGalleries {
+/*///// Icon Portfolio /////*/
+.iconPortfolio {
   position: relative;
   background-image: url("../images/icons/icon_galleries_grey.png");
 }
-.iconGalleries::after {
+.iconPortfolio::after {
   content: "";
   position: absolute;
   top: 0;
@@ -468,7 +462,7 @@
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
 }
-.btnLateral:active .iconGalleries::after {
+.btnLateral:active .iconPortfolio::after {
   opacity: 1;
 }
 /*///// Icon Blog /////*/
