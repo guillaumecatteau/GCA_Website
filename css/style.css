@@ -4,6 +4,9 @@ body {
   overflow-x: hidden;
   background-color: #040508;
   z-index: 0;
+  display:flex;
+  justify-content: center;
+  align-items: center;
 }
 .audiowide-regular {
   font-family: "Audiowide", serif;

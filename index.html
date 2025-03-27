@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/backgrounds.css" />
     <link rel="stylesheet" href="css/mainNav.css" />
+    <link rel="stylesheet" href="css/icons.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -16,147 +17,154 @@
     <title>Document</title>
   </head>
   <body>
-    <div class="background">
-      <div class="navDesktop">
-        <div class="topBar">
-          <a href="index.html" class="mainLogo" id="mainLogo">
-            <h1>Guillaume Catteau</h1>
-            <h2>Digital designer</h2>
-          </a>
-          <div class="languageSelector" id="languageSelector">
-            <select id="lang">
-              <option value="fr">FR</option>
-              <option value="en">EN</option>
-            </select>
-          </div>
+    <div class="navContainer">
+      <div class="topBar">
+        <a href="index.html" class="mainLogo" id="mainLogo">
+          <h1>Guillaume Catteau</h1>
+          <h2>Digital designer</h2>
+        </a>
+        <div class="languageSelector" id="languageSelector">
+          <select id="lang">
+            <option value="fr">FR</option>
+            <option value="en">EN</option>
+          </select>
         </div>
-        <div class="navLateral">
+        <div class="burgerMenu" id="burgerMenu">
+          <div class="BurgerBar" id="burgerBarTop"></div>
+          <div class="BurgerBar" id="burgerBarMiddle"></div>
+          <div class="BurgerBar" id="burgerBarBottom"></div>
+        </div>
+      </div>
+      <div class="navDesktop">
+        <div class="navLeft">
           <div class="mainNavContainer">
-            <div class="globalLinks">
-              <ul class="navLinks">
-                <li>
-                  <a class="btnLateral" id="btnHome">
-                    <div class="btnLateralIcon iconHome"></div>
-                    <h2 class="linkText" lang="FR">Accueil</h2>
-                    <h2 class="linkText" lang="EN">Home</h2>
-                  </a>
-                </li>
-                <li>
-                  <a class="btnLateral" id="btnProfil">
-                    <div class="btnLateralIcon iconProfil"></div>
-                    <h2 class="linkText" lang="FR">Profil</h2>
-                    <h2 class="linkText" lang="EN">Profile</h2>
-                  </a>
-                </li>
-                <li>
-                  <a class="btnLateral" id="btnGames">
-                    <div class="btnLateralIcon iconGames"></div>
-                    <h2 class="linkText" lang="FR">Jeux</h2>
-                    <h2 class="linkText" lang="EN">Games</h2>
-                  </a>
-                </li>
-                <li>
-                  <a class="btnLateral" id="btnUxUi">
-                    <div class="btnLateralIcon iconUx"></div>
-                    <h2 class="linkText" lang="FR">Ux/Ui</h2>
-                    <h2 class="linkText" lang="EN">Ux/Ui</h2>
-                  </a>
-                </li>
-                <li>
-                  <a class="btnLateral" id="btn3D">
-                    <div class="btnLateralIcon icon3d"></div>
-                    <h2 class="linkText" lang="FR">3d</h2>
-                    <h2 class="linkText" lang="EN">3d</h2>
-                  </a>
-                </li>
-                <li>
-                  <a class="btnLateral" id="btn2D">
-                    <div class="btnLateralIcon icon2d"></div>
-                    <h2 class="linkText" lang="FR">2d</h2>
-                    <h2 class="linkText" lang="EN">2d</h2>
-                  </a>
-                </li>
-                <li>
-                  <a class="btnLateral" id="btnVideo">
-                    <div class="btnLateralIcon iconVideo"></div>
-                    <h2 class="linkText" lang="FR">Video</h2>
-                    <h2 class="linkText" lang="EN">Video</h2>
-                  </a>
-                </li>
-                <li>
-                  <a class="btnLateral" id="btnWeb">
-                    <div class="btnLateralIcon iconWeb"></div>
-                    <h2 class="linkText" lang="FR">Web</h2>
-                    <h2 class="linkText" lang="EN">Web</h2>
-                  </a>
-                </li>
-                <li>
-                  <a class="btnLateral" id="btnPixel">
-                    <div class="btnLateralIcon iconPixel"></div>
-                    <h2 class="linkText" lang="FR">Pixel</h2>
-                    <h2 class="linkText" lang="EN">Pixel</h2>
-                  </a>
-                </li>
-                <li>
-                  <a class="btnLateral" id="btnPortfolio">
-                    <div class="btnLateralIcon iconPortfolio"></div>
-                    <h2 class="linkText" lang="FR">Portfolio</h2>
-                    <h2 class="linkText" lang="EN">Portfolio</h2>
-                  </a>
-                </li>
-                <li>
-                  <a class="btnLateral" id="btnBlog">
-                    <div class="btnLateralIcon iconBlog"></div>
-                    <h2 class="linkText" lang="FR">Blog</h2>
-                    <h2 class="linkText" lang="EN">Blog</h2>
-                  </a>
-                </li>
-                <li>
-                  <a class="btnLateral" id="btnBio">
-                    <div class="btnLateralIcon iconBio"></div>
-                    <h2 class="linkText" lang="FR">Bio</h2>
-                    <h2 class="linkText" lang="EN">Bio</h2>
-                  </a>
-                </li>
-                <li>
-                  <a class="btnLateral" id="btnContact">
-                    <div class="btnLateralIcon iconContact"></div>
-                    <h2 class="linkText" lang="FR">Contact</h2>
-                    <h2 class="linkText" lang="EN">Contact</h2>
-                  </a>
-                </li>
-              </ul>
-            </div>
+            <ul class="navLinks">
+              <li>
+                <a class="btnLateral" id="btnHome">
+                  <div class="btnLateralIcon iconHome"></div>
+                  <h2 class="linkText" lang="FR">Accueil</h2>
+                  <h2 class="linkText" lang="EN">Home</h2>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnProfil">
+                  <div class="btnLateralIcon iconProfil"></div>
+                  <h2 class="linkText" lang="FR">Profil</h2>
+                  <h2 class="linkText" lang="EN">Profile</h2>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnGames">
+                  <div class="btnLateralIcon iconGames"></div>
+                  <h2 class="linkText" lang="FR">Jeux</h2>
+                  <h2 class="linkText" lang="EN">Games</h2>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnUxUi">
+                  <div class="btnLateralIcon iconUx"></div>
+                  <h2 class="linkText" lang="FR">Ux/Ui</h2>
+                  <h2 class="linkText" lang="EN">Ux/Ui</h2>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btn3D">
+                  <div class="btnLateralIcon icon3d"></div>
+                  <h2 class="linkText" lang="FR">3d</h2>
+                  <h2 class="linkText" lang="EN">3d</h2>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btn2D">
+                  <div class="btnLateralIcon icon2d"></div>
+                  <h2 class="linkText" lang="FR">2d</h2>
+                  <h2 class="linkText" lang="EN">2d</h2>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnVideo">
+                  <div class="btnLateralIcon iconVideo"></div>
+                  <h2 class="linkText" lang="FR">Video</h2>
+                  <h2 class="linkText" lang="EN">Video</h2>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnWeb">
+                  <div class="btnLateralIcon iconWeb"></div>
+                  <h2 class="linkText" lang="FR">Web</h2>
+                  <h2 class="linkText" lang="EN">Web</h2>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnPixel">
+                  <div class="btnLateralIcon iconPixel"></div>
+                  <h2 class="linkText" lang="FR">Pixel</h2>
+                  <h2 class="linkText" lang="EN">Pixel</h2>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnPortfolio">
+                  <div class="btnLateralIcon iconPortfolio"></div>
+                  <h2 class="linkText" lang="FR">Portfolio</h2>
+                  <h2 class="linkText" lang="EN">Portfolio</h2>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnBlog">
+                  <div class="btnLateralIcon iconBlog"></div>
+                  <h2 class="linkText" lang="FR">Blog</h2>
+                  <h2 class="linkText" lang="EN">Blog</h2>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnBio">
+                  <div class="btnLateralIcon iconBio"></div>
+                  <h2 class="linkText" lang="FR">Bio</h2>
+                  <h2 class="linkText" lang="EN">Bio</h2>
+                </a>
+              </li>
+              <li>
+                <a class="btnLateral" id="btnContact">
+                  <div class="btnLateralIcon iconContact"></div>
+                  <h2 class="linkText" lang="FR">Contact</h2>
+                  <h2 class="linkText" lang="EN">Contact</h2>
+                </a>
+              </li>
+            </ul>
             <ul class="socialLinks">
               <li>
                 <a class="btnLateral" id="btnArtstation" href="index.html">
-                  <div class="btnLateralIcon iconArtstation"></div>
+                  <div class="btnLateralIcon iconRoundArtstation"></div>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnLinkedin" href="index.html">
-                  <div class="btnLateralIcon iconLinkedin"></div>
+                  <div class="btnLateralIcon iconRoundLinkedin"></div>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnYoutube" href="index.html">
-                  <div class="btnLateralIcon iconYoutube"></div>
+                  <div class="btnLateralIcon iconRoundYoutube"></div>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnFacebook" href="index.html">
-                  <div class="btnLateralIcon iconFacebook"></div>
+                  <div class="btnLateralIcon iconRoundFacebook"></div>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnX" href="index.html">
-                  <div class="btnLateralIcon iconX"></div>
+                  <div class="btnLateralIcon iconRoundX"></div>
                 </a>
               </li>
             </ul>
           </div>
         </div>
+        <div class="navRight"></div>
       </div>
+    </div>
+    <div class="backgroundsContainer">
+      <div class="topBarBackground"></div>
       <div class="backgrounds">
         <div class="backgroundHome">
           <img
@@ -166,11 +174,6 @@
         </div>
       </div>
     </div>
-
-    <div class="heroBanner">
-      <div class="scroll-down-icon"></div>
-    </div>
-    <div class="headerWelcome"></div>
   </body>
   <script src="js/language.js"></script>
   <script src="js/start.js"></script>
