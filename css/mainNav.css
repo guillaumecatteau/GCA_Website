@@ -84,21 +84,38 @@
   background-size: 16px;
 }
 .languageSelector select:focus {
-  border-color: #888;
+  border-color: #b4b4b5;
+}
+/*///// Tablet Menu Top /////*/
+.tabletMenuTop {
+display:flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+}
+.socialLinksTablet {
+  display:flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
 }
 /*///// Burger Menu /////*/
 .burgerMenu {
   width:40px;
   height:40px;
-  display: flex;
+  display: none;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
   cursor: pointer;
-  background-color:red;
+  /* background-color:red; */
 }
 .burgerBar {
-  
+  width:40px;
+  height:6px;
+  border-radius: 3px;
+  background-color:#b4b4b5;
+  transition: background-color 0.3s ease-in-out;
 }
 /*//////////////////// Nav Desktop ////////////////////*/
 .navDesktop {
@@ -157,13 +174,13 @@
 }
 .btnActive {
     transform: scale(1);
-    cursor: none;
+    cursor: pointer;
 }
-.btnActive>.btnLateralIcon {
+.btnActive>.btnLateral>.icon {
     opacity: 1;
     margin-left:-0.25rem;
 }
-.btnActive>.btnLateralIcon::after {
+.btnActive>.btnLateral>.icon::after {
     opacity: 1;
 }
 .btnActive>.linkText {
@@ -173,20 +190,10 @@
   opacity: 1;
   transform: scale(1);
 }
-.btnLateral:hover>.btnLateralIcon {
+.btnLateral:hover>.icon {
     margin-left:-0.25rem;
   }
-.btnLateralIcon {
-  height: 2rem;
-  width: 2rem;
-  aspect-ratio: auto 1 / 1;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  opacity:0;
-  margin-left: 10rem;
-  transition: opacity 1s ease-in-out, margin-left 1s ease-in-out;
-}
+
 .btnLateral h2 {
   color: #b4b4b5;
   font-family: "Sarala", serif;
@@ -205,7 +212,7 @@
   color: white;
 }
 /*///// Social Links /////*/
-.socialLinks {
+.socialLinksDesktop {
     height: fit-content;
     width: fit-content;
     display: flex;
@@ -238,6 +245,9 @@
     }
     .topBar>.languageSelector {
       display:none;
+    }
+    .burgerMenu {
+      display: flex;
     }
   }
   @media (max-width: 767px) {

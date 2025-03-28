@@ -1,4 +1,13 @@
-
+.icon {
+  height: 2rem;
+  width: 2rem;
+  aspect-ratio: auto 1 / 1;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity:1;
+  transition: opacity 1s ease-in-out;
+}
 /*//////////////////// Icons Nav ////////////////////*/
 /*///// Icon Home /////*/
 .iconHome {
