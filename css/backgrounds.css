@@ -65,12 +65,8 @@ height: 72px;
       display:block;
     }
   }
-  @media (max-width: 767px) {
+  @media (max-width: 800px) {
     /* Styles spécifiques aux mobiles */
-    .topBarBackground {
-      /* display:block;
-    background-color: green; */
     }
-  }
 
 

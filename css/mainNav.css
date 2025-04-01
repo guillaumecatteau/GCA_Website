@@ -18,15 +18,25 @@
   align-items: center;
   /* border: #888 solid 1px; */
 }
+.topBarContent {
+  height:100%;
+  width:100%;
+  display: none;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  /* border: #888 solid 1px; */
+}
 /*///// Main Logo /////*/
 .mainLogo {
   height: fit-content;
-  width: fit-content;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: left;
   cursor: pointer;
   opacity:0;
+  margin-top:-6px;
   transition: opacity 1s ease-in-out, margin-left 1s ease-in-out;
 }
 .mainLogo h1 {
@@ -62,7 +72,7 @@
   text-transform: uppercase;
   position: relative;
   display: inline-block;
-  opacity:0;
+  opacity:1;
   transition: opacity 1s ease-in-out;
 }
 .languageSelector select {
@@ -88,16 +98,32 @@
 }
 /*///// Tablet Menu Top /////*/
 .tabletMenuTop {
-display:flex;
+display:none;
+width:400px;
 flex-direction: row;
-justify-content: space-between;
+gap:1rem;
+justify-content: flex-end;
 align-items: center;
+padding-right:2.5rem;
+opacity:0;
+overflow: hidden;
+transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
 }
 .socialLinksTablet {
-  display:flex;
-flex-direction: row;
-justify-content: space-between;
-align-items: center;
+  height: fit-content;
+    width: fit-content;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+}
+.btnSocialTablet {
+  height: 100%;
+  width: 100%;
+  transform: scale(0.75);
+  transform-origin: center;
+  transition: transform 0.3s ease-in-out;
+  cursor: pointer;
 }
 /*///// Burger Menu /////*/
 .burgerMenu {
@@ -108,6 +134,8 @@ align-items: center;
   justify-content: space-around;
   align-items: center;
   cursor: pointer;
+  transform: scale(1);
+  transition: transform 0.3s ease-in-out;
   /* background-color:red; */
 }
 .burgerBar {
@@ -132,7 +160,7 @@ align-items: center;
   /* border: 2px solid red; */
 }
 /*///// Main Links /////*/
-.mainNavContainer {
+.mainNavContainerDesktop {
   height: 100%;
   width: fit-content;
   display: flex;
@@ -193,14 +221,16 @@ align-items: center;
 .btnLateral:hover>.icon {
     margin-left:-0.25rem;
   }
-
+  .linkText {
+    color: #b4b4b5;
+    font-family: "Sarala", serif;
+    font-style: normal;
+    text-transform: uppercase;
+    transition: color 0.3s ease-in-out;
+  }
 .btnLateral h2 {
-  color: #b4b4b5;
-  font-family: "Sarala", serif;
   font-weight: 400;
-  font-style: normal;
   font-size: 1.5rem;
-  text-transform: uppercase;
   opacity: 0;
   transition: color 0.3s ease-in-out, opacity 1s ease-in-out;
   margin-top: 0.15rem;
@@ -220,6 +250,133 @@ align-items: center;
     align-items: center;
     gap: 0.5rem;
   }
+  .btnSocialDesktop {
+    height: 100%;
+    width: 100%;
+    transform: scale(0.75);
+    transform-origin: left center;
+    transition: transform 0.3s ease-in-out;
+    cursor: pointer;
+  }
+
+  /*//////////////////// Nav Tablet ////////////////////*/
+  .navTablet {
+    width: 100%;
+    height: 100%;
+    display:none;
+    justify-content: right;
+
+    /* border: 2px solid red; */
+  }
+  .navLinksTablet {
+    height:fit-content;
+    width:fit-content;
+    display:flex;
+    flex-direction: column;
+    gap:1.5rem;
+  }
+  .mainNavContainerTablet {
+    height: 0;
+    width: 86px;
+    display: flex;
+    justify-content: center;
+    background-color: #06060977;
+    padding:1rem 0 2rem 0;
+    border-radius: 0 0 0 20px;
+    overflow: hidden;
+    opacity:0;
+    transition: opacity 0.3s ease-in-out, height 0.3s ease-in-out;
+    /* border: 2px solid red; */
+  }
+  .btnTablet {
+    width: 100%;
+    height: 100%;
+    display:flex;
+    flex-direction:column;
+    align-items: center;
+    justify-content: center;
+    gap:0.25rem;
+    /* border: 2px solid red; */
+  }
+  .btnTablet>.icon {
+    width: 36px;
+    height: 36px;
+  }
+  .btnTablet h2 {
+    font-weight: 400;
+  font-size: 12px;
+  transition: color 0.3s ease-in-out;
+  }
+
+  /*//////////////////// Nav Mobile ////////////////////*/
+  .navMobile {
+    width: 100%;
+    height: 100%;
+    display:none;
+  }
+  .mainNavContainerMobile {
+    height: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #060609;
+    padding:24px;
+    overflow: hidden;
+    opacity:0;
+    transition: opacity 0.3s ease-in-out, height 0.3s ease-in-out;
+    /* border: 2px solid red; */
+  }
+  .mainNavContainerMobile>.languageSelector {
+    align-self: flex-end;
+  }
+  .navLinksMobile {
+    height:fit-content;
+    width:fit-content;
+    display:flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap:1rem;
+  }
+  .btnMobile {
+    width: 100px;
+    height: 100px;
+    display:flex;
+    flex-direction:column;
+    align-items: center;
+    justify-content: center;
+    gap:0.25rem;
+    border: 1px solid #b4b4b5;
+    border-radius: 20px;
+  }
+  .btnMobile>.icon {
+    width: 36px;
+    height: 36px;
+  }
+  .btnMobile h2 {
+    font-weight: 400;
+  font-size: 12px;
+  transition: color 0.3s ease-in-out;
+  }
+  .socialLinksMobile {
+    height: fit-content;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      /* margin-bottom: 0.5rem; */
+  }
+  .btnSocialMobile {
+    height: 100%;
+    width: 100%;
+    transform-origin: center;
+    transform: scale(0.75);
+    transition: transform 0.3s ease-in-out;
+    cursor: pointer;
+  }
 
   @media (min-width: 1918px) {
     /* Styles spécifiques aux desktops */
@@ -233,6 +390,9 @@ align-items: center;
       height:72px;
       padding:0 24px 0 24px;
     }
+    .mainLogo {
+      margin-top:0;
+    }
     .mainLogo h1 {
       font-size: 28px;
     }
@@ -243,14 +403,31 @@ align-items: center;
     .navDesktop {
       display:none;
     }
+    .navTablet {
+      display:flex;
+    }
     .topBar>.languageSelector {
       display:none;
     }
+    .topBarContent {
+      display:flex;
+    }
+    .tabletMenuTop {
+      display:flex;
+      }
     .burgerMenu {
       display: flex;
     }
   }
-  @media (max-width: 767px) {
-    /* Styles spécifiques aux mobiles */
+  @media (max-width: 800px) {
+    .navTablet {
+      display:none;
+    }
+    .topBarContent {
+      display:none;
+    }
+    .navMobile {
+      display:flex;
+    }
 
     }
