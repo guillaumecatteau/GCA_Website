@@ -3,8 +3,11 @@ let USERDEVICE = "desktop";
 function updateUserDevice() {
   const width = window.innerWidth;
   const userAgent = navigator.userAgent.toLowerCase();
-  const isIpad = /ipad/.test(userAgent) || (navigator.maxTouchPoints > 1 && /mac/.test(userAgent));
-  const isAndroidTablet = /android/.test(userAgent) && !/mobile/.test(userAgent);
+  const isIpad =
+    /ipad/.test(userAgent) ||
+    (navigator.maxTouchPoints > 1 && /mac/.test(userAgent));
+  const isAndroidTablet =
+    /android/.test(userAgent) && !/mobile/.test(userAgent);
 
   if (width <= 800 || /mobile|iphone|android/.test(userAgent)) {
     USERDEVICE = "mobile";
@@ -20,6 +23,23 @@ updateUserDevice();
 window.addEventListener("resize", updateUserDevice);
 
 const LANGUAGESELECTOR = document.getElementById("languageSelector");
+/*
+//on click language selector
+LANGUAGESELECTOR.addEventListener("click", () => {
+  console.log("click");
+});
+
+const languageSelectors = document.querySelectorAll(".languageSelector");
+languageSelectors.forEach((selector) => {
+  selector.addEventListener("click", (e) => {
+    const selectedLanguage = e.target.getAttribute("lang");
+    document.documentElement.setAttribute("lang", selectedLanguage);
+    console.log(selectedLanguage);
+  });
+});
+
+*/
+
 const BTN_HOME = document.getElementById("#btnHome.btnLateral");
 const BTN_PROFIL = document.getElementById("#btnProfil.btnLateral");
 const BTN_GAMES = document.getElementById("#btnGames.btnLateral");
@@ -34,7 +54,9 @@ const BTN_BLOG = document.getElementById("#btnBlog.btnLateral");
 const BTN_BIO = document.getElementById("#btnBio.btnLateral");
 const BTN_CONTACT = document.getElementById("#btnContact.btnLateral");
 const MAINLOGO = document.getElementById("mainLogo");
-const LANGUAGESELECTOR_DESK = document.querySelector("#languageSelector.langSelDesktop");
+const LANGUAGESELECTOR_DESK = document.querySelector(
+  "#languageSelector.langSelDesktop"
+);
 const BTN_HOME_DESK = document.querySelector("#btnHome.btnLateral");
 const BTN_PROFIL_DESK = document.querySelector("#btnProfil.btnLateral");
 const BTN_GAMES_DESK = document.querySelector("#btnGames.btnLateral");
@@ -53,7 +75,9 @@ const BTN_LINKEDIN_DESK = document.getElementById("btnLinkedinDesktop");
 const BTN_YOUTUBE_DESK = document.getElementById("btnYoutubeDesktop");
 const BTN_FACEBOOK_DESK = document.getElementById("btnFacebookDesktop");
 const BTN_X_DESK = document.getElementById("btnXDesktop");
-const LANGUAGESELECTOR_TABLET = document.querySelector("#languageSelector.langSelTablet");
+const LANGUAGESELECTOR_TABLET = document.querySelector(
+  "#languageSelector.langSelTablet"
+);
 const BTN_HOME_TABLET = document.querySelector("#btnHome.btnTablet");
 const BTN_PROFIL_TABLET = document.querySelector("#btnProfil.btnTablet");
 const BTN_GAMES_TABLET = document.querySelector("#btnGames.btnTablet");
@@ -67,12 +91,22 @@ const BTN_PORTFOLIO_TABLET = document.querySelector("#btnPortfolio.btnTablet");
 const BTN_BLOG_TABLET = document.querySelector("#btnBlog.btnTablet");
 const BTN_BIO_TABLET = document.querySelector("#btnBio.btnTablet");
 const BTN_CONTACT_TABLET = document.querySelector("#btnContact.btnTablet");
-const BTN_ARTSTATION_TABLET = document.querySelector("#btnArtstation.btnSocialTablet");
-const BTN_LINKEDIN_TABLET = document.querySelector("#btnLinkedin.btnSocialTablet");
-const BTN_YOUTUBE_TABLET = document.querySelector("#btnYoutube.btnSocialTablet");
-const BTN_FACEBOOK_TABLET = document.querySelector("#btnFacebook.btnSocialTablet");
+const BTN_ARTSTATION_TABLET = document.querySelector(
+  "#btnArtstation.btnSocialTablet"
+);
+const BTN_LINKEDIN_TABLET = document.querySelector(
+  "#btnLinkedin.btnSocialTablet"
+);
+const BTN_YOUTUBE_TABLET = document.querySelector(
+  "#btnYoutube.btnSocialTablet"
+);
+const BTN_FACEBOOK_TABLET = document.querySelector(
+  "#btnFacebook.btnSocialTablet"
+);
 const BTN_X_TABLET = document.querySelector("#btnX.btnSocialTablet");
-const LANGUAGESELECTOR_MOBILE = document.querySelector("#languageSelector.langSelMobile");
+const LANGUAGESELECTOR_MOBILE = document.querySelector(
+  "#languageSelector.langSelMobile"
+);
 const BTN_HOME_MOBILE = document.querySelector("#btnHome.btnMobile");
 const BTN_PROFIL_MOBILE = document.querySelector("#btnProfil.btnMobile");
 const BTN_GAMES_MOBILE = document.querySelector("#btnGames.btnMobile");
@@ -86,10 +120,18 @@ const BTN_PORTFOLIO_MOBILE = document.querySelector("#btnPortfolio.btnMobile");
 const BTN_BLOG_MOBILE = document.querySelector("#btnBlog.btnMobile");
 const BTN_BIO_MOBILE = document.querySelector("#btnBio.btnMobile");
 const BTN_CONTACT_MOBILE = document.querySelector("#btnContact.btnMobile");
-const BTN_ARTSTATION_MOBILE = document.querySelector("#btnArtstation.btnSocialMobile");
-const BTN_LINKEDIN_MOBILE = document.querySelector("#btnLinkedin.btnSocialMobile");
-const BTN_YOUTUBE_MOBILE = document.querySelector("#btnYoutube.btnSocialMobile");
-const BTN_FACEBOOK_MOBILE = document.querySelector("#btnFacebook.btnSocialMobile");
+const BTN_ARTSTATION_MOBILE = document.querySelector(
+  "#btnArtstation.btnSocialMobile"
+);
+const BTN_LINKEDIN_MOBILE = document.querySelector(
+  "#btnLinkedin.btnSocialMobile"
+);
+const BTN_YOUTUBE_MOBILE = document.querySelector(
+  "#btnYoutube.btnSocialMobile"
+);
+const BTN_FACEBOOK_MOBILE = document.querySelector(
+  "#btnFacebook.btnSocialMobile"
+);
 const BTN_X_MOBILE = document.querySelector("#btnX.btnSocialMobile");
 
 const BTN_BURGER = document.getElementById("btnBurger");
@@ -130,7 +172,7 @@ function displaySocialIconsTablet() {
     const icon = button.querySelector(".icon");
     setTimeout(() => {
       button.style.opacity = "1";
-      // icon.style.transformOrigin = "center right"; 
+      // icon.style.transformOrigin = "center right";
       icon.classList.add("rotateIn");
 
       icon.addEventListener(
@@ -159,7 +201,7 @@ function hideSocialIconsTablet() {
     const icon = button.querySelector(".icon");
     setTimeout(() => {
       button.style.opacity = "0";
-      icon.style.transformOrigin = "right center"
+      icon.style.transformOrigin = "right center";
       icon.classList.add("rotateOut");
 
       icon.addEventListener(
@@ -180,16 +222,15 @@ function menuTabletDeploy() {
   MENU_TABLETRIGHT.style.opacity = "1";
   MENU_TABLETTOP.style.width = "400px";
   MENU_TABLETTOP.style.opacity = "1";
-  displaySocialIconsTablet()
+  displaySocialIconsTablet();
 }
-
 
 function menuTabletHide() {
   MENU_TABLETRIGHT.style.height = "0";
   MENU_TABLETRIGHT.style.opacity = "0";
   MENU_TABLETTOP.style.width = "0";
   MENU_TABLETTOP.style.opacity = "1";
-  hideSocialIconsTablet()
+  hideSocialIconsTablet();
 }
 function menuMobiletDeploy() {
   MENU_MOBILE.style.height = "100%";
@@ -230,7 +271,7 @@ let menuMobileDeployment = false;
 
 BTN_BURGER.addEventListener("click", () => {
   updateUserDevice(); // ← garantit que la variable est toujours à jour au moment du clic
-  
+
   if (USERDEVICE === "tablet") {
     menuTabletDeployment ? menuTabletHide() : menuTabletDeploy();
     menuTabletDeployment = !menuTabletDeployment;
@@ -264,7 +305,6 @@ function displayLanguageSelectorDesktop() {
 // DESKTOP NAV DISPLAY
 
 const NAVLINKS = document.querySelector(".navLinks");
-
 
 function displayLatNav() {
   const buttons = [
@@ -309,7 +349,9 @@ function displayLatNav() {
   lateralButtons.forEach((button) => {
     const icon = button.querySelector(".icon");
     button.addEventListener("mousedown", () => button.classList.add("pressed"));
-    button.addEventListener("mouseup", () => button.classList.replace("pressed", "clicked"));
+    button.addEventListener("mouseup", () =>
+      button.classList.replace("pressed", "clicked")
+    );
     button.addEventListener("click", () => {
       lateralButtons.forEach((otherButton) => {
         if (otherButton !== button) {
@@ -319,7 +361,6 @@ function displayLatNav() {
     });
   });
 }
-
 
 function displaySocialIconsDesktop() {
   const buttons = [
@@ -400,22 +441,21 @@ function startSequence() {
     displayLatNav();
   }, 600);
   setTimeout(() => {
-  displaySocialIconsDesktop();
-}, 2750);
+    displaySocialIconsDesktop();
+  }, 2750);
   setTimeout(() => {
     displayLatNavTextStart();
-  },3250);
+  }, 3250);
   setTimeout(() => {
     displayLanguageSelectorDesktop();
   }, 4000);
   setTimeout(() => {
     hideLatNavTextStart();
-  },6000);
-  
+  }, 6000);
+
   // BTN_HOME.classList.add("btnActive");
   // displayLatNavText();
 
-  
   // setTimeout(() => {
   //   hideLatNavText();
   // },2000);
@@ -424,5 +464,6 @@ function startSequence() {
 startSequence();
 
 NAVLINKS.addEventListener("mouseenter", displayLatNavTextStart);
-NAVLINKS.addEventListener("mouseleave", () => setTimeout(hideLatNavTextStart, 0));
-
+NAVLINKS.addEventListener("mouseleave", () =>
+  setTimeout(hideLatNavTextStart, 0)
+);

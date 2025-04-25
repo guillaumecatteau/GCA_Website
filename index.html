@@ -22,24 +22,24 @@
       <div class="topBar">
         <a href="index.html" class="mainLogo" id="mainLogo">
           <h1>Guillaume Catteau</h1>
-          <div class="mainLogoText">
-            <h2>D</h2>
-            <h2>i</h2>
-            <h2>g</h2>
-            <h2>i</h2>
-            <h2>t</h2>
-            <h2>a</h2>
-            <h2>l</h2>
-            <h2></h2>
-            <h2>D</h2>
-            <h2>e</h2>
-            <h2>s</h2>
-            <h2>i</h2>
-            <h2>g</h2>
-            <h2>n</h2>
-            <h2>e</h2>
-            <h2>r</h2>
-          </div>
+          <h2 class="mainLogoText">
+            <span>D</span>
+            <span>i</span>
+            <span>g</span>
+            <span>i</span>
+            <span>t</span>
+            <span>a</span>
+            <span>l</span>
+            <span></span>
+            <span>D</span>
+            <span>e</span>
+            <span>s</span>
+            <span>i</span>
+            <span>g</span>
+            <span>n</span>
+            <span>e</span>
+            <span>r</span>
+          </h2>
         </a>
         <div class="languageSelector langSelDesktop" id="languageSelector">
           <select id="lang">
@@ -48,31 +48,66 @@
           </select>
         </div>
         <div class="topBarContent">
-          <div class="tabletMenuTop" id="menuTabletTop">
+          <nav class="tabletMenuTop" id="menuTabletTop">
             <ul class="socialLinksTablet">
               <li>
-                <a class="btnSocialTablet" id="btnArtstation" href="https://www.artstation.com/gcdigitalarts" target="_blank" rel="noopener noreferrer">
-                  <div class="icon iconRoundArtstation"></div>
+                <a
+                  class="btnSocialTablet"
+                  id="btnArtstation"
+                  href="https://www.artstation.com/gcdigitalarts"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="A compléter"
+                >
+                  <span class="icon iconRoundArtstation"></span>
                 </a>
               </li>
               <li>
-                <a class="btnSocialTablet" id="btnLinkedin" href="https://www.linkedin.com/in/guillaumecatteau/" target="_blank" rel="noopener noreferrer">
-                  <div class="icon iconRoundLinkedin"></div>
+                <a
+                  class="btnSocialTablet"
+                  id="btnLinkedin"
+                  href="https://www.linkedin.com/in/guillaumecatteau/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="A compléter"
+                >
+                  <span class="icon iconRoundLinkedin"></span>
                 </a>
               </li>
               <li>
-                <a class="btnSocialTablet" id="btnYoutube" href="https://www.youtube.com/@GuillaumeCatteau" target="_blank" rel="noopener noreferrer">
-                  <div class="icon iconRoundYoutube"></div>
+                <a
+                  class="btnSocialTablet"
+                  id="btnYoutube"
+                  href="https://www.youtube.com/@GuillaumeCatteau"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="A compléter"
+                >
+                  <span class="icon iconRoundYoutube"></span>
                 </a>
               </li>
               <li>
-                <a class="btnSocialTablet" id="btnFacebook" href="https://www.facebook.com/guillaume.catteau" target="_blank" rel="noopener noreferrer">
-                  <div class="icon iconRoundFacebook"></div>
+                <a
+                  class="btnSocialTablet"
+                  id="btnFacebook"
+                  href="https://www.facebook.com/guillaume.catteau"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="A compléter"
+                >
+                  <span class="icon iconRoundFacebook"></span>
                 </a>
               </li>
               <li>
-                <a class="btnSocialTablet" id="btnX" href="https://x.com/GC_DigitalArts" target="_blank" rel="noopener noreferrer">
-                  <div class="icon iconRoundX"></div>
+                <a
+                  class="btnSocialTablet"
+                  id="btnX"
+                  href="https://x.com/GC_DigitalArts"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="A compléter"
+                >
+                  <span class="icon iconRoundX"></span>
                 </a>
               </li>
             </ul>
@@ -82,7 +117,7 @@
                 <option value="en">EN</option>
               </select>
             </div>
-          </div>
+          </nav>
         </div>
         <div class="burgerMenu" id="btnBurger">
           <div class="burgerBar" id="burgerBarTop"></div>
@@ -92,128 +127,158 @@
       </div>
       <div class="navDesktop">
         <div class="navLeft">
-          <div class="mainNavContainerDesktop">
+          <nav class="mainNavContainerDesktop">
             <ul class="navLinks">
               <li>
                 <a class="btnLateral" id="btnHome">
-                  <div class="icon iconHome"></div>
-                  <h2 class="linkText" lang="FR">Accueil</h2>
-                  <h2 class="linkText" lang="EN">Home</h2>
+                  <span class="icon iconHome"></span>
+                  <span class="linkText" lang="FR" data-en="Home">Accueil</span>
+                  <!--        <span class="linkText" lang="EN">Home</span>-->
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnProfil">
                   <div class="icon iconProfil"></div>
-                  <h2 class="linkText" lang="FR">Profil</h2>
-                  <h2 class="linkText" lang="EN">Profile</h2>
+                  <span class="linkText" lang="FR">Profil</span>
+                  <span class="linkText" lang="EN">Profile</span>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnGames">
                   <div class="icon iconGames"></div>
-                  <h2 class="linkText" lang="FR">Jeux</h2>
-                  <h2 class="linkText" lang="EN">Games</h2>
+                  <span class="linkText" lang="FR">Jeux</span>
+                  <span class="linkText" lang="EN">Games</span>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnUxUi">
-                  <div class="icon iconUx"></div>
-                  <h2 class="linkText" lang="FR">Ux/Ui</h2>
-                  <h2 class="linkText" lang="EN">Ux/Ui</h2>
+                  <span class="icon iconUx"></span>
+                  <span class="linkText" lang="FR">Ux/Ui</span>
+                  <span class="linkText" lang="EN">Ux/Ui</span>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btn3D">
-                  <div class="icon icon3d"></div>
-                  <h2 class="linkText" lang="FR">3d</h2>
-                  <h2 class="linkText" lang="EN">3d</h2>
+                  <span class="icon icon3d"></span>
+                  <span class="linkText" lang="FR">3d</span>
+                  <span class="linkText" lang="EN">3d</span>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btn2D">
-                  <div class="icon icon2d"></div>
-                  <h2 class="linkText" lang="FR">2d</h2>
-                  <h2 class="linkText" lang="EN">2d</h2>
+                  <span class="icon icon2d"></span>
+                  <span class="linkText" lang="FR">2d</span>
+                  <span class="linkText" lang="EN">2d</span>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnVideo">
-                  <div class="icon iconVideo"></div>
-                  <h2 class="linkText" lang="FR">Video</h2>
-                  <h2 class="linkText" lang="EN">Video</h2>
+                  <span class="icon iconVideo"></span>
+                  <span class="linkText" lang="FR">Video</span>
+                  <span class="linkText" lang="EN">Video</span>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnWeb">
-                  <div class="icon iconWeb"></div>
-                  <h2 class="linkText" lang="FR">Web</h2>
-                  <h2 class="linkText" lang="EN">Web</h2>
+                  <span class="icon iconWeb"></span>
+                  <span class="linkText" lang="FR">Web</span>
+                  <span class="linkText" lang="EN">Web</span>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnPixel">
-                  <div class="icon iconPixel"></div>
-                  <h2 class="linkText" lang="FR">Pixel</h2>
-                  <h2 class="linkText" lang="EN">Pixel</h2>
+                  <span class="icon iconPixel"></span>
+                  <span class="linkText" lang="FR">Pixel</span>
+                  <span class="linkText" lang="EN">Pixel</span>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnPortfolio">
-                  <div class="icon iconPortfolio"></div>
-                  <h2 class="linkText" lang="FR">Portfolio</h2>
-                  <h2 class="linkText" lang="EN">Portfolio</h2>
+                  <span class="icon iconPortfolio"></span>
+                  <span class="linkText" lang="FR">Portfolio</span>
+                  <span class="linkText" lang="EN">Portfolio</span>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnBlog">
-                  <div class="icon iconBlog"></div>
-                  <h2 class="linkText" lang="FR">Blog</h2>
-                  <h2 class="linkText" lang="EN">Blog</h2>
+                  <span class="icon iconBlog"></span>
+                  <span class="linkText" lang="FR">Blog</span>
+                  <span class="linkText" lang="EN">Blog</span>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnBio">
-                  <div class="icon iconBio"></div>
-                  <h2 class="linkText" lang="FR">Bio</h2>
-                  <h2 class="linkText" lang="EN">Bio</h2>
+                  <span class="icon iconBio"></span>
+                  <span class="linkText" lang="FR">Bio</span>
+                  <span class="linkText" lang="EN">Bio</span>
                 </a>
               </li>
               <li>
                 <a class="btnLateral" id="btnContact">
-                  <div class="icon iconContact"></div>
-                  <h2 class="linkText" lang="FR">Contact</h2>
-                  <h2 class="linkText" lang="EN">Contact</h2>
+                  <span class="icon iconContact"></span>
+                  <span class="linkText" lang="FR">Contact</span>
+                  <span class="linkText" lang="EN">Contact</span>
                 </a>
               </li>
             </ul>
             <ul class="socialLinksDesktop">
               <li>
-                <a class="btnSocialLateral" id="btnArtstationDesktop" href="https://www.artstation.com/gcdigitalarts" target="_blank" rel="noopener noreferrer">
-                  <div class="icon iconRoundArtstation"></div>
+                <a
+                  class="btnSocialLateral"
+                  id="btnArtstationDesktop"
+                  href="https://www.artstation.com/gcdigitalarts"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="icon iconRoundArtstation"></span>
                 </a>
               </li>
               <li>
-                <a class="btnSocialLateral" id="btnLinkedinDesktop" href="https://www.linkedin.com/in/guillaumecatteau/" target="_blank" rel="noopener noreferrer">
-                  <div class="icon iconRoundLinkedin"></div>
+                <a
+                  class="btnSocialLateral"
+                  id="btnLinkedinDesktop"
+                  href="https://www.linkedin.com/in/guillaumecatteau/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="icon iconRoundLinkedin"></span>
                 </a>
               </li>
               <li>
-                <a class="btnSocialLateral" id="btnYoutubeDesktop" href="https://www.youtube.com/@GuillaumeCatteau" target="_blank" rel="noopener noreferrer">
-                  <div class="icon iconRoundYoutube"></div>
+                <a
+                  class="btnSocialLateral"
+                  id="btnYoutubeDesktop"
+                  href="https://www.youtube.com/@GuillaumeCatteau"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="icon iconRoundYoutube"></span>
                 </a>
               </li>
               <li>
-                <a class="btnSocialLateral" id="btnFacebookDesktop" href="https://www.facebook.com/guillaume.catteau" target="_blank" rel="noopener noreferrer">
-                  <div class="icon iconRoundFacebook"></div>
+                <a
+                  class="btnSocialLateral"
+                  id="btnFacebookDesktop"
+                  href="https://www.facebook.com/guillaume.catteau"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="icon iconRoundFacebook"></span>
                 </a>
               </li>
               <li>
-                <a class="btnSocialLateral" id="btnXDesktop" href="https://x.com/GC_DigitalArts" target="_blank" rel="noopener noreferrer">
-                  <div class="icon iconRoundX"></div>
+                <a
+                  class="btnSocialLateral"
+                  id="btnXDesktop"
+                  href="https://x.com/GC_DigitalArts"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="icon iconRoundX"></span>
                 </a>
               </li>
             </ul>
-          </div>
+          </nav>
         </div>
         <div class="navRight"></div>
       </div>
