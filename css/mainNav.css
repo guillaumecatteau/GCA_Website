@@ -30,14 +30,14 @@
 /*///// Main Logo /////*/
 .mainLogo {
   height: fit-content;
-  width: 100%;
+  width: fit-content;
   display: flex;
   flex-direction: column;
   align-items: left;
   cursor: pointer;
   opacity:0;
   margin-top:-6px;
-  transition: opacity 1s ease-in-out, margin-left 1s ease-in-out;
+  transition: opacity 1s ease-in-out;
 }
 .mainLogo h1 {
   font-family: "Audiowide", serif;
@@ -48,15 +48,27 @@
   transition: color 0.3s ease-in-out;
   margin-left:-2px;
 }
-.mainLogo h2 {
+
+.mainLogoText {
+  perspective: 500px;
+  width:100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top:-10px;
+}
+.mainLogoText h2 {
   font-family: "Sarala", serif;
   font-weight: 400;
   font-style: normal;
   color: #b4b4b5;
   font-size: 1rem;
+  opacity:0;
   text-transform: uppercase;
-  letter-spacing: 0.925rem;
   transition: color 0.3s ease-in-out;
+  transform-origin: right center;
 }
 .mainLogo:hover h1,
 .mainLogo:hover h2 {
@@ -72,7 +84,7 @@
   text-transform: uppercase;
   position: relative;
   display: inline-block;
-  opacity:1;
+  opacity:0;
   transition: opacity 1s ease-in-out;
 }
 .languageSelector select {
@@ -99,6 +111,7 @@
 /*///// Tablet Menu Top /////*/
 .tabletMenuTop {
 display:none;
+height:fit-content;
 width:400px;
 flex-direction: row;
 gap:1rem;
@@ -108,6 +121,7 @@ padding-right:2.5rem;
 opacity:0;
 overflow: hidden;
 transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
+/* border: 2px solid red; */
 }
 .socialLinksTablet {
   height: fit-content;
@@ -115,15 +129,8 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 0.5rem;
-}
-.btnSocialTablet {
-  height: 100%;
-  width: 100%;
-  transform: scale(0.75);
-  transform-origin: center;
-  transition: transform 0.3s ease-in-out;
-  cursor: pointer;
+    gap: 1.5rem;
+    padding-right:0.75rem;
 }
 /*///// Burger Menu /////*/
 .burgerMenu {
@@ -175,7 +182,7 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  gap:0.5rem;
+  gap:1rem;
   margin-top: 120px;
   /* border: 2px solid red; */
 }
@@ -188,58 +195,94 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
 }
 .btnLateral {
   height: 100%;
-  width: 100%;
-  display: inline-flex;
+  width: 150px;
+  display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: left;
+  justify-content: flex-start;
   gap: 0.75rem;
-  transform: scale(0.75);
-  transform-origin: left center;
-  transition: transform 0.3s ease-in-out;
+  opacity:0;
+  transition: transform 1s ease-in-out,opacity 1s ease-in-out;
   cursor: pointer;
   /* border: 2px solid red; */
 }
-.btnActive {
-    transform: scale(1);
-    cursor: pointer;
-}
-.btnActive>.btnLateral>.icon {
-    opacity: 1;
-    margin-left:-0.25rem;
-}
-.btnActive>.btnLateral>.icon::after {
-    opacity: 1;
-}
-.btnActive>.linkText {
-    color:white;
-}
-.btnLateral:hover {
-  opacity: 1;
-  transform: scale(1);
-}
-.btnLateral:hover>.icon {
-    margin-left:-0.25rem;
-  }
-  .linkText {
-    color: #b4b4b5;
-    font-family: "Sarala", serif;
-    font-style: normal;
-    text-transform: uppercase;
-    transition: color 0.3s ease-in-out;
-  }
-.btnLateral h2 {
+.linkText {
+  color: #b4b4b5;
+  font-family: "Sarala", serif;
+  font-style: normal;
+  text-transform: uppercase;
   font-weight: 400;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   opacity: 0;
-  transition: color 0.3s ease-in-out, opacity 1s ease-in-out;
   margin-top: 0.15rem;
+  margin-left:0;
+  transform: scale(1);
+  transform-origin: left;
+  transition: margin-left 0.3s ease-in-out, transform 0.3s ease-in-out, opacity 1s ease-in-out, color 0.3s ease-in-out;
 }
-.navLinks:hover h2 {
-  opacity: 1;
+.btnLateral>.icon {
+  transform-origin: right center;
+  transform: rotateY(0deg) var(--scale, scale(1)); 
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  /* border: 2px solid red; */
 }
-.btnLateral h2:active {
-  color: white;
+.rotateIn {
+  animation: rotateIn 1s forwards;
+}
+@keyframes rotateIn {
+  0% {
+    transform: rotateY(90deg) var(--scale, scale(1));
+    opacity: 0;
+  }
+  100% {
+    transform: rotateY(0deg) var(--scale, scale(1));
+    opacity: 1;
+  }
+}
+/* .rotateOut {
+  animation: rotateOut 1s forwards;
+}
+@keyframes rotateOut {
+  0% {
+    transform: rotateY(0deg) var(--scale, scale(1));
+    opacity: 1;
+  }
+  100% {
+    transform: rotateY(90deg) var(--scale, scale(1));
+    opacity: 0;
+  }
+} */
+/* hover*/
+.btnLateral:hover > .icon {
+  --scale: scale(1.5);
+}
+.btnLateral:hover>.linkText {
+  transform: scale(1.5);
+  margin-left:0.5rem;
+  }
+/* Clic enfoncé */
+.btnLateral.pressed > .icon {
+  --scale: scale(1);
+}
+.btnLateral.pressed > .icon::after {
+  opacity:1; 
+}
+.btnLateral.pressed > .linkText {
+  transform: scale(1);
+  color:white;
+  margin-left:0;
+}
+/* Icône du bouton actif (clic maintenu ou relâché) */
+.btnLateral.clicked > .icon {
+  --scale: scale(1.5);
+}
+.btnLateral.clicked > .icon::after {
+  opacity:1;
+}
+.btnLateral.clicked > .linkText {
+  transform: scale(1.5);
+  color:white;
+  margin-left:0.5rem;
 }
 /*///// Social Links /////*/
 .socialLinksDesktop {
@@ -248,15 +291,28 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1.5rem;
   }
-  .btnSocialDesktop {
-    height: 100%;
-    width: 100%;
-    transform: scale(0.75);
-    transform-origin: left center;
-    transition: transform 0.3s ease-in-out;
+  .btnSocialLateral {
+    position: relative;
+    opacity:0;
+    transition: transform 1s ease-in-out,opacity 1s ease-in-out;
     cursor: pointer;
+    /* border: 2px solid red; */
+  }
+  .btnSocialLateral>.icon {
+  transform-origin: right center;
+  transform: rotateY(0deg) var(--scale, scale(1)); 
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+  .btnSocialLateral:hover > .icon {
+    --scale: scale(1.5);
+  }
+  .btnSocialLateral:active > .icon {
+    --scale: scale(1);
+  }
+  .btnSocialLateral:active > .icon::after {
+    opacity:1;
   }
 
   /*//////////////////// Nav Tablet ////////////////////*/
@@ -265,7 +321,6 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     height: 100%;
     display:none;
     justify-content: right;
-
     /* border: 2px solid red; */
   }
   .navLinksTablet {
@@ -296,16 +351,44 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     align-items: center;
     justify-content: center;
     gap:0.25rem;
+    transform:scale(1);
+    transition: transform 0.3s ease-in-out;
     /* border: 2px solid red; */
   }
+  .btnTablet:hover {
+transform:scale(1.2);
+  }
   .btnTablet>.icon {
+    transform-origin: center right;
     width: 36px;
     height: 36px;
   }
-  .btnTablet h2 {
-    font-weight: 400;
+  .linkTextTablet {
+    color: #b4b4b5;
+  font-family: "Sarala", serif;
+  font-style: normal;
+  text-transform: uppercase;
+    font-weight: 300;
   font-size: 12px;
   transition: color 0.3s ease-in-out;
+  }
+  .btnSocialTablet {
+    opacity:0;
+    cursor: pointer;
+  }
+  .btnSocialTablet>.icon {
+    transform-origin: right center;
+    transform: rotateY(0deg) var(--scale, scale(1)); 
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+  .btnSocialTablet:hover > .icon {
+    --scale: scale(1.5);
+  }
+  .btnSocialTablet:active > .icon {
+    --scale: scale(1);
+  }
+  .btnSocialTablet:active > .icon::after {
+    opacity:1;
   }
 
   /*//////////////////// Nav Mobile ////////////////////*/
@@ -315,14 +398,15 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     display:none;
   }
   .mainNavContainerMobile {
-    height: 0;
+    
+    height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
     background-color: #060609;
-    padding:24px;
+    padding:12px 24px 24px 24px;
     overflow: hidden;
     opacity:0;
     transition: opacity 0.3s ease-in-out, height 0.3s ease-in-out;
@@ -332,6 +416,7 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     align-self: flex-end;
   }
   .navLinksMobile {
+    
     height:fit-content;
     width:fit-content;
     display:flex;
@@ -339,6 +424,7 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     flex-wrap: wrap;
     justify-content: center;
     gap:1rem;
+    margin:3rem 0;
   }
   .btnMobile {
     width: 100px;
@@ -350,12 +436,18 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     gap:0.25rem;
     border: 1px solid #b4b4b5;
     border-radius: 20px;
+    opacity:1;
+
   }
   .btnMobile>.icon {
     width: 36px;
     height: 36px;
   }
-  .btnMobile h2 {
+  .linkTextMobile {
+    color: #b4b4b5;
+  font-family: "Sarala", serif;
+  font-style: normal;
+  text-transform: uppercase;
     font-weight: 400;
   font-size: 12px;
   transition: color 0.3s ease-in-out;
@@ -367,6 +459,7 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
       flex-direction: row;
       justify-content: space-around;
       align-items: center;
+      margin-bottom: 0.5rem;
       /* margin-bottom: 0.5rem; */
   }
   .btnSocialMobile {
@@ -396,9 +489,16 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     .mainLogo h1 {
       font-size: 28px;
     }
+    .mainLogoText {
+      margin-top:-5px;
+      gap: 0.07rem;
+    }
     .mainLogo h2 {
       font-size: 12px;
       letter-spacing: 11.75px;
+    }
+    .languageSelector {
+      opacity:1;
     }
     .navDesktop {
       display:none;
@@ -420,11 +520,20 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     }
   }
   @media (max-width: 800px) {
+    .mainLogo {
+      margin-top:-3px;
+    }
+    .mainLogoText {
+      margin-top:-8px;
+    }
     .navTablet {
       display:none;
     }
     .topBarContent {
       display:none;
+    }
+    .burgerMenu {
+      margin-top:3px;
     }
     .navMobile {
       display:flex;
