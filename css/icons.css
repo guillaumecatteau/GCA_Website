@@ -90,7 +90,7 @@
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
 }
-.iconUx::after {
+.iconUx::before {
   background: url("../images/icons/icon_UX-UI_dark.webp") center/contain no-repeat;
 }
 .iconUx::after {

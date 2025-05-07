@@ -59,7 +59,7 @@
   gap: 0.5rem;
   margin-top:-10px;
 }
-.mainLogoText h2 {
+.mainLogoText span {
   font-family: "Sarala", serif;
   font-weight: 400;
   font-style: normal;
@@ -71,7 +71,7 @@
   transform-origin: right center;
 }
 .mainLogo:hover h1,
-.mainLogo:hover h2 {
+.mainLogo:hover span {
   color: white;
 }
 /*///// Language selector /////*/
@@ -85,7 +85,7 @@
   position: relative;
   display: inline-block;
   opacity:0;
-  transition: opacity 1s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
 }
 .languageSelector select {
   padding: 5px 40px 5px 10px; /* Espace à droite pour la flèche */
@@ -117,7 +117,7 @@ flex-direction: row;
 gap:1rem;
 justify-content: flex-end;
 align-items: center;
-padding-right:2.5rem;
+margin-right:1.5rem;
 opacity:0;
 overflow: hidden;
 transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
@@ -131,27 +131,69 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     align-items: center;
     gap: 1.5rem;
     padding-right:0.75rem;
+    /* border: 2px solid red; */
 }
 /*///// Burger Menu /////*/
-.burgerMenu {
-  width:40px;
-  height:40px;
-  display: none;
-  flex-direction: column;
-  justify-content: space-around;
+.burgerContainer {
+  height: 64px;
+  width: 76px;
+  display: flex;
+  transform: translateX(4px);
+  /* flex-direction: column; */
+  justify-content: center;
   align-items: center;
+  /* border: 2px solid red; */
+  overflow:hidden;
+  margin-left: 0px;
+}
+.burgerMenu {
+  transform-origin: center;
+  position:relative;
+  width:40px !important;
+  height:40px !important;
+  display: none;
   cursor: pointer;
   transform: scale(1);
-  transition: transform 0.3s ease-in-out;
-  /* background-color:red; */
+  transition: all 0.3s ease-in-out;
+  /* border: 2px solid green; */
 }
-.burgerBar {
-  width:40px;
+#burgerBarTop {
+  position:absolute;
+  top:0;
+  left:calc(50% - 21px);
+  right:;
+  bottom:;
+  width:100%;
   height:6px;
   border-radius: 3px;
   background-color:#b4b4b5;
-  transition: background-color 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
+#burgerBarMiddle {
+  position:absolute;
+  top:calc(50% - 3px);
+  left:calc(50% - 21px);
+  right:;
+  bottom:;
+  width:100%;
+  height:6px;
+  border-radius: 3px;
+  background-color:#b4b4b5;
+  transition: all 0.3s ease-in-out;
+}
+#burgerBarBottom {
+  position:absolute;
+  top:calc(100% - 6px);
+  /* left:calc(50% - 21px); */
+  right:calc(0% + 0px);
+  bottom:;
+  width:100%;
+  height:6px;
+  border-radius: 3px;
+  background-color:#b4b4b5;
+  transition: all 0.3s ease-in-out;
+}
+
 /*//////////////////// Nav Desktop ////////////////////*/
 .navDesktop {
   width: 100%;
@@ -226,32 +268,7 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
   transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
   /* border: 2px solid red; */
 }
-.rotateIn {
-  animation: rotateIn 1s forwards;
-}
-@keyframes rotateIn {
-  0% {
-    transform: rotateY(90deg) var(--scale, scale(1));
-    opacity: 0;
-  }
-  100% {
-    transform: rotateY(0deg) var(--scale, scale(1));
-    opacity: 1;
-  }
-}
-/* .rotateOut {
-  animation: rotateOut 1s forwards;
-}
-@keyframes rotateOut {
-  0% {
-    transform: rotateY(0deg) var(--scale, scale(1));
-    opacity: 1;
-  }
-  100% {
-    transform: rotateY(90deg) var(--scale, scale(1));
-    opacity: 0;
-  }
-} */
+
 /* hover*/
 .btnLateral:hover > .icon {
   --scale: scale(1.5);
@@ -292,15 +309,22 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
+    opacity:1;
+    /* border: 2px solid rgb(0, 173, 23); */
   }
   .btnSocialLateral {
     position: relative;
+    display:flex;
+    height:fit-content;
+    width:fit-content;
+    justify-content: center;
     opacity:0;
-    transition: transform 1s ease-in-out,opacity 1s ease-in-out;
+  transition: transform 1s ease-in-out,opacity 1s ease-in-out;
     cursor: pointer;
     /* border: 2px solid red; */
   }
-  .btnSocialLateral>.icon {
+  .btnSocialLateral>.icon{
+  opacity:1;
   transform-origin: right center;
   transform: rotateY(0deg) var(--scale, scale(1)); 
   transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
@@ -340,7 +364,7 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     border-radius: 0 0 0 20px;
     overflow: hidden;
     opacity:0;
-    transition: opacity 0.3s ease-in-out, height 0.3s ease-in-out;
+    transition: opacity 0.5s ease-in-out, height 0.5s ease-in-out;
     /* border: 2px solid red; */
   }
   .btnTablet {
@@ -351,12 +375,14 @@ transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
     align-items: center;
     justify-content: center;
     gap:0.25rem;
-    transform:scale(1);
-    transition: transform 0.3s ease-in-out;
+    opacity:0;
+    transform-origin: center ;
+    transform: rotateY(0deg) var(--scale, scale(1)); 
+    transition: all 0.3s ease-in-out;
     /* border: 2px solid red; */
   }
   .btnTablet:hover {
-transform:scale(1.2);
+transform:var(--scale, scale(1.2));
   }
   .btnTablet>.icon {
     transform-origin: center right;
@@ -372,9 +398,35 @@ transform:scale(1.2);
   font-size: 12px;
   transition: color 0.3s ease-in-out;
   }
+  .pressedTablet {
+    color:white;
+    transform: var(--scale, scale(0.9));
+  }
+  .btnTablet.pressedTablet .icon::After {
+    opacity: 1;
+  }
+  .btnTablet.pressedTablet .linkTextTablet {
+    color:white;
+  }
+  .clickedTablet {
+    transform: var(--scale, scale(1));
+  }
+  .btnTablet.clickedTablet .icon::After {
+    opacity: 1;
+  }
+  .btnTablet.clickedTablet .linkTextTablet {
+    color:white;
+  }
   .btnSocialTablet {
+    position: relative;
+    display:flex;
+    height:fit-content;
+    width:fit-content;
+    justify-content: center;
     opacity:0;
+  transition: transform 0.3s ease-in-out,opacity 0.3s ease-in-out;
     cursor: pointer;
+    /* border: 2px solid red; */
   }
   .btnSocialTablet>.icon {
     transform-origin: right center;
@@ -398,7 +450,6 @@ transform:scale(1.2);
     display:none;
   }
   .mainNavContainerMobile {
-    
     height: 100%;
     width: 100%;
     display: flex;
@@ -409,14 +460,15 @@ transform:scale(1.2);
     padding:12px 24px 24px 24px;
     overflow: hidden;
     opacity:0;
-    transition: opacity 0.3s ease-in-out, height 0.3s ease-in-out;
+    transition: opacity 0.3s ease-in-out, height 0.1s ease-in-out;
     /* border: 2px solid red; */
   }
   .mainNavContainerMobile>.languageSelector {
     align-self: flex-end;
+    opacity:0;
+    transition: opacity 0.3s ease-in-out;
   }
   .navLinksMobile {
-    
     height:fit-content;
     width:fit-content;
     display:flex;
@@ -425,6 +477,7 @@ transform:scale(1.2);
     justify-content: center;
     gap:1rem;
     margin:3rem 0;
+    
   }
   .btnMobile {
     width: 100px;
@@ -436,12 +489,36 @@ transform:scale(1.2);
     gap:0.25rem;
     border: 1px solid #b4b4b5;
     border-radius: 20px;
-    opacity:1;
-
+    opacity:0;
+    transform-origin: right center;
+    transform: rotateY(0deg) var(--scale, scale(1)); 
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+  }
+  .pressedMobile {
+    background-color: #b4b4b5;
+    color:#060609;
+    transform: var(--scale, scale(0.9));
+  }
+  .btnMobile.pressedMobile .icon::before {
+    opacity: 1;
+  }
+  .btnMobile.pressedMobile .linkTextMobile {
+    color:#060609;
+  }
+  .clickedMobile {
+    background-color: white;
+    
+    transform: var(--scale, scale(1));
   }
   .btnMobile>.icon {
     width: 36px;
     height: 36px;
+  }
+  .btnMobile.clickedMobile .icon::before {
+    opacity: 1;
+  }
+  .btnMobile.clickedMobile .linkTextMobile {
+    color:#060609;
   }
   .linkTextMobile {
     color: #b4b4b5;
@@ -465,10 +542,12 @@ transform:scale(1.2);
   .btnSocialMobile {
     height: 100%;
     width: 100%;
-    transform-origin: center;
-    transform: scale(0.75);
-    transition: transform 0.3s ease-in-out;
+    display:flex;
     cursor: pointer;
+    opacity:0;
+    transform-origin: right center;
+    transform: rotateY(0deg) var(--scale, scale(1)); 
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
   }
 
   @media (min-width: 1918px) {
@@ -493,12 +572,13 @@ transform:scale(1.2);
       margin-top:-5px;
       gap: 0.07rem;
     }
-    .mainLogo h2 {
+    .mainLogo span {
       font-size: 12px;
       letter-spacing: 11.75px;
     }
     .languageSelector {
-      opacity:1;
+      opacity:1
+    ;
     }
     .navDesktop {
       display:none;
@@ -532,11 +612,44 @@ transform:scale(1.2);
     .topBarContent {
       display:none;
     }
+    .burgerContainer {
+      display:flex;
+      width: 64px;
+      padding: 0;
+      margin: 0;
+    }
     .burgerMenu {
       margin-top:3px;
+      width: 64px;
     }
     .navMobile {
       display:flex;
     }
+    }
 
+    .rotateIn {
+      animation: rotateIn 0.3s forwards;
+    }
+    @keyframes rotateIn {
+      0% {
+        transform: rotateY(90deg) var(--scale, scale(1));
+        opacity: 0;
+      }
+      100% {
+        transform: rotateY(0deg) var(--scale, scale(1));
+        opacity: 1;
+      }
+    }
+    .rotateOut {
+      animation: rotateOut 0.3s forwards;
+    }
+    @keyframes rotateOut {
+      0% {
+        transform: rotateY(0deg) var(--scale, scale(1));
+        opacity: 1;
+      }
+      100% {
+        transform: rotateY(90deg) var(--scale, scale(1));
+        opacity: 0;
+      }
     }

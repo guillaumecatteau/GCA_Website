@@ -41,7 +41,7 @@
             <span>r</span>
           </h2>
         </a>
-        <div class="languageSelector langSelDesktop" id="languageSelector">
+        <div class="languageSelector" id="languageSelectorDesktop">
           <select id="lang">
             <option value="fr">FR</option>
             <option value="en">EN</option>
@@ -53,7 +53,7 @@
               <li>
                 <a
                   class="btnSocialTablet"
-                  id="btnArtstation"
+                  id="btnArtstationTablet"
                   href="https://www.artstation.com/gcdigitalarts"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -65,7 +65,7 @@
               <li>
                 <a
                   class="btnSocialTablet"
-                  id="btnLinkedin"
+                  id="btnLinkedinTablet"
                   href="https://www.linkedin.com/in/guillaumecatteau/"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -77,7 +77,7 @@
               <li>
                 <a
                   class="btnSocialTablet"
-                  id="btnYoutube"
+                  id="btnYoutubeTablet"
                   href="https://www.youtube.com/@GuillaumeCatteau"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -89,7 +89,7 @@
               <li>
                 <a
                   class="btnSocialTablet"
-                  id="btnFacebook"
+                  id="btnFacebookTablet"
                   href="https://www.facebook.com/guillaume.catteau"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -101,7 +101,7 @@
               <li>
                 <a
                   class="btnSocialTablet"
-                  id="btnX"
+                  id="btnXTablet"
                   href="https://x.com/GC_DigitalArts"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -111,18 +111,20 @@
                 </a>
               </li>
             </ul>
-            <div class="languageSelector langSelTablet" id="languageSelector">
-              <select id="lang">
+            <div class="languageSelector" id="languageSelectorTablet">
+              <select id="langTablet">
                 <option value="fr">FR</option>
                 <option value="en">EN</option>
               </select>
             </div>
           </nav>
         </div>
-        <div class="burgerMenu" id="btnBurger">
-          <div class="burgerBar" id="burgerBarTop"></div>
-          <div class="burgerBar" id="burgerBarMiddle"></div>
-          <div class="burgerBar" id="burgerBarBottom"></div>
+        <div class="burgerContainer">
+          <div class="burgerMenu" id="btnBurger">
+            <div class="burgerBar" id="burgerBarTop"></div>
+            <div class="burgerBar" id="burgerBarMiddle"></div>
+            <div class="burgerBar" id="burgerBarBottom"></div>
+          </div>
         </div>
       </div>
       <div class="navDesktop">
@@ -130,94 +132,87 @@
           <nav class="mainNavContainerDesktop">
             <ul class="navLinks">
               <li>
-                <a class="btnLateral" id="btnHome">
+                <a class="btnLateral" id="btnHomeDesktop">
                   <span class="icon iconHome"></span>
                   <span class="linkText" lang="FR" data-en="Home">Accueil</span>
-                  <!--        <span class="linkText" lang="EN">Home</span>-->
                 </a>
               </li>
               <li>
-                <a class="btnLateral" id="btnProfil">
+                <a class="btnLateral" id="btnProfilDesktop">
                   <div class="icon iconProfil"></div>
-                  <span class="linkText" lang="FR">Profil</span>
-                  <span class="linkText" lang="EN">Profile</span>
+                  <span class="linkText" lang="FR" data-en="Profile"
+                    >Profil</span
+                  >
                 </a>
               </li>
               <li>
-                <a class="btnLateral" id="btnGames">
+                <a class="btnLateral" id="btnGamesDesktop">
                   <div class="icon iconGames"></div>
-                  <span class="linkText" lang="FR">Jeux</span>
-                  <span class="linkText" lang="EN">Games</span>
+                  <span class="linkText" lang="FR" data-en="Games">Jeux</span>
                 </a>
               </li>
               <li>
-                <a class="btnLateral" id="btnUxUi">
+                <a class="btnLateral" id="btnUxUiDesktop">
                   <span class="icon iconUx"></span>
-                  <span class="linkText" lang="FR">Ux/Ui</span>
-                  <span class="linkText" lang="EN">Ux/Ui</span>
+                  <span class="linkText" lang="FR" data-en="Ux/Ui">Ux/Ui</span>
                 </a>
               </li>
               <li>
-                <a class="btnLateral" id="btn3D">
+                <a class="btnLateral" id="btn3DDesktop">
                   <span class="icon icon3d"></span>
-                  <span class="linkText" lang="FR">3d</span>
-                  <span class="linkText" lang="EN">3d</span>
+                  <span class="linkText" lang="FR" data-en="3d">3d</span>
                 </a>
               </li>
               <li>
-                <a class="btnLateral" id="btn2D">
+                <a class="btnLateral" id="btn2DDesktop">
                   <span class="icon icon2d"></span>
-                  <span class="linkText" lang="FR">2d</span>
-                  <span class="linkText" lang="EN">2d</span>
+                  <span class="linkText" lang="FR" data-en="2d">2d</span>
                 </a>
               </li>
               <li>
-                <a class="btnLateral" id="btnVideo">
+                <a class="btnLateral" id="btnVideoDesktop">
                   <span class="icon iconVideo"></span>
-                  <span class="linkText" lang="FR">Video</span>
-                  <span class="linkText" lang="EN">Video</span>
+                  <span class="linkText" lang="FR" data-en="Video">Vidéo</span>
                 </a>
               </li>
               <li>
-                <a class="btnLateral" id="btnWeb">
+                <a class="btnLateral" id="btnWebDesktop">
                   <span class="icon iconWeb"></span>
-                  <span class="linkText" lang="FR">Web</span>
-                  <span class="linkText" lang="EN">Web</span>
+                  <span class="linkText" lang="FR" data-en="Web">Web</span>
                 </a>
               </li>
               <li>
-                <a class="btnLateral" id="btnPixel">
+                <a class="btnLateral" id="btnPixelDesktop">
                   <span class="icon iconPixel"></span>
-                  <span class="linkText" lang="FR">Pixel</span>
-                  <span class="linkText" lang="EN">Pixel</span>
+                  <span class="linkText" lang="FR" data-en="Pixel">Pixel</span>
                 </a>
               </li>
               <li>
-                <a class="btnLateral" id="btnPortfolio">
+                <a class="btnLateral" id="btnPortfolioDesktop">
                   <span class="icon iconPortfolio"></span>
-                  <span class="linkText" lang="FR">Portfolio</span>
-                  <span class="linkText" lang="EN">Portfolio</span>
+                  <span class="linkText" lang="FR" data-en="Portfolio"
+                    >Portfolio</span
+                  >
                 </a>
               </li>
               <li>
-                <a class="btnLateral" id="btnBlog">
+                <a class="btnLateral" id="btnBlogDesktop">
                   <span class="icon iconBlog"></span>
-                  <span class="linkText" lang="FR">Blog</span>
-                  <span class="linkText" lang="EN">Blog</span>
+                  <span class="linkText" lang="FR" data-en="Blog">Blog</span>
                 </a>
               </li>
               <li>
-                <a class="btnLateral" id="btnBio">
+                <a class="btnLateral" id="btnBioDesktop">
                   <span class="icon iconBio"></span>
-                  <span class="linkText" lang="FR">Bio</span>
-                  <span class="linkText" lang="EN">Bio</span>
+                  <span class="linkText" lang="FR" data-en="Bio">Bio</span>
                 </a>
               </li>
               <li>
-                <a class="btnLateral" id="btnContact">
+                <a class="btnLateral" id="btnContactDesktop">
                   <span class="icon iconContact"></span>
-                  <span class="linkText" lang="FR">Contact</span>
-                  <span class="linkText" lang="EN">Contact</span>
+                  <span class="linkText" lang="FR" data-en="Contact"
+                    >Contact</span
+                  >
                 </a>
               </li>
             </ul>
@@ -286,94 +281,99 @@
         <div class="mainNavContainerTablet" id="menuTabletRight">
           <ul class="navLinksTablet">
             <li>
-              <a class="btnTablet" id="btnHome">
-                <div class="icon iconHome"></div>
-                <h2 class="linkTextTablet" lang="FR">Accueil</h2>
-                <h2 class="linkTextTablet" lang="EN">Home</h2>
+              <a class="btnTablet" id="btnHomeTablet">
+                <span class="icon iconHome"></span>
+                <span class="linkTextTablet" lang="FR" data-en="Home"
+                  >Accueil</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnTablet" id="btnProfil">
-                <div class="icon iconProfil"></div>
-                <h2 class="linkTextTablet" lang="FR">Profil</h2>
-                <h2 class="linkTextTablet" lang="EN">Profile</h2>
+              <a class="btnTablet" id="btnProfilTablet">
+                <span class="icon iconProfil"></span>
+                <span class="linkTextTablet" lang="FR" data-en="Profile"
+                  >Profil</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnTablet" id="btnGames">
-                <div class="icon iconGames"></div>
-                <h2 class="linkTextTablet" lang="FR">Jeux</h2>
-                <h2 class="linkTextTablet" lang="EN">Games</h2>
+              <a class="btnTablet" id="btnGamesTablet">
+                <span class="icon iconGames"></span>
+                <span class="linkTextTablet" lang="FR" data-en="Games"
+                  >Jeux</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnTablet" id="btnUxUi">
-                <div class="icon iconUx"></div>
-                <h2 class="linkTextTablet" lang="FR">Ux/Ui</h2>
-                <h2 class="linkTextTablet" lang="EN">Ux/Ui</h2>
+              <a class="btnTablet" id="btnUxUiTablet">
+                <span class="icon iconUx"></span>
+                <span class="linkTextTablet" lang="FR" data-en="Ux/Ui"
+                  >Ux/Ui</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnTablet" id="btn3D">
-                <div class="icon icon3d"></div>
-                <h2 class="linkTextTablet" lang="FR">3d</h2>
-                <h2 class="linkTextTablet" lang="EN">3d</h2>
+              <a class="btnTablet" id="btn3DTablet">
+                <span class="icon icon3d"></span>
+                <span class="linkTextTablet" lang="FR" data-en="3d">3d</span>
               </a>
             </li>
             <li>
-              <a class="btnTablet" id="btn2D">
-                <div class="icon icon2d"></div>
-                <h2 class="linkTextTablet" lang="FR">2d</h2>
-                <h2 class="linkTextTablet" lang="EN">2d</h2>
+              <a class="btnTablet" id="btn2DTablet">
+                <span class="icon icon2d"></span>
+                <span class="linkTextTablet" lang="FR" data-en="2d">2d</span>
               </a>
             </li>
             <li>
-              <a class="btnTablet" id="btnVideo">
-                <div class="icon iconVideo"></div>
-                <h2 class="linkTextTablet" lang="FR">Video</h2>
-                <h2 class="linkTextTablet" lang="EN">Video</h2>
+              <a class="btnTablet" id="btnVideoTablet">
+                <span class="icon iconVideo"></span>
+                <span class="linkTextTablet" lang="FR" data-en="Video"
+                  >Vidéo</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnTablet" id="btnWeb">
-                <div class="icon iconWeb"></div>
-                <h2 class="linkTextTablet" lang="FR">Web</h2>
-                <h2 class="linkTextTablet" lang="EN">Web</h2>
+              <a class="btnTablet" id="btnWebTablet">
+                <span class="icon iconWeb"></span>
+                <span class="linkTextTablet" lang="FR" data-en="Web">Web</span>
               </a>
             </li>
             <li>
-              <a class="btnTablet" id="btnPixel">
-                <div class="icon iconPixel"></div>
-                <h2 class="linkTextTablet" lang="FR">Pixel</h2>
-                <h2 class="linkTextTablet" lang="EN">Pixel</h2>
+              <a class="btnTablet" id="btnPixelTablet">
+                <span class="icon iconPixel"></span>
+                <span class="linkTextTablet" lang="FR" data-en="Pixel"
+                  >Pixel</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnTablet" id="btnPortfolio">
-                <div class="icon iconPortfolio"></div>
-                <h2 class="linkTextTablet" lang="FR">Portfolio</h2>
-                <h2 class="linkTextTablet" lang="EN">Portfolio</h2>
+              <a class="btnTablet" id="btnPortfolioTablet">
+                <span class="icon iconPortfolio"></span>
+                <span class="linkTextTablet" lang="FR" data-en="Portfolio"
+                  >Portfolio</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnTablet" id="btnBlog">
-                <div class="icon iconBlog"></div>
-                <h2 class="linkTextTablet" lang="FR">Blog</h2>
-                <h2 class="linkTextTablet" lang="EN">Blog</h2>
+              <a class="btnTablet" id="btnBlogTablet">
+                <span class="icon iconBlog"></span>
+                <span class="linkTextTablet" lang="FR" data-en="Blog"
+                  >Blog</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnTablet" id="btnBio">
-                <div class="icon iconBio"></div>
-                <h2 class="linkTextTablet" lang="FR">Bio</h2>
-                <h2 class="linkTextTablet" lang="EN">Bio</h2>
+              <a class="btnTablet" id="btnBioTablet">
+                <span class="icon iconBio"></span>
+                <span class="linkTextTablet" lang="FR" data-en="Bio">Bio</span>
               </a>
             </li>
             <li>
-              <a class="btnTablet" id="btnContact">
-                <div class="icon iconContact"></div>
-                <h2 class="linkTextTablet" lang="FR">Contact</h2>
-                <h2 class="linkTextTablet" lang="EN">Contact</h2>
+              <a class="btnTablet" id="btnContactTablet">
+                <span class="icon iconContact"></span>
+                <span class="linkTextTablet" lang="FR" data-en="Contact"
+                  >Contact</span
+                >
               </a>
             </li>
           </ul>
@@ -381,129 +381,150 @@
       </div>
       <div class="navMobile">
         <div class="mainNavContainerMobile" id="menuMobile">
-          <div class="languageSelector langSelMobile" id="languageSelector">
-            <select id="lang">
+          <div class="languageSelector" id="languageSelectorMobile">
+            <select id="langMobile">
               <option value="fr">FR</option>
               <option value="en">EN</option>
             </select>
           </div>
           <ul class="navLinksMobile">
             <li>
-              <a class="btnMobile" id="btnHome">
-                <div class="icon iconHome"></div>
-                <h2 class="linkTextMobile" lang="FR">Accueil</h2>
-                <h2 class="linkTextMobile" lang="EN">Home</h2>
+              <a class="btnMobile" id="btnHomeMobile">
+                <span class="icon iconHome"></span>
+                <span class="linkTextMobile" lang="FR" data-en="Home"
+                  >Accueil</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnMobile" id="btnProfil">
-                <div class="icon iconProfil"></div>
-                <h2 class="linkTextMobile" lang="FR">Profil</h2>
-                <h2 class="linkTextMobile" lang="EN">Profile</h2>
+              <a class="btnMobile" id="btnProfilMobile">
+                <span class="icon iconProfil"></span>
+                <span class="linkTextMobile" lang="FR" data-en="Profile"
+                  >Profil</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnMobile" id="btnGames">
-                <div class="icon iconGames"></div>
-                <h2 class="linkTextMobile" lang="FR">Jeux</h2>
-                <h2 class="linkTextMobile" lang="EN">Games</h2>
+              <a class="btnMobile" id="btnGamesMobile">
+                <span class="icon iconGames"></span>
+                <span class="linkTextMobile" lang="FR" data-en="Games"
+                  >Jeux</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnMobile" id="btnUxUi">
-                <div class="icon iconUx"></div>
-                <h2 class="linkTextMobile" lang="FR">Ux/Ui</h2>
-                <h2 class="linkTextMobile" lang="EN">Ux/Ui</h2>
+              <a class="btnMobile" id="btnUxUiMobile">
+                <span class="icon iconUx"></span>
+                <span class="linkTextMobile" lang="FR" data-en="Ux/Ui"
+                  >Ux/Ui</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnMobile" id="btn3D">
-                <div class="icon icon3d"></div>
-                <h2 class="linkTextMobile" lang="FR">3d</h2>
-                <h2 class="linkTextMobile" lang="EN">3d</h2>
+              <a class="btnMobile" id="btn3DMobile">
+                <span class="icon icon3d"></span>
+                <span class="linkTextMobile" lang="FR" data-en="3d">3d</span>
               </a>
             </li>
             <li>
-              <a class="btnMobile" id="btn2D">
-                <div class="icon icon2d"></div>
-                <h2 class="linkTextMobile" lang="FR">2d</h2>
-                <h2 class="linkTextMobile" lang="EN">2d</h2>
+              <a class="btnMobile" id="btn2DMobile">
+                <span class="icon icon2d"></span>
+                <span class="linkTextMobile" lang="FR" data-en="2d">2d</span>
               </a>
             </li>
             <li>
-              <a class="btnMobile" id="btnVideo">
-                <div class="icon iconVideo"></div>
-                <h2 class="linkTextMobile" lang="FR">Video</h2>
-                <h2 class="linkTextMobile" lang="EN">Video</h2>
+              <a class="btnMobile" id="btnVideoMobile">
+                <span class="icon iconVideo"></span>
+                <span class="linkTextMobile" lang="FR" data-en="Video"
+                  >Vidéo</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnMobile" id="btnWeb">
-                <div class="icon iconWeb"></div>
-                <h2 class="linkTextMobile" lang="FR">Web</h2>
-                <h2 class="linkTextMobile" lang="EN">Web</h2>
+              <a class="btnMobile" id="btnWebMobile">
+                <span class="icon iconWeb"></span>
+                <span class="linkTextMobile" lang="FR" data-en="Web">Web</span>
               </a>
             </li>
             <li>
-              <a class="btnMobile" id="btnPixel">
-                <div class="icon iconPixel"></div>
-                <h2 class="linkTextMobile" lang="FR">Pixel</h2>
-                <h2 class="linkTextMobile" lang="EN">Pixel</h2>
+              <a class="btnMobile" id="btnPixelMobile">
+                <span class="icon iconPixel"></span>
+                <span class="linkTextMobile" lang="FR" data-en="Pixel"
+                  >Pixel</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnMobile" id="btnPortfolio">
-                <div class="icon iconPortfolio"></div>
-                <h2 class="linkTextMobile" lang="FR">Portfolio</h2>
-                <h2 class="linkTextMobile" lang="EN">Portfolio</h2>
+              <a class="btnMobile" id="btnPortfolioMobile">
+                <span class="icon iconPortfolio"></span>
+                <span class="linkTextMobile" lang="FR" data-en="Portfolio"
+                  >Portfolio</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnMobile" id="btnBlog">
-                <div class="icon iconBlog"></div>
-                <h2 class="linkTextMobile" lang="FR">Blog</h2>
-                <h2 class="linkTextMobile" lang="EN">Blog</h2>
+              <a class="btnMobile" id="btnBlogMobile">
+                <span class="icon iconBlog"></span>
+                <span class="linkTextMobile" lang="FR" data-en="Blog"
+                  >Blog</span
+                >
               </a>
             </li>
             <li>
-              <a class="btnMobile" id="btnBio">
-                <div class="icon iconBio"></div>
-                <h2 class="linkTextMobile" lang="FR">Bio</h2>
-                <h2 class="linkTextMobile" lang="EN">Bio</h2>
+              <a class="btnMobile" id="btnBioMobile">
+                <span class="icon iconBio"></span>
+                <span class="linkTextMobile" lang="FR" data-en="Bio">Bio</span>
               </a>
             </li>
             <li>
-              <a class="btnMobile" id="btnContact">
-                <div class="icon iconContact"></div>
-                <h2 class="linkTextMobile" lang="FR">Contact</h2>
-                <h2 class="linkTextMobile" lang="EN">Contact</h2>
+              <a class="btnMobile" id="btnContactMobile">
+                <span class="icon iconContact"></span>
+                <span class="linkTextMobile" lang="FR" data-en="Contact"
+                  >Contact</span
+                >
               </a>
             </li>
           </ul>
           <ul class="socialLinksMobile">
             <li>
-              <a class="btnSocialMobile" id="btnArtstation" href="index.html">
-                <div class="icon iconArtstation"></div>
+              <a
+                class="btnSocialMobile"
+                id="btnArtstationMobile"
+                href="index.html"
+              >
+                <span class="icon iconArtstation"></span>
               </a>
             </li>
             <li>
-              <a class="btnSocialMobile" id="btnLinkedin" href="index.html">
-                <div class="icon iconLinkedin"></div>
+              <a
+                class="btnSocialMobile"
+                id="btnLinkedinMobile"
+                href="index.html"
+              >
+                <span class="icon iconLinkedin"></span>
               </a>
             </li>
             <li>
-              <a class="btnSocialMobile" id="btnYoutube" href="index.html">
-                <div class="icon iconYoutube"></div>
+              <a
+                class="btnSocialMobile"
+                id="btnYoutubeMobile"
+                href="index.html"
+              >
+                <span class="icon iconYoutube"></span>
               </a>
             </li>
             <li>
-              <a class="btnSocialMobile" id="btnFacebook" href="index.html">
-                <div class="icon iconFacebook"></div>
+              <a
+                class="btnSocialMobile"
+                id="btnFacebookMobile"
+                href="index.html"
+              >
+                <span class="icon iconFacebook"></span>
               </a>
             </li>
             <li>
-              <a class="btnSocialMobile" id="btnX" href="index.html">
-                <div class="icon iconX"></div>
+              <a class="btnSocialMobile" id="btnXMobile" href="index.html">
+                <span class="icon iconX"></span>
               </a>
             </li>
           </ul>
