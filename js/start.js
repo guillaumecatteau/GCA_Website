@@ -312,7 +312,7 @@ function displayNavLinksMobile() {
         () => {
           button.classList.remove("rotateIn");
           button.style.removeProperty("transform");
-          button.style.transformOrigin = "center";
+          // button.style.transformOrigin = "center";
         },
         { once: true }
       );
@@ -367,7 +367,7 @@ function hideNavLinksMobile() {
   buttons.reverse().forEach((button, index) => {
     setTimeout(() => {
       button.style.opacity = "0";
-      button.style.transformOrigin = "right center";
+      // button.style.transformOrigin = "right center";
       button.classList.add("rotateOut");
       button.addEventListener(
         "animationend",
@@ -395,7 +395,7 @@ function displaySocialIconsMobile() {
     const icon = button.querySelector(".icon");
     setTimeout(() => {
       button.style.opacity = "1";
-      icon.style.transformOrigin = "right center";
+      // icon.style.transformOrigin = "right center";
       icon.classList.add("rotateIn");
 
       icon.addEventListener(
@@ -424,7 +424,7 @@ function hideSocialIconsMobile() {
     const icon = button.querySelector(".icon");
     setTimeout(() => {
       button.style.opacity = "0";
-      icon.style.transformOrigin = "right center";
+      // icon.style.transformOrigin = "right center";
       icon.classList.add("rotateOut");
 
       icon.addEventListener(
