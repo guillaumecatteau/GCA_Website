@@ -1,0 +1,104 @@
+.pageContainer {
+  position: fixed;
+  width: calc(100% - 544px);
+  height: calc(100% - 124px);
+  transform: translateY(60px);
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+  /* border: #888 solid 1px; */
+}
+
+.title {
+  display: flex;
+  width: 100%;
+  height: fit-content;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 56px;
+  /* border: 2px solid red; */
+}
+.title > span {
+  font-family: "Sarala", serif;
+  font-size: 56px;
+  font-weight: 200;
+  font-style: normal;
+  text-transform: uppercase;
+}
+.homeContent {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* border: 2px solid red; */
+}
+.homeTitle {
+  position: absolute;
+  top: 57.5%;
+}
+#btnProfileHome{
+  position: absolute;
+  bottom: 20%;}
+
+@media (max-width: 2560px) {
+  .title {
+    gap: 48px;
+  }
+  .title > span {
+    font-size: 40px;
+  }
+}
+@media (min-width: 1918px) {
+  /* Styles spécifiques aux desktops */
+}
+@media (max-width: 1917px) {
+  .pageContainer {
+    width: calc(100% - 200px);
+    height: calc(100% - 80px);
+    transform: translateY(40px);
+  }
+  .title {
+    gap: 42px;
+  }
+  .homeTitle {
+    top: 62.5%;
+  }
+  #btnProfileHome{
+  bottom: 20%;}
+}
+@media (max-width: 1280px) {
+  .homeTitle {
+    top: 65%;
+  }
+  .title {
+    gap: 41px;
+  }
+    .title > span {
+    font-size: 1.75rem;
+  }
+    #btnProfileHome{
+  bottom: 15%;}
+}
+@media (max-width: 800px) {
+    .pageContainer {
+    width: 100%;
+    height: calc(100% - 80px);
+    transform: translateY(40px);
+  }
+    .title {
+    gap: 18px;
+  }
+  .title > span {
+    font-size: 1.25rem;
+  }
+    .homeTitle {
+    top: 65%;
+  }
+    #btnProfileHome{
+  bottom: 10%;}
+}
+

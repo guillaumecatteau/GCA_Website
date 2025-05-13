@@ -1,0 +1,1 @@
+const CNT_HOME = document.getElementById("cntHOME"); 
