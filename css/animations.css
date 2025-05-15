@@ -41,3 +41,17 @@
     }
 }
 
+/* .titleGap {
+    animation: titleGap 1s ease;
+}
+
+@keyframes titleGap {
+    0% {
+        gap: 100px;
+    }
+
+    100% {
+        gap: 56px;;
+    }
+} */
+

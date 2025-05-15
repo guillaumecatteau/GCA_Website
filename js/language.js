@@ -41,3 +41,23 @@
 //       updateLanguageDisplay(selectedLanguage);
 //     });
 //   });
+
+
+
+// const LANGUAGESELECTOR = document.getElementById("languageSelector");
+/*
+//on click language selector
+LANGUAGESELECTOR.addEventListener("click", () => {
+  console.log("click");
+});
+
+const languageSelectors = document.querySelectorAll(".languageSelector");
+languageSelectors.forEach((selector) => {
+  selector.addEventListener("click", (e) => {
+    const selectedLanguage = e.target.getAttribute("lang");
+    document.documentElement.setAttribute("lang", selectedLanguage);
+    console.log(selectedLanguage);
+  });
+});
+
+*/

@@ -47,6 +47,11 @@ height: 72px;
   z-index: -40;
   opacity: 0;
 }
+.backgroundHome{
+    opacity:1;
+    z-index: -50;
+    transition: opacity 1s ease-in-out;
+  }
 .backgroundHome img{
     height: 100%;
     width: auto;

@@ -108,6 +108,10 @@
 .languageSelector select:focus {
   border-color: #b4b4b5;
 }
+#languageSelectorDesktop {
+  opacity:0;
+  transition: opacity 1s ease-in-out;
+}
 /*///// Tablet Menu Top /////*/
 .tabletMenuTop {
 display:none;
