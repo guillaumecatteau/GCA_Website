@@ -1,0 +1,45 @@
+
+body {
+  height:100vh;
+  width:calc(100vw - var(--scrollbar-width, 0px));
+  overflow-x: hidden;
+  background-color: #040508;
+  z-index: 0;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+}
+.audiowide-regular {
+  font-family: "Audiowide", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.sarala-regular {
+  font-family: "Sarala", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.sarala-bold {
+  font-family: "Sarala", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+h1 {
+    font-family: "Audiowide", serif;
+    font-weight: 400;
+    font-style: normal;
+    color:white;
+    font-size: 32px;
+  }
+  h2 {
+    font-family: "Figtree", serif;
+    font-weight: 300;
+    font-style: normal;
+    color:white;
+  }
+
+  .hidden{
+    display:none;
+  }
