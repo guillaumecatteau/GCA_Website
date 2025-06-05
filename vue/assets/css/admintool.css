@@ -1,0 +1,47 @@
+.userMenuContainer {
+    width: fit-content;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    /* margin-bottom: 15rem; */
+}
+.userMenuMainIcon {
+    width: 100px;
+    height: 100px;
+    margin-bottom:2rem;
+}
+/* ////////////////////USERS MANAGEMENT////////////////////////// */
+.entryUserOpen {
+  height: 200px;
+  gap:0;
+  background-color: rgba(128, 128, 128, 0.1);
+  border: solid 1px rgba(128, 128, 128, 1);
+  transition: all 0.3s ease-in-out;
+  padding: 0 3px 0 0;
+  overflow:hidden;
+}
+.entryUserForm {
+    height:fit-content;
+    width: 95%;
+    display:grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 2fr 2fr 3fr auto;
+    justify-content:center;
+    align-items:center;
+    gap:1rem;
+    margin-top:0.5rem;
+    margin-bottom: 1rem;
+    /* border: 2px solid red; */
+}
+.entryUserForm>.formGroup {
+    width: 100%;
+    height:fit-content;
+}
+.entryUserForm>.checkBoxGroup {
+    height:fit-content;
+    width:fit-content;
+    margin:0;
+}

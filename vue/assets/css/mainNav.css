@@ -16,7 +16,7 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  /* border: #888 solid 1px; */
+  /* border: #888 solid 1px !important; */
 }
 .topBarContent {
   height: 100%;
@@ -25,7 +25,7 @@
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
-  /* border: #888 solid 1px; */
+  
 }
 .topBarDesktop {
   display: flex;
@@ -159,11 +159,6 @@ font-family: "Sarala", serif;
 .btnAdminLog:hover {
   transform: scale(1.1);
 } 
-
-.btnUserLog:hover > .btnUserLogText {
-  /* transform: scale(1.5); */
-  /* margin-left: 0.5rem; */
-}
 .btnUserLog.pressed {
   --scale: scale(1);
 }
@@ -672,9 +667,15 @@ font-family: "Sarala", serif;
   cursor: pointer;
   overflow: hidden;
 }
+.btnLarge {
+  width: 450px;
+}
+.btnSmall {
+  width: 100px;
+}
 .btnOff {
-  pointer-events: none;
-  opacity:0.25;
+  pointer-events: none !important;
+  opacity:0.25 !important; 
 }
 .btnMedium:hover {
   transform:scale(1.1);
@@ -713,6 +714,11 @@ font-family: "Sarala", serif;
 /*//////////////////// RESPONSIVE ////////////////////*/
 @media (min-width: 1918px) {
   /* Styles spécifiques aux desktops */
+}
+@media (max-height: 1160px) {
+.socialLinksDesktop {
+  display:none;
+}
 }
 @media (max-width: 1917px) {
   .navContainer {

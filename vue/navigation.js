@@ -435,10 +435,6 @@ function displayContact() {
 /////////////// CONNEXION ///////////////
 function activateConnexion() {
   connectBtnIdle();
-  // buttons.forEach((button) => {
-  //   button.addEventListener("click", accessConnexion);
-  //   button.addEventListener("touchend", accessConnexion);
-  // });
 }
 function accessConnexion() {
   if (page !== "connexion") {
@@ -482,6 +478,93 @@ function displayRegister() {
   displayContent(CNT_REGISTER, 50);
   setAutofocus(FORM_REGISTER);
   registerCheck();
+}
+/////////////// USERPROFILE ///////////////
+function activateUserProfile() {
+  const buttons = BTN_USERLOG;
+  buttons.forEach((button) => {
+    button.addEventListener("click", accessUserProfile);
+    button.addEventListener("touchend", accessUserProfile);
+  });
+}
+function deactivateUserProfile() {
+  const buttons = BTN_USERLOG;
+  buttons.forEach((button) => {
+    button.removeEventListener("click", accessUserProfile);
+    button.removeEventListener("touchend", accessUserProfile);
+  });
+}
+function accessUserProfile() {
+  if (page !== "userProfile") {
+    displayBackBlurMask();
+    unloadPage();
+    setTimeout(() => {
+      displayUserProfile();
+      page = "userProfile";
+    }, 500);
+  }
+}
+function displayUserProfile() {
+  CNT_USERPROFILE.style.display = "flex";
+  titleDisplay(TL_USERPROFILE);
+  displayContent(CNT_REGISTER, 50);
+}
+/////////////// ADMINTOOL ///////////////
+function activateAdminTool() {
+  const buttons = BTN_ADMINLOG;
+  buttons.forEach((button) => {
+    button.addEventListener("click", accessAdminTool);
+    button.addEventListener("touchend", accessAdminTool);
+  });
+}
+function deactivateAdminTool() {
+  const buttons = BTN_ADMINLOG;
+  buttons.forEach((button) => {
+    button.removeEventListener("click", accessAdminTool);
+    button.removeEventListener("touchend", accessAdminTool);
+  });
+}
+function accessAdminTool() {
+  if (page !== "adminTool") {
+    displayBackBlurMask();
+    unloadPage();
+    setTimeout(() => {
+      displayAdminTool();
+      page = "adminTool";
+    }, 501);
+  }
+}
+function displayAdminTool() {
+  CNT_ADMINTOOL.style.display = "flex";
+  titleDisplay(TL_ADMINTOOL);
+  displayContent(CNT_ADMINTOOL, 50);
+  activateUsersManagement();
+}
+/////////////// USERSMANAGEMENT ///////////////
+function activateUsersManagement() {
+    BTN_USERSMANAGEMENT.addEventListener("click", accessUsersManagement);
+    BTN_USERSMANAGEMENT.addEventListener("touchend", accessUsersManagement);
+  }
+function deactivateUsersManagement() {
+    BTN_USERSMANAGEMENT.removeEventListener("click", accessUsersManagement);
+    BTN_USERSMANAGEMENT.removeEventListener("touchend", accessUsersManagement);
+  };
+
+function accessUsersManagement() {
+  if (page !== "usersManagement") {
+    displayBackBlurMask();
+    unloadPage();
+    setTimeout(() => {
+      displayUsersManagement();
+      page = "usersManagement";
+    }, 501);
+  }
+}
+function displayUsersManagement() {
+  initUsersManagement();
+  CNT_USERSMANAGEMENT.style.display = "flex";
+  titleDisplay(TL_USERSMANAGEMENT);
+  displayContent(CNT_USERSMANAGEMENT, 50);
 }
 
 /////////////// NAVIGATION ///////////////
@@ -608,6 +691,28 @@ function unloadPage() {
         resetRegisterForm();
         BTN_REGISTER_REGISTER.removeEventListener("click", registerFetch);
         // EYEBTN_PASSWORD_REGISTER.removeEventListener("click", togglePassword);
+      }, 501);
+      break;
+    case "userProfile":
+      titleHide(TL_USERPROFILE);
+      hideContent(CNT_USERPROFILE, 25);
+      setTimeout(() => {
+        CNT_USERPROFILE.style.display = "none";
+      }, 501);
+      break;
+    case "adminTool":
+      titleHide(TL_ADMINTOOL);
+      hideContent(CNT_ADMINTOOL, 25);
+      setTimeout(() => {
+        CNT_ADMINTOOL.style.display = "none";
+      }, 501);
+      break;
+    case "usersManagement":
+      titleHide(TL_USERSMANAGEMENT);
+      hideContent(CNT_USERSMANAGEMENT, 25);
+      deactivateUsersManagement();
+      setTimeout(() => {
+        CNT_USERSMANAGEMENT.style.display = "none";
       }, 501);
       break;
     default:

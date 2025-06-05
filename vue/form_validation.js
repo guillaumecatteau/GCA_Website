@@ -134,6 +134,8 @@ const MESSAGE_LOGIN_ERROR = document.getElementById("messageLoginError");
 const MESSAGE_LOGIN_TECHNICALERROR = document.getElementById(
   "messageLoginTechnicalError"
 );
+// ///////////////// EDIT USER INFOS //////////////////////
+const BTN_EDITEUSERINFOS = document.getElementById("btnEditeUserInfos");
 function connexionCheck() {
   let validMail = false;
   let validPassword = false;
@@ -230,6 +232,7 @@ function handleLoginSuccess(firstname, name) {
   BTN_LOGIN_CONNEXION.removeEventListener("click", loginFetch);
   MESSAGE_LOGIN_SUCCES.style.display = "flex";
   displayUserLog();
+  activateUserProfile()
   titleDisplay(MESSAGE_LOGIN_SUCCES);
   setTimeout(() => {
     titleHide(MESSAGE_LOGIN_SUCCES);
@@ -247,6 +250,7 @@ function handleAdminLoginSuccess(firstname, name) {
   BTN_LOGIN_CONNEXION.removeEventListener("click", loginFetch);
   MESSAGE_LOGIN_SUCCES.style.display = "flex";
   displayAdminLog();
+  activateAdminTool()
   titleDisplay(MESSAGE_LOGIN_SUCCES);
   setTimeout(() => {
     titleHide(MESSAGE_LOGIN_SUCCES);
@@ -298,9 +302,12 @@ async function logoutFetch() {
     const result = await response.json();
     if (result.success) {
       console.log("Deconnexion reussie");
+      deactivateUserProfile()
+      deactivateAdminTool()
       hideAdminLog();
       hideUserLog();
       turnOffLine();
+      accessHome()
     } else {
       console.error("Erreur lors de la déconnexion :", result.message);
     }

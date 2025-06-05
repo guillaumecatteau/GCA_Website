@@ -18,6 +18,7 @@ if (isset($_GET['action'])) {
   <link rel="stylesheet" href="vue/assets/css/icons.css" />
   <link rel="stylesheet" href="vue/assets/css/navigation.css" />
   <link rel="stylesheet" href="vue/assets/css/animations.css" />
+  <link rel="stylesheet" href="vue/assets/css/admintool.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Sarala:wght@400;700&display=swap"
@@ -58,7 +59,6 @@ if (isset($_GET['action'])) {
                 <?= htmlspecialchars($_SESSION['user']['firstname']) . ' ' . htmlspecialchars($_SESSION['user']['name']) ?>
               </span>
             <?php endif; ?>
-            <!-- <span class="btnUserLogText" id="userNameDesktop">Jean-Michel User</span> -->
           </a>
           <a class="btnAdminLog" id="btnAdminLogDesktop" style="display: none">
             <span class="icon iconAdmin"></span>
@@ -67,7 +67,6 @@ if (isset($_GET['action'])) {
                 <?= htmlspecialchars($_SESSION['user']['firstname']) . ' ' . htmlspecialchars($_SESSION['user']['name']) ?>
               </span>
             <?php endif; ?>
-            <!-- <span class="btnUserLogText" id="adminNameDesktop">Jean-Michel Admin</span> -->
           </a>
           <a class="btnConnexion" id="btnConnexionDesktop">
             <span class="icon iconConnect" id="btnConnexionIconDesktop"></span>
@@ -453,7 +452,7 @@ if (isset($_GET['action'])) {
   </div>
   <div class="pageContainer">
     <div class="homeContent" id="cntHOME" style="display: none">
-      <h2 class="title homeTitle">
+      <h2 class="title titleMain homeTitle">
         <span>D</span>
         <span>i</span>
         <span>g</span>
@@ -475,7 +474,7 @@ if (isset($_GET['action'])) {
       </div>
     </div>
     <div class="profileContent" id="cntPROFILE" style="display: none">
-      <h2 class="title profileTitle">
+      <h2 class="title titleTop profileTitle">
         <span>p</span>
         <span>r</span>
         <span>o</span>
@@ -486,7 +485,7 @@ if (isset($_GET['action'])) {
       </h2>
     </div>
     <div class="gamesContent" id="cntGAMES" style="display: none">
-      <h2 class="title gamesTitle">
+      <h2 class="title titleTop gamesTitle">
         <span>g</span>
         <span>a</span>
         <span>m</span>
@@ -495,7 +494,7 @@ if (isset($_GET['action'])) {
       </h2>
     </div>
     <div class="uxuiContent" id="cntUXUI" style="display: none">
-      <h2 class="title uxuiTitle">
+      <h2 class="title titleTop uxuiTitle">
         <span>u</span>
         <span>x</span>
         <span>/</span>
@@ -504,19 +503,19 @@ if (isset($_GET['action'])) {
       </h2>
     </div>
     <div class="content3D" id="cnt3D" style="display: none">
-      <h2 class="title title3D">
+      <h2 class="title titleTop title3D">
         <span>3</span>
         <span>d</span>
       </h2>
     </div>
     <div class="content2D" id="cnt2D" style="display: none">
-      <h2 class="title title2D">
+      <h2 class="title titleTop title2D">
         <span>2</span>
         <span>d</span>
       </h2>
     </div>
     <div class="videoContent" id="cntVIDEO" style="display: none">
-      <h2 class="title videoTitle">
+      <h2 class="title titleTop videoTitle">
         <span>v</span>
         <span>i</span>
         <span>d</span>
@@ -525,14 +524,14 @@ if (isset($_GET['action'])) {
       </h2>
     </div>
     <div class="webContent" id="cntWEB" style="display: none">
-      <h2 class="title webTitle">
+      <h2 class="title titleTop webTitle">
         <span>w</span>
         <span>e</span>
         <span>b</span>
       </h2>
     </div>
     <div class="pixelContent" id="cntPIXEL" style="display: none">
-      <h2 class="title pixelTitle">
+      <h2 class="title titleTop pixelTitle">
         <span>p</span>
         <span>i</span>
         <span>x</span>
@@ -541,7 +540,7 @@ if (isset($_GET['action'])) {
       </h2>
     </div>
     <div class="portfolioContent" id="cntPORTFOLIO" style="display: none">
-      <h2 class="title portfolioTitle">
+      <h2 class="title titleTop portfolioTitle">
         <span>p</span>
         <span>o</span>
         <span>r</span>
@@ -554,7 +553,7 @@ if (isset($_GET['action'])) {
       </h2>
     </div>
     <div class="blogContent" id="cntBLOG" style="display: none">
-      <h2 class="title blogTitle">
+      <h2 class="title titleTop blogTitle">
         <span>B</span>
         <span>l</span>
         <span>o</span>
@@ -575,14 +574,14 @@ if (isset($_GET['action'])) {
       </div>
     </div>
     <div class="bioContent" id="cntBIO" style="display: none">
-      <h2 class="title bioTitle">
+      <h2 class="title titleTop bioTitle">
         <span>B</span>
         <span>i</span>
         <span>o</span>
       </h2>
     </div>
     <div class="contactContent" id="cntCONTACT" style="display: none">
-      <h2 class="title contactTitle">
+      <h2 class="title titleTop contactTitle">
         <span>c</span>
         <span>o</span>
         <span>n</span>
@@ -592,9 +591,9 @@ if (isset($_GET['action'])) {
         <span>t</span>
       </h2>
     </div>
-    <div class="projectContent" id="cntPROJECT" style="display: none"></div>
+    <!-- <div class="projectContent" id="cntPROJECT" style="display: none"></div> -->
     <div class="connexionContent" id="cntCONNEXION" style="display: none">
-      <h2 class="title connexionTitle">
+      <h2 class="title titleTop connexionTitle">
         <span>C</span>
         <span>o</span>
         <span>n</span>
@@ -728,7 +727,7 @@ if (isset($_GET['action'])) {
       </div>
     </div>
     <div class="registerContent" id="cntREGISTER" style="display: none">
-      <h2 class="title registerTitle">
+      <h2 class="title titleTop registerTitle">
         <span>i</span>
         <span>n</span>
         <span>s</span>
@@ -910,47 +909,90 @@ if (isset($_GET['action'])) {
 
     </div>
     <div class="userProfileContent" id="cntUSERPROFILE" style="display: none">
-      <h2 class="title userProfileTitle">
+      <h2 class="title titleTop userProfileTitle">
+        <span>m</span>
+        <span>o</span>
+        <span>n</span>
+        <span> </span>
         <span>c</span>
         <span>o</span>
         <span>m</span>
         <span>p</span>
         <span>t</span>
         <span>e</span>
-        <span> </span>
-        <span>u</span>
-        <span>t</span>
-        <span>i</span>
-        <span>l</span>
-        <span>i</span>
-        <span>s</span>
-        <span>a</span>
-        <span>t</span>
-        <span>e</span>
-        <span>u</span>
-        <span>r</span>
       </h2>
-      <div class="formContainer">
+      <div class="centerContent">
+        <div class="userMenuContainer">
+          <div class="userMenuMainIcon iconUser"></div>
+          <div class="btnMedium btnOff" id="btnEditUserInfo">
+            <div class="btnLabel" id="">
+              <span class="icon iconSettings"></span>
+              <span class="btnText" lang="FR" data-en="Edit">Modifier</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="adminToolContent" id="cntADMINTOOL" style="display: none">
-      <h2 class="title adminToolTitle">
+      <h2 class="title titleTop adminToolTitle">
+        <span>g</span>
+        <span>e</span>
+        <span>s</span>
+        <span>t</span>
+        <span>i</span>
+        <span>o</span>
+        <span>n</span>
+        <span> </span>
         <span>a</span>
         <span>d</span>
         <span>m</span>
         <span>i</span>
         <span>n</span>
-        <span> </span>
-        <span>t</span>
-        <span>o</span>
-        <span>o</span>
-        <span>l</span>
       </h2>
-      <div class="formContainer">
+      <div class="centerContent">
+        <div class="userMenuContainer">
+          <div class="userMenuMainIcon iconAdmin"></div>
+          <div class="btnMedium btnLarge btnOff" id="btnContenCreation">
+            <div class="btnLabel" id="">
+              <span class="icon iconContentCreation"></span>
+              <span class="btnText" lang="FR" data-en="Content creation">Création contenu</span>
+            </div>
+          </div>
+          <div class="btnMedium btnLarge btnOff" id="btnContenManagement">
+            <div class="btnLabel" id="">
+              <span class="icon iconContentManagement"></span>
+              <span class="btnText" lang="FR" data-en="Content management">Gestion contenu</span>
+            </div>
+          </div>
+          <div class="btnMedium btnLarge btnOff" id="btnImagesManagement">
+            <div class="btnLabel" id="">
+              <span class="icon iconPortfolio"></span>
+              <span class="btnText" lang="FR" data-en="Images management">Gestion images</span>
+            </div>
+          </div>
+          <div class="btnMedium btnLarge" id="btnUsersManagement">
+            <div class="btnLabel" id="">
+              <span class="icon iconUsersManagement"></span>
+              <span class="btnText" lang="FR" data-en="Users management">Gestion utilisateurs</span>
+            </div>
+          </div>
+          <div class="btnMedium btnLarge btnOff" id="btnCommentsManagement">
+            <div class="btnLabel" id="">
+              <span class="icon iconCommentsManagement"></span>
+              <span class="btnText" lang="FR" data-en="Comments management">Gestion commentaires</span>
+            </div>
+          </div>
+          <div class="btnMedium btnLarge btnOff" id="btnAnalytics">
+            <div class="btnLabel" id="">
+              <span class="icon iconAnalytics"></span>
+              <span class="btnText" lang="FR" data-en="Analytics">Statistiques</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="usersManagementContent" id="cntUSERSMANAGEMENT" style="display: none">
-      <h2 class="title usersManagementTitle">
+      <h2 class="title titleTop usersManagementTitle">
         <span>g</span>
         <span>e</span>
         <span>s</span>
@@ -972,7 +1014,276 @@ if (isset($_GET['action'])) {
         <span>r</span>
         <span>s</span>
       </h2>
-      <div class="formContainer">
+      <div class="basicGrid">
+        <div class="mainBlock">
+          <div class="entryListContainer" id="usersListContainer">
+            <div class="entryBlock entryFilters" id="userEntryFilters">
+              <div class="entryTop">
+                <div class="entryUserInfosContainer">
+                  <div class="entryIdContainer">
+                    <span class="filtersTXT" id="userFilterId">ID</span>
+                  </div>
+                  <div class="entrySeparatorContainer">
+                    <span class="entryTXT"> </span>
+                  </div>
+                  <div class="entryNameContainer">
+                    <span class="filtersTXT" id="userFilterName">Name</span>
+                  </div>
+                  <div class="entrySeparatorContainer">
+                    <span class="entryTXT"> </span>
+                  </div>
+                  <div class="entryFirstNameContainer">
+                    <span class="filtersTXT" id="userFilterFirstname">Firstname</span>
+                  </div>
+                  <div class="entrySeparatorContainer">
+                    <span class="entryTXT"> </span>
+                  </div>
+                  <div class="entryMailContainer">
+                    <span class="filtersTXT" id="userFilteremail">email</span>
+                  </div>
+                  <div class="entrySeparatorContainer">
+                    <span class="entryTXT"> </span>
+                  </div>
+                  <div class="entrySubscriptionContainer">
+                    <span class="filtersTXT" id="subscription">subscription</span>
+                  </div>
+                  <div class="entrySeparatorContainer">
+                    <span class="entryTXT"> </span>
+                  </div>
+                  <div class="entryIsAdminContainer">
+                    <span class="filtersTXT" id="userFilterIsAdmin">is Admin</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="entryBlock" id="userEntryTemplate" style="display: none;">
+              <div class="entryTop">
+                <div class="entryUserInfosContainer">
+                  <div class="entryIdContainer">
+                    <span class="entryTXT" id="userInfoID">#######</span>
+                  </div>
+                  <div class="entrySeparatorContainer">
+                    <span class="entryTXT">-</span>
+                  </div>
+                  <div class="entryNameContainer">
+                    <span class="entryTXTupper" id="userInfoName">Username</span>
+                  </div>
+                  <div class="entrySeparatorContainer">
+                    <span class="entryTXT">-</span>
+                  </div>
+                  <div class="entryFirstNameContainer">
+                    <span class="entryTXTupper" id="userInfoFirstname">UserFirstname</span>
+                  </div>
+                  <div class="entrySeparatorContainer">
+                    <span class="entryTXT">-</span>
+                  </div>
+                  <div class="entryMailContainer">
+                    <span class="entryTXT" id="userInfoMail">usernameandfirstname@gmail.com</span>
+                  </div>
+                  <div class="entrySeparatorContainer">
+                    <span class="entryTXT">-</span>
+                  </div>
+                  <div class="entrySubscriptionContainer">
+                    <span class="entryTXT" id="userInfoSubscription">2025-01-01</span>
+                  </div>
+                  <div class="entrySeparatorContainer">
+                    <span class="entryTXT">-</span>
+                  </div>
+                  <div class="entryIsAdminContainer">
+                    <span class="entryTXTupper" id="userInfoIsAdmin">Admin</span>
+                  </div>
+                </div>
+                <a class="btnEntrySettings" id="btnUserEntrySettings">
+                  <span class="icon iconSettings" id="btnEntrySettingsIcon"></span>
+                </a>
+              </div>
+              <div class="entrySettingsBox">
+                <form class="entryUserForm" action="" method="POST" class="form" id="formUpdateUser">
+                  <div class="formGroup">
+                    <input type="text" id="inputUpdateName" name="inputUpdateName" maxlength="50"
+                      placeholder="User name" />
+                  </div>
+                  <div class="formGroup">
+                    <input type="text" id="inputUpdateFirstName" name="inputUpdateFirstName" maxlength="50"
+                      placeholder="User firstname" />
+                  </div>
+                  <div class="formGroup">
+                    <input type="text" id="inputUpdateMail" name="inputUpdateMail" maxlength="254"
+                      placeholder="User email" />
+                  </div>
+                  <div class="checkboxGroup">
+                    <input type="checkbox" id="inputUpdateIsAdmin" name="inputUpdateIsAdmin" />
+                    <label for="inputUpdateIsAdmin">Is admin</label>
+                  </div>
+                </form>
+                <div class="entryBtnBox" id="boxUpdateUser">
+                  <div class="entryBtnBoxContent" id="entryBtnBoxContentUpdate">
+                    <div class="btnMedium" id="btnDeleteUser">
+                      <div class="btnLabel" id="">
+                        <span class="icon iconDelete"></span>
+                        <span class="btnText" lang="FR" data-en="Delete">Supprimer</span>
+                      </div>
+                    </div>
+                    <div class="btnMedium btnOff" id="btnSaveUser">
+                      <div class="btnLabel" id="">
+                        <span class="icon iconSave"></span>
+                        <span class="btnText" lang="FR" data-en="Save">Sauvegarder</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="entryBtnBoxContent" id="entryBtnBoxContentUpdateComplete" style="display: none;">
+                    <span class="entryBtnBoxMessage" lang="FR" data-en="User updated">Utilisateur mis à jour</span>
+                  </div>
+                  <div class="entryBtnBoxContent" id="entryBtnBoxContentUpdateError" style="display: none;">
+                    <span class="entryBtnBoxMessage" lang="FR" data-en="An error has occured, try again !">Une erreur
+                      est survenue, réessayez !</span>
+                  </div>
+                  <div class="entryBtnBoxContent" id="entryBtnBoxContentDelete" style="display: none;">
+                    <span class="entryBtnBoxMessage" lang="FR" data-en="Permanently delete ?">Supprimer définitivement
+                      ?</span>
+                    <div class="btnMedium btnSmall" id="btnDeleteEntryDeny">
+                      <div class="btnLabel" id="">
+                        <span class="icon iconDeny"></span>
+                      </div>
+                    </div>
+                    <div class="btnMedium btnSmall" id="btnDeleteEntryValidation">
+                      <div class="btnLabel" id="">
+                        <span class="icon iconValid"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sideBlock">
+          <div class="basicBlock" id="userSearchBlock">
+            <span class="blockTitle" lang="FR" data-en="Search">Recherche<br>utilisateurs</span>
+            <!-- <div class="formContainerLateral"> -->
+            <form class="formContainerLateral" classaction="" method="POST" class="form" id="formRegister">
+              <div class="formGroup">
+                <label for="inputSearchUserMail">From</label>
+                <input type="text" id="inputSearchUserMail" name="UserMailCheck" maxlength="30"
+                  placeholder="User mail" />
+              </div>
+              <div class="formGroup">
+                <input type="text" id="inputSearchUserMail" name="UserMailCheck" maxlength="30"
+                  placeholder="User mail" />
+              </div>
+              <div class="checkboxGroup">
+                <input type="checkbox" id="searchIsAdmin" name="IsAdminCheck" />
+                <label for="searchIsAdmin">Is admin</label>
+              </div>
+            </form>
+            <!-- <div class="messageBox">
+                <div class="message" id="messageRegisterSucces" style="display: none">
+                  <span>I</span>
+                  <span>N</span>
+                  <span>s</span>
+                  <span>c</span>
+                  <span>r</span>
+                  <span>i</span>
+                  <span>p</span>
+                  <span>t</span>
+                  <span>i</span>
+                  <span>o</span>
+                  <span>n</span>
+                  <span> </span>
+                  <span>r</span>
+                  <span>é</span>
+                  <span>u</span>
+                  <span>s</span>
+                  <span>s</span>
+                  <span>i</span>
+                  <span>e</span>
+                  <span>!</span>
+                </div>
+                <div class="message" id="messageRegisterError" style="display: none">
+                  <span>E</span>
+                  <span>r</span>
+                  <span>r</span>
+                  <span>e</span>
+                  <span>u</span>
+                  <span>r</span>
+                  <span> </span>
+                  <span>t</span>
+                  <span>e</span>
+                  <span>c</span>
+                  <span>h</span>
+                  <span>n</span>
+                  <span>i</span>
+                  <span>q</span>
+                  <span>u</span>
+                  <span>e</span>
+                  <span>!</span>
+                  <span> </span>
+                  <span>R</span>
+                  <span>é</span>
+                  <span>e</span>
+                  <span>s</span>
+                  <span>s</span>
+                  <span>a</span>
+                  <span>y</span>
+                  <span>e</span>
+                  <span>z</span>
+                </div>
+                <div class="message" id="messageRegisterErrorMail" style="display: none">
+                  <span>E</span>
+                  <span>m</span>
+                  <span>a</span>
+                  <span>i</span>
+                  <span>l</span>
+                  <span> </span>
+                  <span>d</span>
+                  <span>é</span>
+                  <span>j</span>
+                  <span>à</span>
+                  <span> </span>
+                  <span>e</span>
+                  <span>n</span>
+                  <span>r</span>
+                  <span>e</span>
+                  <span>g</span>
+                  <span>i</span>
+                  <span>s</span>
+                  <span>t</span>
+                  <span>r</span>
+                  <span>é</span>
+                </div>
+              </div> -->
+            <!-- </div> -->
+            <div class="btnMedium" id="btnUsersSearch">
+              <div class="btnLabel" id="">
+                <span class="icon iconSearch"></span>
+                <span class="btnText" lang="FR" data-en="Search">Chercher</span>
+              </div>
+            </div>
+          </div>
+          <div class="basicBlock" id="uploadUsersBlock">
+            <span class="blockTitle" lang="FR" data-en="Search">Upload<br>utilisateurs</span>
+            <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserList">
+              <div class="btnMedium" id="btnUploadUserList">
+                <div class="btnLabel" id="">
+                  <span class="icon iconUploadList"></span>
+                  <span class="btnText" lang="FR" data-en="Upload">Uploader</span>
+                </div>
+              </div>
+            </div>
+            <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserListComplete" style="display: none;">
+              <span class="entryBtnBoxMessage" lang="FR" data-en="User list uploaded !">Liste utilisateurs uploadée
+                !</span>
+            </div>
+            <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserError" style="display: none;">
+              <span class="entryBtnBoxMessage" lang="FR" data-en="Technical error. Try again !">Erreur technique. Reessayez !</span>
+            </div>
+            <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserFormatError" style="display: none;">
+              <span class="entryBtnBoxMessage" lang="FR" data-en="Entries are not in the right format !">Les entrées ne sont pas au bon format !</span>
+            </div>
+            <input type="file" id="inputUploadUserCSV" accept=".csv" style="display: none;" />
+            <p class="blockSubTxt">Utilisez un doc formaté CSV</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -992,8 +1303,9 @@ if (isset($_GET['action'])) {
 <script src="vue/interface.js" defer></script>
 <script src="vue/backgrounds.js" defer></script>
 <script src="vue/form_validation.js" defer></script>
-<script src="vue/navigation.js" defer></script>
 
+<script src="vue/navigation.js" defer></script>
+<script src="vue/admintool.js" defer></script>
 <script src="controller/start.js" defer></script>
 
 </html>

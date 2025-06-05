@@ -234,7 +234,7 @@
 /*///// Icon Save/////*/
 .iconSave {
   position: relative;
-  background: url("../images/icons/icon_save.webp") center/contain no-repeat;
+  background: url("../images/icons/icon_save_grey.webp") center/contain no-repeat;
 }
 .iconSave::before,
 .iconSave::after {
@@ -256,7 +256,7 @@
 /*///// Icon Back/////*/
 .iconBack {
   position: relative;
-  background: url("../images/icons/icon_back.webp") center/contain no-repeat;
+  background: url("../images/icons/icon_back_grey.webp") center/contain no-repeat;
 }
 .iconBack::before,
 .iconBack::after {
@@ -275,7 +275,205 @@
 .iconBack::after {
   background-image: url("../images/icons/icon_back_white.webp");
 }
-
+/*///// Icon Deny/////*/
+.iconDeny {
+  position: relative;
+  background: url("../images/icons/icon_deny_grey.webp") center/contain no-repeat;
+}
+.iconDeny::before,
+.iconDeny::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.iconDeny::before {
+  background-image: url("../images/icons/icon_deny_dark.webp");
+}
+.iconDeny::after {
+  background-image: url("../images/icons/icon_deny_white.webp");
+}
+/*///// Icon Delete/////*/
+.iconDelete {
+  position: relative;
+  background: url("../images/icons/icon_delete_grey.webp") center/contain no-repeat;
+}
+.iconDelete::before,
+.iconDelete::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.iconDelete::before {
+  background-image: url("../images/icons/icon_delete_dark.webp");
+}
+.iconDelete::after {
+  background-image: url("../images/icons/icon_delete_white.webp");
+}
+/*//////////////////// Icons AdminTool ////////////////////*/
+/*///// Icon ContentCreation/////*/
+.iconContentCreation {
+  position: relative;
+  background: url("../images/icons/icon_write_grey.webp") center/contain no-repeat;
+}
+.iconContentCreation::before,
+.iconContentCreation::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.iconContentCreation::before {
+  background-image: url("../images/icons/icon_write_dark.webp");
+}
+.iconContentCreation::after {
+  background-image: url("../images/icons/icon_write_white.webp");
+}
+/*///// Icon ContentManagement/////*/
+.iconContentManagement {
+  position: relative;
+  background: url("../images/icons/icon_pages_grey.webp") center/contain no-repeat;
+}
+.iconContentManagement::before,
+.iconContentManagement::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.iconContentManagement::before {
+  background-image: url("../images/icons/icon_pages_dark.webp");
+}
+.iconContentManagement::after {
+  background-image: url("../images/icons/icon_pages_white.webp");
+}
+/*///// Icon UsersManagement/////*/
+.iconUsersManagement {
+  position: relative;
+  background: url("../images/icons/icon_userGroup_grey.webp") center/contain no-repeat;
+}
+.iconUsersManagement::before,
+.iconUsersManagement::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.iconUsersManagement::before {
+  background-image: url("../images/icons/icon_userGroup_dark.webp");
+}
+.iconUsersManagement::after {
+  background-image: url("../images/icons/icon_userGroup_white.webp");
+}
+/*///// Icon CommentsManagement/////*/
+.iconCommentsManagement {
+  position: relative;
+  background: url("../images/icons/icon_comments_grey.webp") center/contain no-repeat;
+}
+.iconCommentsManagement::before,
+.iconCommentsManagement::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.iconCommentsManagement::before {
+  background-image: url("../images/icons/icon_comments_dark.webp");
+}
+.iconCommentsManagement::after {
+  background-image: url("../images/icons/icon_comments_white.webp");
+}
+/*///// Icon Analytics/////*/
+.iconAnalytics {
+  position: relative;
+  background: url("../images/icons/icon_analytics_grey.webp") center/contain no-repeat;
+}
+.iconAnalytics::before,
+.iconAnalytics::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.iconAnalytics::before {
+  background-image: url("../images/icons/icon_analytics_dark.webp");
+}
+.iconAnalytics::after {
+  background-image: url("../images/icons/icon_analytics_white.webp");
+}
+/*///// Icon Search/////*/
+.iconSearch {
+  position: relative;
+  background: url("../images/icons/icon_search_grey.webp") center/contain no-repeat;
+}
+.iconSearch::before,
+.iconSearch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.iconSearch::before {
+  background-image: url("../images/icons/icon_search_dark.webp");
+}
+.iconSearch::after {
+  background-image: url("../images/icons/icon_search_white.webp");
+}
+/*///// Icon UploadList/////*/
+.iconUploadList {
+  position: relative;
+  background: url("../images/icons/icon_uploadList_grey.webp") center/contain no-repeat;
+}
+.iconUploadList::before,
+.iconUploadList::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.iconUploadList::before {
+  background-image: url("../images/icons/icon_uploadList_dark.webp");
+}
+.iconUploadList::after {
+  background-image: url("../images/icons/icon_uploadList_white.webp");
+}
 /*//////////////////// Icons Nav ////////////////////*/
 /*///// Icon Home /////*/
 .iconHome {
