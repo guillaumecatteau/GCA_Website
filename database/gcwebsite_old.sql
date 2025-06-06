@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : ven. 06 juin 2025 à 21:06
+-- Généré le : lun. 02 juin 2025 à 12:05
 -- Version du serveur : 9.1.0
 -- Version de PHP : 8.3.14
 
@@ -279,7 +279,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `mail` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `subscription` date DEFAULT NULL,
+  `subscription` datetime DEFAULT CURRENT_TIMESTAMP,
   `connexions` int DEFAULT '0',
   `isAdmin` tinyint(1) DEFAULT '0',
   `token` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -288,15 +288,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `newsletter` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `mail` (`mail`)
-) ENGINE=MyISAM AUTO_INCREMENT=331 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Déchargement des données de la table `users`
---
-
-INSERT INTO `users` (`id`, `firstname`, `name`, `mail`, `password`, `subscription`, `connexions`, `isAdmin`, `token`, `questionA`, `questionB`, `newsletter`) VALUES
-(207, 'Guillaume', 'Catteau', 'guillaume.catteau@gmail.com', '$2y$10$cN6nalV4.PNtIEo2dCgwoeE2V60Ta..VukwOfVZHKwxbsZ4HtXhPO', '2025-06-05', 0, 1, NULL, 'jaune', 'viande', 1),
-(208, 'Jean-michel', 'Admin', 'jeanmicheladmin@gmail.com', '$2y$10$ijkPj17T/1O7AVUOkurN/ePlra6J2oSlITj8AvYkERiApH6Gs3Q/S', '2025-06-05', 0, 1, NULL, 'bleu', 'moules', 1);
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

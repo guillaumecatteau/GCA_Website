@@ -548,7 +548,7 @@ font-family: "Sarala", serif;
   width: 100%;
   height: 100%;
   display: none;
-  
+  z-index: 1000;
 }
 .mainNavContainerMobile {
   height: 100%;
