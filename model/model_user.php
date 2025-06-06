@@ -169,3 +169,86 @@ function importUsersFromCSV(string $csvTmpPath): array
 
     return ['code' => $inserted > 0 ? 'success' : 'none', 'inserted' => $inserted];
 }
+
+function searchUsers($filters) {
+    require('db.php');
+    global $bdd;
+
+    $conditions = [];
+    $params = [];
+
+    // ID (from / to)
+    $idFromSet = isset($filters['idFrom']) && is_numeric($filters['idFrom']);
+    $idToSet = isset($filters['idTo']) && is_numeric($filters['idTo']);
+
+    if ($idFromSet && $idToSet) {
+        if ($filters['idFrom'] == $filters['idTo']) {
+            $conditions[] = 'id = :idExact';
+            $params[':idExact'] = $filters['idFrom'];
+        } else {
+            $conditions[] = 'id BETWEEN :idFrom AND :idTo';
+            $params[':idFrom'] = $filters['idFrom'];
+            $params[':idTo'] = $filters['idTo'];
+        }
+    } elseif ($idFromSet) {
+        $conditions[] = 'id = :idExact';
+        $params[':idExact'] = $filters['idFrom'];
+    } elseif ($idToSet) {
+        $conditions[] = 'id = :idExact';
+        $params[':idExact'] = $filters['idTo'];
+    }
+
+    // Name (starts with)
+    if (!empty($filters['name'])) {
+        $conditions[] = 'name LIKE :name';
+        $params[':name'] = $filters['name'] . '%';
+    }
+
+    // Firstname (starts with)
+    if (!empty($filters['firstname'])) {
+        $conditions[] = 'firstname LIKE :firstname';
+        $params[':firstname'] = $filters['firstname'] . '%';
+    }
+
+    // Mail (starts with)
+    if (!empty($filters['mail'])) {
+        $conditions[] = 'mail LIKE :mail';
+        $params[':mail'] = $filters['mail'] . '%';
+    }
+
+    // Subscription date (exact match)
+    if (!empty($filters['subscription'])) {
+        $conditions[] = 'subscription = :subscription';
+        $params[':subscription'] = $filters['subscription'];
+    }
+
+    // isAdmin (checkbox)
+    if (isset($filters['isAdmin']) && $filters['isAdmin'] !== '') {
+        $conditions[] = 'isAdmin = :isAdmin';
+        $params[':isAdmin'] = (int)$filters['isAdmin'];
+    }
+
+    // Newsletter (checkbox)
+    if (isset($filters['newsletter']) && $filters['newsletter'] !== '') {
+        $conditions[] = 'newsletter = :newsletter';
+        $params[':newsletter'] = (int)$filters['newsletter'];
+    }
+
+    // Base query
+    $sql = 'SELECT id, name, firstname, mail, subscription, isAdmin, newsletter FROM users';
+
+    // Apply conditions if any
+    if (!empty($conditions)) {
+        $sql .= ' WHERE ' . implode(' AND ', $conditions);
+    }
+
+    // Default sort
+    $sql .= ' ORDER BY id ASC';
+
+    // Execute query
+    $stmt = $bdd->prepare($sql);
+    $stmt->execute($params);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+

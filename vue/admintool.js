@@ -20,11 +20,9 @@ const FILTER_EMAIL = document.getElementById("userFilteremail");
 const FILTER_SUBSCRIPTION = document.getElementById("subscription");
 const FILTER_ISADMIN = document.getElementById("userFilterIsAdmin");
 // ///////////////////// ENTRIES FILTERS /////////////////////////////////////
-// Variables tri
 let currentSortField = "id";
 let sortAsc = true;
 let usersData = [];
-// Fonction de tri
 function sortUsers(data, field, asc) {
   const sorted = data.slice(); // clone
   sorted.sort((a, b) => {
@@ -52,8 +50,30 @@ function sortUsers(data, field, asc) {
   });
   return sorted;
 }
+function setupFilters() {
+  const filters = [
+    { el: FILTER_ID, field: "id" },
+    { el: FILTER_NAME, field: "name" },
+    { el: FILTER_FIRSTNAME, field: "firstname" },
+    { el: FILTER_EMAIL, field: "mail" },
+    { el: FILTER_SUBSCRIPTION, field: "subscription" },
+    { el: FILTER_ISADMIN, field: "isAdmin" },
+  ];
+
+  filters.forEach(({ el, field }) => {
+    el.style.cursor = "pointer";
+    el.addEventListener("click", () => {
+      if (currentSortField === field) {
+        sortAsc = !sortAsc;
+      } else {
+        currentSortField = field;
+        sortAsc = true;
+      }
+      renderList(currentSortField, sortAsc);
+    });
+  });
+}
 // ///////////////////// LIST DISPLAY /////////////////////////////////////
-// Fonction pour vider la liste avec animation
 function clearList() {
   return new Promise((resolve) => {
     const entries = Array.from(
@@ -81,31 +101,28 @@ function clearList() {
     }, 300);
   });
 }
-// Affiche la liste triée
-const listSpeed = 50; // délai entre chaque entrée en ms (ajuste ici)
-
+const listSpeed = 50;
 async function renderList(sortField, asc) {
   await clearList();
   currentSortField = sortField;
   sortAsc = asc;
-  const sortedUsers = sortUsers(usersData, sortField, asc);
+  const sortedUsers = sortUsers(userData, sortField, asc);
   for (let i = 0; i < sortedUsers.length; i++) {
     const user = sortedUsers[i];
     const entry = createUserEntry(user);
     entry.style.opacity = "0";
     USER_LIST_CONTAINER.appendChild(entry);
-    entry.offsetHeight; // Forcer un reflow pour que le navigateur prenne en compte le style opacity = 0
+    entry.offsetHeight; 
     entry.style.opacity = "1";
     await new Promise((resolve) => setTimeout(resolve, listSpeed));
   }
 }
-// Charge la liste depuis l’API
 function loadUsers() {
   fetch("controller/user.php")
     .then((res) => res.json())
     .then((json) => {
       if (json.success) {
-        usersData = json.data;
+        userData = json.data;
         renderList(currentSortField, sortAsc);
       } else {
         alert("Erreur chargement utilisateurs : " + json.message);
@@ -113,32 +130,7 @@ function loadUsers() {
     })
     .catch(() => alert("Erreur réseau lors du chargement des utilisateurs"));
 }
-// Gestion des clics sur filtres pour tri
-function setupFilters() {
-  const filters = [
-    { el: FILTER_ID, field: "id" },
-    { el: FILTER_NAME, field: "name" },
-    { el: FILTER_FIRSTNAME, field: "firstname" },
-    { el: FILTER_EMAIL, field: "mail" },
-    { el: FILTER_SUBSCRIPTION, field: "subscription" },
-    { el: FILTER_ISADMIN, field: "isAdmin" },
-  ];
-
-  filters.forEach(({ el, field }) => {
-    el.style.cursor = "pointer";
-    el.addEventListener("click", () => {
-      if (currentSortField === field) {
-        sortAsc = !sortAsc;
-      } else {
-        currentSortField = field;
-        sortAsc = true;
-      }
-      renderList(currentSortField, sortAsc);
-    });
-  });
-}
 // ///////////////////// LIST GENERATION /////////////////////////////////////
-// Vérification des champs du formulaire et toogle du boutton "save"
 function toggleEntryEdition(entry) {
   const iconSettings = entry.querySelector("#btnEntrySettingsIcon");
   const form = entry.querySelector("#formUpdateUser");
@@ -200,7 +192,6 @@ function toggleEntryEdition(entry) {
     btnSave.classList.add("btnOff");
   }
 }
-// Affichage des messages update utilisateur
 function showEntryMessage(entry, messageBoxId) {
   const boxUpdate = entry.querySelector("#entryBtnBoxContentUpdate");
   const boxMessage = entry.querySelector(`#${messageBoxId}`);
@@ -215,7 +206,6 @@ function showEntryMessage(entry, messageBoxId) {
     boxUpdate.style.display = "flex";
   }, 2000);
 }
-// Générer une entrée utilisateur dans la liste
 function createUserEntry(user) {
   const entry = USER_TEMPLATE.cloneNode(true);
   entry.id = "";
@@ -396,12 +386,94 @@ function createUserEntry(user) {
   });
   return entry;
 }
+// ///////////////////// SEARCH USERS /////////////////////////////////////
+const formSearchUser = document.getElementById("formSearchUser");
+const ENTRY_BTN_BOX_SEARCH = document.getElementById("entryBtnBoxSearchUser");
+const ENTRY_BTN_BOX_SEARCH_COMPLETE = document.getElementById(
+  "entryBtnBoxSearchUserComplete"
+);
+const ENTRY_BTN_BOX_SEARCH_NO_RESULT = document.getElementById(
+  "entryBtnBoxSearchUserNoResult"
+);
+const ENTRY_BTN_BOX_SEARCH_ERROR = document.getElementById(
+  "entryBtnBoxSearchUserError"
+);
+function getSearchFilters() {
+  return {
+  idFrom: document.getElementById('inputSearchUserIdA').value.trim(),
+  idTo: document.getElementById('inputSearchUserIdB').value.trim(),
+  name: document.getElementById('inputSearchUserName').value.trim(),
+  firstname: document.getElementById('inputSearchUserFirstname').value.trim(),
+  mail: document.getElementById('inputSearchUserMail').value.trim(),
+  subscription: document.getElementById('inputSearchUserSubscription').value,
+  isAdmin: document.getElementById('inputSearchIsAdmin').checked ? 1 : '',
+  newsletter: document.getElementById('inputSearchNewsletter').checked ? 1 : '',
+  };
+}
+function showSearchMessage(type) {
+  ENTRY_BTN_BOX_SEARCH.style.display = "none";
+  ENTRY_BTN_BOX_SEARCH_COMPLETE.style.display = "none";
+  ENTRY_BTN_BOX_SEARCH_NO_RESULT.style.display = "none";
+  ENTRY_BTN_BOX_SEARCH_ERROR.style.display = "none";
+
+  let boxToShow;
+  switch (type) {
+    case "success":
+      boxToShow = ENTRY_BTN_BOX_SEARCH_COMPLETE;
+      break;
+    case "noresult":
+      boxToShow = ENTRY_BTN_BOX_SEARCH_NO_RESULT;
+      break;
+    case "error":
+      boxToShow = ENTRY_BTN_BOX_SEARCH_ERROR;
+      break;
+  }
+
+  if (boxToShow) {
+    boxToShow.style.display = "flex";
+    setTimeout(() => {
+      boxToShow.style.display = "none";
+      ENTRY_BTN_BOX_SEARCH.style.display = "flex";
+    }, 2000);
+  }
+}
+async function handleUserSearch() {
+  const filters = getSearchFilters();
+console.log("Filtres envoyés :", filters);
+  try {
+    const response = await fetch("/controller/search_user.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(filters),
+    });
+
+    if (!response.ok) throw new Error("Réponse réseau incorrecte");
+
+    const data = await response.json();
+    console.log("Résultat du fetch :", data);
+
+    if (data.code === "success") {
+      if (data.users.length > 0) {
+        userData = data.users; // ✅ mise à jour
+        showSearchMessage("success");
+        renderList(currentSortField, sortAsc);
+      } else {
+        showSearchMessage("noresult");
+      }
+    } else {
+      showSearchMessage("error");
+    }
+  } catch (error) {
+    // console.error("Erreur fetch ou JSON :", error);
+    showSearchMessage("error");
+  }
+}
+document.getElementById("btnUsersSearch").addEventListener("click", handleUserSearch);
 // ///////////////////// USERLIST UPLOAD /////////////////////////////////////
-// Sélection des éléments
 const BTN_UPLOADUSERLIST = document.getElementById("btnUploadUserList");
 const INPUT_UPLOAD_CSV = document.getElementById("inputUploadUserCSV");
-
-// Fonction pour afficher un message temporaire
 function showUploadMessage(messageBoxId) {
   const boxDefault = document.getElementById("entryBtnBoxUploadUserList");
   const boxMessage = document.getElementById(messageBoxId);
@@ -416,23 +488,16 @@ function showUploadMessage(messageBoxId) {
     boxDefault.style.display = "flex";
   }, 2000);
 }
-
-// Événement sur le bouton pour déclencher l'input file
 BTN_UPLOADUSERLIST.addEventListener("click", () => {
   INPUT_UPLOAD_CSV.click();
 });
-
-// Événement lors de la sélection d'un fichier
 INPUT_UPLOAD_CSV.addEventListener("change", () => {
   const file = INPUT_UPLOAD_CSV.files[0];
   if (!file) return;
-
-  // Vérification de l'extension du fichier
   if (!file.name.toLowerCase().endsWith(".csv")) {
     showUploadMessage("entryBtnBoxUploadUserFormatError");
     return;
   }
-
   const formData = new FormData();
   formData.append("csvFile", file);
 
@@ -440,25 +505,24 @@ INPUT_UPLOAD_CSV.addEventListener("change", () => {
     method: "POST",
     body: formData,
   })
-.then((res) => res.json())
-.then((json) => {
-  if (json.code === "success" || json.code === "none") {
-    showUploadMessage("entryBtnBoxUploadUserListComplete");
-    // Forcer le tri et rechargement après upload
-    currentSortField = "id";
-    sortAsc = true;
-    loadUsers();
-  } else if (json.code === "format") {
-    showUploadMessage("entryBtnBoxUploadUserFormatError");
-  } else {
-    showUploadMessage("entryBtnBoxUploadUserError");
-  }
-})
-.catch(() => {
-  showUploadMessage("entryBtnBoxUploadUserError");
+    .then((res) => res.json())
+    .then((json) => {
+      if (json.code === "success" || json.code === "none") {
+        showUploadMessage("entryBtnBoxUploadUserListComplete");
+        // Forcer le tri et rechargement après upload
+        currentSortField = "id";
+        sortAsc = true;
+        loadUsers();
+      } else if (json.code === "format") {
+        showUploadMessage("entryBtnBoxUploadUserFormatError");
+      } else {
+        showUploadMessage("entryBtnBoxUploadUserError");
+      }
+    })
+    .catch(() => {
+      showUploadMessage("entryBtnBoxUploadUserError");
+    });
 });
-});
-
 // ///////////////////// INIT /////////////////////////////////////
 function initUsersManagement() {
   setupFilters();

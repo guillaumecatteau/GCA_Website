@@ -1160,8 +1160,7 @@ if (isset($_GET['action'])) {
         <div class="sideBlock">
           <div class="basicBlock" id="userSearchBlock">
             <span class="blockTitle" lang="FR" data-en="Search">Recherche<br>utilisateurs</span>
-            <!-- <div class="formContainerLateral"> -->
-            <form class="formContainerLateral" classaction="" method="POST" class="form" id="formRegister">
+            <form class="formContainerLateral" classaction="" method="POST" class="form" id="formSearchUser">
               <div class="idSearchBox">
                 <div class="formGroup">
                   <label for="inputSearchUserIdA">From</label>
@@ -1187,125 +1186,64 @@ if (isset($_GET['action'])) {
                   placeholder="User mail" />
               </div>
               <div class="formGroup">
-                <input type="date" id="inputSearchUserSubscription" name="inputSearchUserubscription" maxlength="30"
-                  placeholder="User mail" />
+                <input type="date" id="inputSearchUserSubscription" name="inputSearchUserSubscription" />
               </div>
-              <div class="idSearchBox">
+              <div class="statusSearchBox">
                 <div class="checkboxGroup">
                   <input type="checkbox" id="inputSearchIsAdmin" name="inputSearchIsAdmin" />
-                  <label for="searchIsAdmin">Is admin</label>
+                  <label for="inputSearchIsAdmin">Is admin</label>
                 </div>
                 <div class="checkboxGroup">
                   <input type="checkbox" id="inputSearchNewsletter" name="inputSearchNewsletter" />
-                  <label for="searchIsAdmin">Newsletter</label>
+                  <label for="inputSearchNewsletter">Newsletter</label>
                 </div>
               </div>
             </form>
-            <!-- <div class="messageBox">
-                <div class="message" id="messageRegisterSucces" style="display: none">
-                  <span>I</span>
-                  <span>N</span>
-                  <span>s</span>
-                  <span>c</span>
-                  <span>r</span>
-                  <span>i</span>
-                  <span>p</span>
-                  <span>t</span>
-                  <span>i</span>
-                  <span>o</span>
-                  <span>n</span>
-                  <span> </span>
-                  <span>r</span>
-                  <span>é</span>
-                  <span>u</span>
-                  <span>s</span>
-                  <span>s</span>
-                  <span>i</span>
-                  <span>e</span>
-                  <span>!</span>
+            <div class="lateralMessageBox">
+              <div class="entryBtnBoxContent" id="entryBtnBoxSearchUser">
+                <div class="btnMedium" id="btnUsersSearch">
+                  <div class="btnLabel" id="">
+                    <span class="icon iconSearch"></span>
+                    <span class="btnText" lang="FR" data-en="Search">Chercher</span>
+                  </div>
                 </div>
-                <div class="message" id="messageRegisterError" style="display: none">
-                  <span>E</span>
-                  <span>r</span>
-                  <span>r</span>
-                  <span>e</span>
-                  <span>u</span>
-                  <span>r</span>
-                  <span> </span>
-                  <span>t</span>
-                  <span>e</span>
-                  <span>c</span>
-                  <span>h</span>
-                  <span>n</span>
-                  <span>i</span>
-                  <span>q</span>
-                  <span>u</span>
-                  <span>e</span>
-                  <span>!</span>
-                  <span> </span>
-                  <span>R</span>
-                  <span>é</span>
-                  <span>e</span>
-                  <span>s</span>
-                  <span>s</span>
-                  <span>a</span>
-                  <span>y</span>
-                  <span>e</span>
-                  <span>z</span>
-                </div>
-                <div class="message" id="messageRegisterErrorMail" style="display: none">
-                  <span>E</span>
-                  <span>m</span>
-                  <span>a</span>
-                  <span>i</span>
-                  <span>l</span>
-                  <span> </span>
-                  <span>d</span>
-                  <span>é</span>
-                  <span>j</span>
-                  <span>à</span>
-                  <span> </span>
-                  <span>e</span>
-                  <span>n</span>
-                  <span>r</span>
-                  <span>e</span>
-                  <span>g</span>
-                  <span>i</span>
-                  <span>s</span>
-                  <span>t</span>
-                  <span>r</span>
-                  <span>é</span>
-                </div>
-              </div> -->
-            <!-- </div> -->
-            <div class="btnMedium" id="btnUsersSearch">
-              <div class="btnLabel" id="">
-                <span class="icon iconSearch"></span>
-                <span class="btnText" lang="FR" data-en="Search">Chercher</span>
+              </div>
+              <div class="entryBtnBoxContent" id="entryBtnBoxSearchUserComplete" style="display: none;">
+                <span class="entryBtnBoxMessage" lang="FR" data-en="Search complete !">Recherche terminée !</span>
+              </div>
+              <div class="entryBtnBoxContent" id="entryBtnBoxSearchUserNoResult" style="display: none;">
+                <span class="entryBtnBoxMessage" lang="FR" data-en="No result...">Aucun résultat...</span>
+              </div>
+              <div class="entryBtnBoxContent" id="entryBtnBoxSearchUserError" style="display: none;">
+                <span class="entryBtnBoxMessage" lang="FR" data-en="Technical error. Try again !">Erreur technique.
+                  Reessayez !</span>
               </div>
             </div>
           </div>
           <div class="basicBlock" id="uploadUsersBlock">
             <span class="blockTitle" lang="FR" data-en="Search">Upload<br>utilisateurs</span>
-            <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserList">
-              <div class="btnMedium" id="btnUploadUserList">
-                <div class="btnLabel" id="">
-                  <span class="icon iconUploadList"></span>
-                  <span class="btnText" lang="FR" data-en="Upload">Uploader</span>
+            <div class="lateralMessageBox">
+              <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserList">
+                <div class="btnMedium" id="btnUploadUserList">
+                  <div class="btnLabel" id="">
+                    <span class="icon iconUploadList"></span>
+                    <span class="btnText" lang="FR" data-en="Upload">Uploader</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserListComplete" style="display: none;">
-              <span class="entryBtnBoxMessage" lang="FR" data-en="User list uploaded !">Liste utilisateurs uploadée
-                !</span>
-            </div>
-            <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserError" style="display: none;">
-              <span class="entryBtnBoxMessage" lang="FR" data-en="Technical error. Try again !">Erreur technique.
-                Reessayez !</span>
-            </div>
-            <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserFormatError" style="display: none;">
-              <span class="entryBtnBoxMessage" lang="FR" data-en="Entries are not in the right format !">Les entrées ne
-                sont pas au bon format !</span>
+              <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserListComplete" style="display: none;">
+                <span class="entryBtnBoxMessage" lang="FR" data-en="User list uploaded !">Liste utilisateurs uploadée
+                  !</span>
+              </div>
+              <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserError" style="display: none;">
+                <span class="entryBtnBoxMessage" lang="FR" data-en="Technical error. Try again !">Erreur technique.
+                  Reessayez !</span>
+              </div>
+              <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserFormatError" style="display: none;">
+                <span class="entryBtnBoxMessage" lang="FR" data-en="Entries are not in the right format !">Les entrées
+                  ne
+                  sont pas au bon format !</span>
+              </div>
             </div>
             <input type="file" id="inputUploadUserCSV" accept=".csv" style="display: none;" />
             <p class="blockSubTxt">Utilisez un doc formaté CSV</p>

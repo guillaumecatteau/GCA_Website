@@ -13,6 +13,14 @@
     height: 100px;
     margin-bottom:2rem;
 }
+.lateralMessageBox {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
 /* ////////////////////USERS MANAGEMENT////////////////////////// */
 .entryUserOpen {
   height: 200px;
@@ -45,7 +53,7 @@
     width:fit-content;
     margin:0;
 }
-.idSearchBox {
+.idSearchBox{
     height: fit-content;
     width: 100%;
     display: flex;
@@ -54,4 +62,13 @@
     align-items: center;
     gap: 2rem;
     /* border: 2px solid red; */
+}
+.statusSearchBox {
+    height: fit-content;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    gap: 2rem;
 }
