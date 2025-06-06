@@ -385,12 +385,17 @@ transform: var(--scale, scale(1));
 }
 .formContainerLateral {
   width: calc(100% - 4rem);
-  height: fit-contant;
+  height: fit-content;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 1rem;
   /* border: 2px solid red; */
+}
+.formContainerLateral>.formGroup,.idSearchBox>.formGroup {
+  width: 100%;
+  height: fit-content;
 }
 form {
   height: fit-content;
@@ -411,6 +416,7 @@ form {
   gap: 0.5rem;
   /* border: 1px solid red; */
 }
+
 .formGroup:focus-within label {
   color: white;
   transition: color 0.3s ease;
@@ -433,7 +439,7 @@ form {
   height: 40px;
   border-radius: 10px;
   border: solid 1px #b4b4b5;
-  background-color: rgba(180, 180, 181, 0.15);
+  background-color: rgba(180, 180, 181, 0.1);
   backdrop-filter: blur(0);
   opacity: 1;
   transition: opacity 0.3s ease-in-out, backdrop-filter 1s linear;

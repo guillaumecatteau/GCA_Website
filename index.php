@@ -1162,18 +1162,43 @@ if (isset($_GET['action'])) {
             <span class="blockTitle" lang="FR" data-en="Search">Recherche<br>utilisateurs</span>
             <!-- <div class="formContainerLateral"> -->
             <form class="formContainerLateral" classaction="" method="POST" class="form" id="formRegister">
+              <div class="idSearchBox">
+                <div class="formGroup">
+                  <label for="inputSearchUserIdA">From</label>
+                  <input type="text" id="inputSearchUserIdA" name="inputSearchUserIdA" maxlength="10"
+                    placeholder="User ID" />
+                </div>
+                <div class="formGroup">
+                  <label for="inputSearchUserIdB">To</label>
+                  <input type="text" id="inputSearchUserIdB" name="inputSearchUserIdB" maxlength="10"
+                    placeholder="User ID" />
+                </div>
+              </div>
               <div class="formGroup">
-                <label for="inputSearchUserMail">From</label>
-                <input type="text" id="inputSearchUserMail" name="UserMailCheck" maxlength="30"
+                <input type="text" id="inputSearchUserName" name="inputSearchUserName" maxlength="30"
+                  placeholder="User name" />
+              </div>
+              <div class="formGroup">
+                <input type="text" id="inputSearchUserFirstname" name="inputSearchUserFirstname" maxlength="30"
+                  placeholder="User firstname" />
+              </div>
+              <div class="formGroup">
+                <input type="text" id="inputSearchUserMail" name="inputSearchUserMail" maxlength="30"
                   placeholder="User mail" />
               </div>
               <div class="formGroup">
-                <input type="text" id="inputSearchUserMail" name="UserMailCheck" maxlength="30"
+                <input type="date" id="inputSearchUserSubscription" name="inputSearchUserubscription" maxlength="30"
                   placeholder="User mail" />
               </div>
-              <div class="checkboxGroup">
-                <input type="checkbox" id="searchIsAdmin" name="IsAdminCheck" />
-                <label for="searchIsAdmin">Is admin</label>
+              <div class="idSearchBox">
+                <div class="checkboxGroup">
+                  <input type="checkbox" id="inputSearchIsAdmin" name="inputSearchIsAdmin" />
+                  <label for="searchIsAdmin">Is admin</label>
+                </div>
+                <div class="checkboxGroup">
+                  <input type="checkbox" id="inputSearchNewsletter" name="inputSearchNewsletter" />
+                  <label for="searchIsAdmin">Newsletter</label>
+                </div>
               </div>
             </form>
             <!-- <div class="messageBox">
@@ -1275,10 +1300,12 @@ if (isset($_GET['action'])) {
                 !</span>
             </div>
             <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserError" style="display: none;">
-              <span class="entryBtnBoxMessage" lang="FR" data-en="Technical error. Try again !">Erreur technique. Reessayez !</span>
+              <span class="entryBtnBoxMessage" lang="FR" data-en="Technical error. Try again !">Erreur technique.
+                Reessayez !</span>
             </div>
             <div class="entryBtnBoxContent" id="entryBtnBoxUploadUserFormatError" style="display: none;">
-              <span class="entryBtnBoxMessage" lang="FR" data-en="Entries are not in the right format !">Les entrées ne sont pas au bon format !</span>
+              <span class="entryBtnBoxMessage" lang="FR" data-en="Entries are not in the right format !">Les entrées ne
+                sont pas au bon format !</span>
             </div>
             <input type="file" id="inputUploadUserCSV" accept=".csv" style="display: none;" />
             <p class="blockSubTxt">Utilisez un doc formaté CSV</p>

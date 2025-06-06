@@ -65,7 +65,6 @@ function clearList() {
         entry.id === "userEntryTemplate"
       )
         return;
-      entry.style.transition = "opacity 0.3s";
       entry.style.opacity = "0";
     });
     // Suppression au bout de 300ms et résolution de la promesse
@@ -87,27 +86,16 @@ const listSpeed = 50; // délai entre chaque entrée en ms (ajuste ici)
 
 async function renderList(sortField, asc) {
   await clearList();
-
   currentSortField = sortField;
   sortAsc = asc;
-
   const sortedUsers = sortUsers(usersData, sortField, asc);
   for (let i = 0; i < sortedUsers.length; i++) {
     const user = sortedUsers[i];
     const entry = createUserEntry(user);
-
-    // Prépare le fade-in
     entry.style.opacity = "0";
-    entry.style.transition = "opacity 0.3s";
-
     USER_LIST_CONTAINER.appendChild(entry);
-
-    // Forcer un reflow pour que le navigateur prenne en compte le style opacity = 0
-    entry.offsetHeight; // trigger reflow
-
-    // Lance le fade-in
+    entry.offsetHeight; // Forcer un reflow pour que le navigateur prenne en compte le style opacity = 0
     entry.style.opacity = "1";
-
     await new Promise((resolve) => setTimeout(resolve, listSpeed));
   }
 }
@@ -117,8 +105,8 @@ function loadUsers() {
     .then((res) => res.json())
     .then((json) => {
       if (json.success) {
-        usersData = json.data;  // Mets à jour la variable globale
-        renderList(currentSortField, sortAsc); // rafraîchis la liste triée
+        usersData = json.data;
+        renderList(currentSortField, sortAsc);
       } else {
         alert("Erreur chargement utilisateurs : " + json.message);
       }
@@ -140,7 +128,7 @@ function setupFilters() {
     el.style.cursor = "pointer";
     el.addEventListener("click", () => {
       if (currentSortField === field) {
-        sortAsc = !sortAsc; // inverse ordre si même colonne
+        sortAsc = !sortAsc;
       } else {
         currentSortField = field;
         sortAsc = true;
@@ -172,7 +160,6 @@ function toggleEntryEdition(entry) {
     form.inputUpdateIsAdmin.checked =
       entry.querySelector("#userInfoIsAdmin").textContent.toLowerCase() ===
       "admin";
-
     // Stocker les valeurs initiales
     entry._initialValues = {
       name: form.inputUpdateName.value,
@@ -180,46 +167,35 @@ function toggleEntryEdition(entry) {
       mail: form.inputUpdateMail.value,
       isAdmin: form.inputUpdateIsAdmin.checked,
     };
-
     // Fonction de vérification des changements
     function checkForChanges() {
       const name = form.inputUpdateName.value.trim();
       const firstname = form.inputUpdateFirstName.value.trim();
       const mail = form.inputUpdateMail.value.trim();
       const isAdmin = form.inputUpdateIsAdmin.checked;
-
       const hasChanged =
         name !== entry._initialValues.name ||
         firstname !== entry._initialValues.firstname ||
         mail !== entry._initialValues.mail ||
         isAdmin !== entry._initialValues.isAdmin;
-
       const isValid =
         name.length >= 2 &&
         firstname.length >= 2 &&
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail);
-
       const shouldEnableSave = hasChanged && isValid;
-
       btnSave.classList.toggle("btnOn", shouldEnableSave);
       btnSave.classList.toggle("btnOff", !shouldEnableSave);
     }
-
-    // Ajouter les écouteurs
     inputs.forEach((input) => {
       input.addEventListener("input", checkForChanges);
     });
-
     // Vérification initiale (au cas où un champ serait pré-rempli différemment)
     checkForChanges();
   } else {
     iconSettings.classList.remove("active");
-
-    // Supprimer les écouteurs et désactiver le bouton
     inputs.forEach((input) => {
       input.removeEventListener("input", checkForChanges);
     });
-
     btnSave.classList.remove("btnOn");
     btnSave.classList.add("btnOff");
   }
