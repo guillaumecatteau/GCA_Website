@@ -631,8 +631,12 @@ form {
     font-size: 40px;
   }
 }
-@media (min-width: 1918px) {
-  /* Styles spécifiques aux desktops */
+@media (min-width: 2160px) {
+  .pageContainer {
+    width: calc(100% - 700px);
+    height: calc(100% - 80px);
+    transform: translateY(40px);
+  } /* Styles spécifiques aux desktops */
 }
 @media (max-width: 1917px) {
   .pageContainer {
