@@ -40,8 +40,8 @@ function getUser($pseudo, $password)
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user && password_verify($password, $user['password'])) {
-        return $user; // Connexion réussie
+        return $user;
     } else {
-        return false; // Mauvais identifiants
+        return false;
     }
 }

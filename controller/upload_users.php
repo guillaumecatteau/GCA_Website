@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-require_once('../model/model_user.php');  // adapte le chemin selon ton arborescence
+require_once('../model/model_user.php'); 
 
 // Vérification de la présence du fichier
 if (!isset($_FILES['csvFile']) || $_FILES['csvFile']['error'] !== UPLOAD_ERR_OK) {

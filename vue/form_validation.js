@@ -5,7 +5,6 @@ function setAutofocus(formElement) {
   }
 }
 const NAME_REGEX = /^[a-zA-Z-\u00C0-\u00FF]{2,}$/;
-// input=identifiant spécifique de l'input, iconValid=icone de validation, iconError=icone d'erreur, errorText=texte d'erreurfunction nameCheck(input, iconValid, iconError, errorText, callback) {
 function nameCheck(input, iconValid, iconError, errorText, callback) {
   input.addEventListener("input", function () {
     const isValid = NAME_REGEX.test(input.value);
