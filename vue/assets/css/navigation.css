@@ -294,7 +294,7 @@ transform: var(--scale, scale(1));
   align-items: center;
   gap: 24px;
   transition: gap 1s ease-out;
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
   z-index: 100;
   /* border: 2px solid red; */
 }

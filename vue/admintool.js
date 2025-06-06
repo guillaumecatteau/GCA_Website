@@ -210,7 +210,6 @@ function createUserEntry(user) {
   const entry = USER_TEMPLATE.cloneNode(true);
   entry.id = "";
   entry.style.display = "flex";
-  // Mise à jour textes
   entry.querySelector("#userInfoID").textContent = user.id;
   entry.querySelector("#userInfoName").textContent = user.name;
   entry.querySelector("#userInfoFirstname").textContent = user.firstname;
@@ -220,18 +219,15 @@ function createUserEntry(user) {
   entry.querySelector("#userInfoIsAdmin").textContent = user.isAdmin
     ? "Admin"
     : "User";
-  // Inputs du formulaire
   const form = entry.querySelector("#formUpdateUser");
   form.querySelector("#inputUpdateName").value = user.name;
   form.querySelector("#inputUpdateFirstName").value = user.firstname;
   form.querySelector("#inputUpdateMail").value = user.mail;
   form.querySelector("#inputUpdateIsAdmin").checked = user.isAdmin;
-  // Boutons
   const btnSettings = entry.querySelector("#btnUserEntrySettings");
   btnSettings.addEventListener("click", () => toggleEntryEdition(entry));
   const btnSave = entry.querySelector("#btnSaveUser");
   const btnDelete = entry.querySelector("#btnDeleteUser");
-  // Zones d'affichage messages / confirmations
   const boxUpdate = entry.querySelector("#boxUpdateUser");
   const contentUpdate = entry.querySelector("#entryBtnBoxContentUpdate");
   const contentComplete = entry.querySelector(
@@ -242,8 +238,6 @@ function createUserEntry(user) {
   const inputName = form.querySelector("#inputUpdateName");
   const inputFirstName = form.querySelector("#inputUpdateFirstName");
   const inputMail = form.querySelector("#inputUpdateMail");
-  // Controle des champs pour toggle save button
-  // Sauvegarde des valeurs initiales pour comparaison
   const initialValues = {
     name: inputName.value.trim(),
     firstname: inputFirstName.value.trim(),
@@ -268,33 +262,26 @@ function createUserEntry(user) {
       btnSave.classList.add("btnOff");
     }
   }
-  // Écouteurs sur les inputs pour valider en temps réel
   inputName.addEventListener("input", validateInputs);
   inputFirstName.addEventListener("input", validateInputs);
   inputMail.addEventListener("input", validateInputs);
-  // Au départ, bouton désactivé
   btnSave.classList.add("btnOff");
-  // Comportement du bouton settings : toggle de entryUserOpen
   if (btnSettings) {
     btnSettings.addEventListener("click", () => {
       const isAlreadyOpen = entry.classList.contains("entryUserOpen");
-      // Fermer toutes les autres entrées du même conteneur
       const allEntries = USER_LIST_CONTAINER.querySelectorAll(".entryBlock");
       allEntries.forEach((e) => {
         if (e !== entry) e.classList.remove("entryUserOpen");
       });
-      // Toggle uniquement l’entrée cliquée
       entry.classList.toggle("entryUserOpen", !isAlreadyOpen);
     });
   }
-  // Afficher / masquer messages
   function resetMessages() {
     contentUpdate.style.display = "";
     contentComplete.style.display = "none";
     contentError.style.display = "none";
     contentDelete.style.display = "none";
   }
-  // Sauvegarder modifications
   btnSave.addEventListener("click", () => {
     resetMessages();
     const updatedUser = {
@@ -342,7 +329,6 @@ function createUserEntry(user) {
         btnSave.classList.remove("btnOff");
       });
   });
-  // Suppression : confirmation puis appel API
   btnDelete.addEventListener("click", () => {
     resetMessages();
     contentUpdate.style.display = "none";
