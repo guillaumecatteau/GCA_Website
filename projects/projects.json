@@ -1,0 +1,17 @@
+[
+  {
+    "title": "Portfolio Website",
+    "description": "A personal portfolio showcasing my resume and projects.",
+    "link": "#"
+  },
+  {
+    "title": "To-Do List App",
+    "description": "A to-do app using HTML, CSS, and JavaScript.",
+    "link": "#"
+  },
+  {
+    "title": "Weather App",
+    "description": "Shows current weather using OpenWeatherMap API.",
+    "link": "#"
+  }
+]
