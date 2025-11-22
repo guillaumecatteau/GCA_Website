@@ -682,6 +682,7 @@ form {
     width: 100%;
     height: calc(100% - 80px);
     transform: translateY(40px);
+    z-index: -100;
   }
   .title {
     gap: 18px;
