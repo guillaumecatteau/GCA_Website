@@ -1,52 +1,80 @@
-let USERDEVICE = "desktop";
+// --------------------------------------
+// DEVICE DETECTION
+// --------------------------------------
+let userDevice = "desktop";
 
 function updateUserDevice() {
-  const width = window.innerWidth;
-  const userAgent = navigator.userAgent.toLowerCase();
-  const isIpad =
-    /ipad/.test(userAgent) ||
-    (navigator.maxTouchPoints > 1 && /mac/.test(userAgent));
-  const isAndroidTablet =
-    /android/.test(userAgent) && !/mobile/.test(userAgent);
+  const WIDTH = window.innerWidth;
+  const USER_AGENT = navigator.userAgent.toLowerCase();
 
-  if (width <= 800 || /mobile|iphone|android/.test(userAgent)) {
-    USERDEVICE = "mobile";
-  } else if (width <= 1917 || isIpad || isAndroidTablet) {
-    USERDEVICE = "tablet";
+  const IS_IPAD =
+    /ipad/.test(USER_AGENT) ||
+    (navigator.maxTouchPoints > 1 && /mac/.test(USER_AGENT));
+
+  const IS_ANDROID_TABLET =
+    /android/.test(USER_AGENT) && !/mobile/.test(USER_AGENT);
+
+  if (WIDTH <= 800 || /mobile|iphone|android/.test(USER_AGENT)) {
+    userDevice = "mobile";
+  } else if (WIDTH <= 1917 || IS_IPAD || IS_ANDROID_TABLET) {
+    userDevice = "tablet";
   } else {
-    USERDEVICE = "desktop";
+    userDevice = "desktop";
   }
 }
 
 updateUserDevice();
-
 window.addEventListener("resize", updateUserDevice);
 
+// --------------------------------------
+// DEVICE → ANIMATION DEVICE MAPPING
+// --------------------------------------
+function getAnimationDevice() {
+  if (userDevice === "desktop") return "desktop";
+  return "mobile"; // mobile + tablet → mobile
+}
+// rendre la fonction accessible globalement
+window.getAnimationDevice = getAnimationDevice;
+
+
+// --------------------------------------
+// SEQUENCE D’INTRO
+// --------------------------------------
+
 function startSequence() {
+  startBackground(); // Ajout : démarre le background selon le device
   displayMainLogo();
+
   setTimeout(() => {
-    displayConnexionBoxDesktop()
+    displayConnexionBoxDesktop();
     displayLanguageSelectorDesktop();
   }, 300);
+
   setTimeout(() => {
     displayLatNav();
   }, 600);
+
   setTimeout(() => {
     displaySocialIconsDesktop();
   }, 1400);
+
   setTimeout(() => {
     displayHome();
   }, 1600);
+
   setTimeout(() => {
     displayLatNavTextStart();
   }, 3000);
+
   setTimeout(() => {
     hideLatNavTextStart();
   }, 4500);
+
   setTimeout(() => {
-  activateLatNav()
-  activateNavigation()
+    activateLatNav();
+    activateNavigation();
   }, 5500);
 }
+
 
 document.addEventListener("DOMContentLoaded", startSequence);

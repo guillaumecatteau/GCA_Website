@@ -906,7 +906,6 @@ if (isset($_GET['action'])) {
           </div>
         </div>
       </div>
-
     </div>
     <div class="userProfileContent" id="cntUSERPROFILE" style="display: none">
       <h2 class="title titleTop userProfileTitle">
@@ -1252,25 +1251,33 @@ if (isset($_GET['action'])) {
       </div>
     </div>
   </div>
-  </div>
   <div class="backgroundsContainer">
     <div class="topBarBackground"></div>
     <div class="backgrounds">
       <div class="backgMotif" id="backgMotif"></div>
       <div class="backgBlur" id="backgBlur"></div>
-      <div class="backgroundHome" id="backgroundHome">
-        <img src="vue/assets/images/Backgrounds/bck_homeLight1080.png" alt="background" />
-      </div>
+<div id="backgroundHome">
+    <div class="layer-fx" id="backF1"></div>
+    <div class="loop-wrapper">
+        <img id="backF2" class="loop-img" />
+        <img id="backF3" class="loop-img" />
+        <img id="backF4" class="loop-img" />
+        <img id="backF5" class="loop-img" />
+        <img id="backF6" class="loop-img" />
+        <img id="backF7" class="loop-img" />
+    </div>
+    <video id="backAnim" class="layer-video" muted playsinline></video>
+</div>
     </div>
   </div>
 </body>
+<script src="controller/start.js" defer></script>
 <script src="controller/language.js" defer></script>
 <script src="vue/interface.js" defer></script>
 <script src="vue/backgrounds.js" defer></script>
 <script src="vue/form_validation.js" defer></script>
-
 <script src="vue/navigation.js" defer></script>
 <script src="vue/admintool.js" defer></script>
-<script src="controller/start.js" defer></script>
+
 
 </html>

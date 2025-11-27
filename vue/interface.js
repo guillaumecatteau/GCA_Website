@@ -568,11 +568,8 @@ function burgerDeploy() {
           break;
         case BURGERBARBOTTOM:
           BURGERBARBOTTOM.style.right = `calc(0 - 0px)`;
-          // BURGERBARBOTTOM.style.left = ``;
           break;
       }
-      menuMobileDeployment = true;
-      menuTabletDeployment = true;
     }, index * 75);
   });
   BTN_BURGER.style.height = "40px";
@@ -600,12 +597,11 @@ function burgerRetract() {
           BURGERBARMIDDLE.style.top = `calc(50% - 3px)`;
           break;
         case BURGERBARBOTTOM:
-          BURGERBARBOTTOM.style.right = `calc( 0 - px)`;
+          BURGERBARBOTTOM.style.right = `calc(0 - 0px)`;
           BURGERBARBOTTOM.style.top = `calc(100% - 6px)`;
           break;
       }
     }, index * 75);
-
     setTimeout(() => {
       BTN_BURGER.style.height = "40px";
       BTN_BURGER.style.width = "100%";
@@ -622,7 +618,7 @@ function burgerRetract() {
                 BURGERBARMIDDLE.style.left = `calc(50% - 21px)`;
                 break;
               case BURGERBARBOTTOM:
-                BURGERBARBOTTOM.style.right = `calc( 0% - 0px)`;
+                BURGERBARBOTTOM.style.right = `calc(0% - 0px)`;
                 break;
             }
           });
@@ -632,25 +628,22 @@ function burgerRetract() {
   });
 }
 function handleBurgerToggle() {
-  // Désactive temporairement les interactions pour éviter les glitches
   BTN_BURGER.style.pointerEvents = "none";
   BTN_BURGER.style.transform = "scale(1)";
-  if (!menuTabletDeployment || !menuMobileDeployment) {
-    burgerDeploy();
+  if (menuTabletDeployment) {
+    menuTabletHide();
+    menuTabletDeployment = false;
   } else {
-    burgerRetract();
+    menuTabletDeploy();
+    menuTabletDeployment = true;
   }
-  // Appelle la gestion du menu selon le device
-  updateUserDevice();
-  if (USERDEVICE === "tablet") {
-    menuTabletDeployment ? menuTabletHide() : menuTabletDeploy();
-    menuTabletDeployment = !menuTabletDeployment;
+  if (menuMobileDeployment) {
+    menuMobiletHide();
+    menuMobileDeployment = false;
+  } else {
+    menuMobiletDeploy();
+    menuMobileDeployment = true;
   }
-  if (USERDEVICE === "mobile") {
-    menuMobileDeployment ? menuMobiletHide() : menuMobiletDeploy();
-    menuMobileDeployment = !menuMobileDeployment;
-  }
-  // Réactive les interactions après l'animation (ajuste le délai si nécessaire)
   setTimeout(() => {
     BTN_BURGER.style.pointerEvents = "auto";
   }, 800);
@@ -663,7 +656,7 @@ BTN_BURGER.addEventListener("pointerleave", () => {
   BTN_BURGER.style.transform = "scale(1)";
 });
 BTN_BURGER.addEventListener("pointerdown", (e) => {
-  e.preventDefault(); // évite les glitchs sur mobile
+  e.preventDefault();
   BTN_BURGER.style.transform = "scale(0.8)";
   BURGERBARS.forEach((bar, index) => {
     setTimeout(() => {
