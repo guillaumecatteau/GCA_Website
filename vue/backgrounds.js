@@ -65,7 +65,7 @@ function preloadBackgroundMobile() {
 // Démarrage du background selon le device
 // --------------------------------------
 function startBackground() {
-  const deviceType = (window.userDevice === "desktop") ? "desktop" : "mobile";
+  const deviceType = window.getAnimationDevice(); // Utilise la détection centralisée
   const base = "vue/assets/images/Backgrounds/";
   const loopIds = ["backF2","backF3","backF4","backF5","backF6","backF7"];
   const loopSrcs = [2,3,4,5,6,7].map(i => base + `bck_F${i}_${deviceType.charAt(0).toUpperCase() + deviceType.slice(1)}.png`);
@@ -94,7 +94,7 @@ function startBackground() {
 }
 
 function startBackgroundAnim() {
-  const deviceType = (window.userDevice === "desktop") ? "Desktop" : "Mobile";
+  const deviceType = window.getAnimationDevice() === "desktop" ? "Desktop" : "Mobile";
   const base = "vue/assets/images/Backgrounds/";
   const videoId = "backAnim";
   const videoSrc = base + (deviceType === "Desktop" ? "bck_Anim_Desktop.mp4" : "bck_Anim_Mobile.mp4");

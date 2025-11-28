@@ -630,17 +630,20 @@ function burgerRetract() {
 function handleBurgerToggle() {
   BTN_BURGER.style.pointerEvents = "none";
   BTN_BURGER.style.transform = "scale(1)";
-  if (menuTabletDeployment) {
-    menuTabletHide();
-    menuTabletDeployment = false;
+  if (menuTabletDeployment || menuMobileDeployment) {
+    burgerRetract(); // Animation de fermeture
+    if (menuTabletDeployment) {
+      menuTabletHide();
+      menuTabletDeployment = false;
+    }
+    if (menuMobileDeployment) {
+      menuMobiletHide();
+      menuMobileDeployment = false;
+    }
   } else {
+    burgerDeploy(); // Animation d'ouverture
     menuTabletDeploy();
     menuTabletDeployment = true;
-  }
-  if (menuMobileDeployment) {
-    menuMobiletHide();
-    menuMobileDeployment = false;
-  } else {
     menuMobiletDeploy();
     menuMobileDeployment = true;
   }
