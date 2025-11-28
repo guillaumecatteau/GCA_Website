@@ -110,7 +110,12 @@ function startBackgroundAnim() {
     const img = document.getElementById(loopIds[idx]);
     if (!img) return;
     img.style.opacity = 0;
-    img.style.transition = "opacity 4s linear";
+    // F2 ne doit JAMAIS avoir de transition
+    if (idx === 0) {
+      img.style.transition = "none !important";
+    } else {
+      img.style.transition = "opacity 4s linear";
+    }
     img.src = src;
     img.onload = () => {
       loaded++;
@@ -136,17 +141,22 @@ function startBackgroundAnim() {
     videoEl.style.opacity = 1;
     // F1 fade in
     const f1El = document.getElementById(f1Id);
+    const f2El = document.getElementById("backF2");
     f1El.style.backgroundImage = `url('${f1Src}')`;
     f1El.style.transition = "opacity 0.3s linear";
     f1El.style.opacity = 1;
+    // F2 doit être visible sous F1 dès que F1 atteint 100% - SANS transition
+    f2El.style.transition = "none !important";
+    f2El.style.opacity = 1;
     setTimeout(() => {
-      // F1 fade out et lancement du loop
+      // F1 fade out
       f1El.style.transition = "opacity 2s linear";
       f1El.style.opacity = 0;
+      // Attendre la fin du fade out avant de démarrer le loop
       setTimeout(() => {
         videoEl.style.opacity = 0;
         loopBackground(loopImgs);
-      }, 2000);
+      }, 2000); // 2000ms = durée du fade out
     }, 300);
   };
 }
@@ -155,25 +165,48 @@ function loopBackground(loopImgs) {
   if (!loopImgs || loopImgs.length !== 6) return;
   let i = 0;
   let prev = loopImgs.length - 1;
-  // Initialisation : F2 visible, autres cachées
-  loopImgs.forEach((img, idx) => { img.style.opacity = idx === 0 ? 1 : 0; });
-  function crossfadeLoop() {
+  // Initialisation : F2 visible EN PERMANENCE, autres cachées
+  loopImgs.forEach((img, idx) => {
+    img.style.opacity = idx === 0 ? 1 : 0;
+    if (idx === 0) {
+      img.style.transition = "none !important"; // F2 sans transition
+    } else {
+      img.style.transition = "opacity 4s linear"; // F3-F7 avec transition pour fade in seulement
+    }
+  });    function crossfadeLoop() {
     prev = i;
     i = (i+1)%loopImgs.length;
+    
+    // Si on revient à F2, ne pas faire de transition
+    if (i === 0) {
+      return;
+    }
+    
+    // L'image suivante fait son fade in de 4s PAR DESSUS les précédentes
     loopImgs[i].style.transition = "opacity 4s linear";
     loopImgs[i].style.opacity = 1;
-    setTimeout(() => {
-      loopImgs[prev].style.opacity = 0;
-      // Si on vient d'afficher F7, reset tout sauf F2
-      if (i === 5) {
-        setTimeout(() => {
-          for (let j = 0; j < 5; j++) loopImgs[j].style.opacity = 0;
-          loopImgs[5].style.transition = "opacity 4s linear";
-          loopImgs[5].style.opacity = 0;
-          loopImgs[0].style.opacity = 1;
-        }, 4000); // F7 fade out
-      }
-    }, 4000);
+    
+    // Supprimer l'image précédente une fois que la nouvelle a fait son fade in
+    // SAUF pour F7 qui a un traitement spécial
+    if (i !== 5 && prev > 0) {
+      setTimeout(() => {
+        loopImgs[prev].style.opacity = 0;
+      }, 4000); // Suppression après le fade in complet
+    }
+    
+    // Traitement spécial pour F7 : fade out vers F2 uniquement
+    if (i === 5) {
+      setTimeout(() => {
+        // F7 fait son fade out de 4s vers F2 (qui est toujours là en dessous)
+        loopImgs[5].style.transition = "opacity 4s linear";
+        loopImgs[5].style.opacity = 0;
+        // Reset instantané des autres images pour le prochain cycle
+        // À ce stade, seules F2 (toujours visible) et F7 (en fade out) sont visibles
+        for (let j = 1; j < 5; j++) {
+          loopImgs[j].style.opacity = 0;
+        }
+      }, 4000); // F7 fade out après 4s
+    }
   }
   crossfadeLoop();
   window._loopTimer && clearInterval(window._loopTimer);
