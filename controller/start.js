@@ -4,7 +4,6 @@
 let userDevice = "desktop";
 
 function updateUserDevice() {
-  const WIDTH = window.innerWidth;
   const USER_AGENT = navigator.userAgent.toLowerCase();
 
   const IS_IPAD =
@@ -14,9 +13,11 @@ function updateUserDevice() {
   const IS_ANDROID_TABLET =
     /android/.test(USER_AGENT) && !/mobile/.test(USER_AGENT);
 
-  if (WIDTH <= 800 || /mobile|iphone|android/.test(USER_AGENT)) {
+  // Détection basée UNIQUEMENT sur le User Agent et les capacités tactiles
+  // La taille de la fenêtre n'affecte pas le device détecté
+  if (/mobile|iphone|ipod|android.*mobile/.test(USER_AGENT)) {
     userDevice = "mobile";
-  } else if (WIDTH <= 1917 || IS_IPAD || IS_ANDROID_TABLET) {
+  } else if (IS_IPAD || IS_ANDROID_TABLET) {
     userDevice = "tablet";
   } else {
     userDevice = "desktop";
@@ -24,7 +25,8 @@ function updateUserDevice() {
 }
 
 updateUserDevice();
-window.addEventListener("resize", updateUserDevice);
+// Le resize n'affecte plus la détection du device
+// window.addEventListener("resize", updateUserDevice);
 
 // --------------------------------------
 // DEVICE → ANIMATION DEVICE MAPPING
