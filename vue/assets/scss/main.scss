@@ -1,0 +1,19 @@
+// =============================================================================
+// MAIN — Point d'entrée SCSS
+// Compile vers : vue/assets/css/main.css
+// Commande   : npm run scss:watch
+// =============================================================================
+
+// 1. Base
+@use 'base/reset';
+@use 'base/base';
+
+// 2. Layout
+@use 'layout/main-nav';
+@use 'layout/navigation';
+
+// 3. Composants
+@use 'components/icons';
+@use 'components/animations';
+@use 'components/backgrounds';
+@use 'components/admintool';

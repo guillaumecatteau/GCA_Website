@@ -1,0 +1,6 @@
+// =============================================================================
+// ABSTRACTS INDEX — Reexporte variables + mixins via @forward
+// Les partials utilisent : @use '../abstracts' as *
+// =============================================================================
+@forward 'variables';
+@forward 'mixins';

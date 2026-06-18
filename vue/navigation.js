@@ -150,6 +150,7 @@ function accessHome() {
   }
 }
 function displayHome() {
+  window.GCABackground?.setPage('home');
   CNT_HOME.style.display = "flex";
   titleDisplay(TL_HOME);
   setTimeout(() => {
@@ -181,6 +182,7 @@ function accessProfile() {
   }
 }
 function displayProfile() {
+  window.GCABackground?.setPage('profile');
   CNT_PROFILE.style.display = "flex";
   titleDisplay(TL_PROFILE);
 }
@@ -203,6 +205,7 @@ function accessGames() {
   }
 }
 function displayGames() {
+  window.GCABackground?.setPage('games');
   CNT_GAMES.style.display = "flex";
   titleDisplay(TL_GAMES);
 }
@@ -225,6 +228,7 @@ function accessUxUi() {
   }
 }
 function displayUxUi() {
+  window.GCABackground?.setPage('uxui');
   CNT_UXUI.style.display = "flex";
   titleDisplay(TL_UXUI);
 }
@@ -247,6 +251,7 @@ function access3d() {
   }
 }
 function display3d() {
+  window.GCABackground?.setPage('3d');
   CNT_3D.style.display = "flex";
   titleDisplay(TL_3D);
 }
@@ -269,6 +274,7 @@ function access2d() {
   }
 }
 function display2d() {
+  window.GCABackground?.setPage('2d');
   CNT_2D.style.display = "flex";
   titleDisplay(TL_2D);
 }
@@ -291,6 +297,7 @@ function accessVideo() {
   }
 }
 function displayVideo() {
+  window.GCABackground?.setPage('video');
   CNT_VIDEO.style.display = "flex";
   titleDisplay(TL_VIDEO);
 }
@@ -313,6 +320,7 @@ function accessWeb() {
   }
 }
 function displayWeb() {
+  window.GCABackground?.setPage('web');
   CNT_WEB.style.display = "flex";
   titleDisplay(TL_WEB);
 }
@@ -335,6 +343,7 @@ function accessPixel() {
   }
 }
 function displayPixel() {
+  window.GCABackground?.setPage('pixel');
   CNT_PIXEL.style.display = "flex";
   titleDisplay(TL_PIXEL);
 }
@@ -361,6 +370,7 @@ function accessPortfolio() {
   }
 }
 function displayPortfolio() {
+  window.GCABackground?.setPage('portfolio');
   CNT_PORTFOLIO.style.display = "flex";
   titleDisplay(TL_PORTFOLIO);
 }
@@ -383,6 +393,7 @@ function accessBlog() {
   }
 }
 function displayBlog() {
+  window.GCABackground?.setPage('blog');
   CNT_BLOG.style.display = "flex";
   titleDisplay(TL_BLOG);
   displayContent(CNT_BLOG, 50);
@@ -407,6 +418,7 @@ function accessBio() {
   }
 }
 function displayBio() {
+  window.GCABackground?.setPage('bio');
   CNT_BIO.style.display = "flex";
   titleDisplay(TL_BIO);
 }
@@ -429,6 +441,7 @@ function accessContact() {
   }
 }
 function displayContact() {
+  window.GCABackground?.setPage('contact');
   CNT_CONTACT.style.display = "flex";
   titleDisplay(TL_CONTACT);
 }
@@ -447,6 +460,7 @@ function accessConnexion() {
   }
 }
 function displayConnexion() {
+  window.GCABackground?.setPage('connexion');
   CNT_CONNEXION.style.display = "flex";
   titleDisplay(TL_CONNEXION);
   displayContent(CNT_CONNEXION, 50);
@@ -473,6 +487,7 @@ function accessRegister() {
   }
 }
 function displayRegister() {
+  window.GCABackground?.setPage('register');
   CNT_REGISTER.style.display = "flex";
   titleDisplay(TL_REGISTER);
   displayContent(CNT_REGISTER, 50);
@@ -505,6 +520,7 @@ function accessUserProfile() {
   }
 }
 function displayUserProfile() {
+  window.GCABackground?.setPage('userprofile');
   CNT_USERPROFILE.style.display = "flex";
   titleDisplay(TL_USERPROFILE);
   displayContent(CNT_REGISTER, 50);
@@ -535,6 +551,7 @@ function accessAdminTool() {
   }
 }
 function displayAdminTool() {
+  window.GCABackground?.setPage('admintool');
   CNT_ADMINTOOL.style.display = "flex";
   titleDisplay(TL_ADMINTOOL);
   displayContent(CNT_ADMINTOOL, 50);
@@ -561,6 +578,7 @@ function accessUsersManagement() {
   }
 }
 function displayUsersManagement() {
+  window.GCABackground?.setPage('usersmanagement');
   initUsersManagement();
   CNT_USERSMANAGEMENT.style.display = "flex";
   titleDisplay(TL_USERSMANAGEMENT);

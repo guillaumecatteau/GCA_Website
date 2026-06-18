@@ -1,0 +1,22 @@
+{
+  "name": "gca-website",
+  "version": "1.0.0",
+  "description": "GC Digital Arts - Site portfolio",
+  "private": true,
+  "scripts": {
+    "scss:watch": "sass --watch vue/assets/scss/main.scss:vue/assets/css/main.css --style=expanded --source-map",
+    "scss:build": "sass vue/assets/scss/main.scss:vue/assets/css/main.css --style=compressed --no-source-map",
+    "scene:convert": "node scripts/convert-scene.js",
+    "scene:watch": "node scripts/convert-scene.js --watch"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "^4.4.0",
+    "@gltf-transform/core": "^4.4.0",
+    "@gltf-transform/extensions": "^4.4.0",
+    "obj2gltf": "^3.2.0",
+    "sass": "^1.77.6"
+  },
+  "dependencies": {
+    "three": "^0.184.0"
+  }
+}

@@ -1,0 +1,739 @@
+// =============================================================================
+// MAIN NAV — Barre du haut, navigation desktop / tablet / mobile
+// =============================================================================
+@use '../abstracts' as *;
+
+// ---------------------------------------------------------------------------
+// Conteneur principal
+// ---------------------------------------------------------------------------
+.navContainer {
+  position: fixed;
+  width: calc(100% - #{$nav-container-inset});
+  height: calc(100% - #{$nav-container-inset});
+  @include flex-column;
+  z-index: $z-nav;
+}
+
+// ---------------------------------------------------------------------------
+// Top Bar
+// ---------------------------------------------------------------------------
+.topBar {
+  height: $topbar-height;
+  width: 100%;
+  @include flex-row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topBarContent {
+  height: 100%;
+  width: 100%;
+  display: none;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.topBarDesktop {
+  display: flex;
+  height: fit-content;
+  width: fit-content;
+  @include flex-row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+// ---------------------------------------------------------------------------
+// Logo principal
+// ---------------------------------------------------------------------------
+.mainLogo {
+  height: fit-content;
+  width: fit-content;
+  @include flex-column;
+  align-items: left;
+  cursor: pointer;
+  opacity: 0;
+  margin-top: -6px;
+  transition: opacity $transition-slow;
+
+  h1 {
+    font-family: $font-heading;
+    font-weight: 400;
+    font-style: normal;
+    color: $color-text-muted;
+    font-size: $font-size-h1-nav;
+    transition: color $transition-fast;
+    margin-left: -2px;
+  }
+
+  &:hover h1,
+  &:hover span { color: $color-text-primary; }
+}
+
+.mainLogoText {
+  perspective: 500px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: -10px;
+
+  span {
+    font-family: $font-body;
+    font-weight: 400;
+    font-style: normal;
+    color: $color-text-muted;
+    font-size: 1rem;
+    opacity: 0;
+    text-transform: uppercase;
+    transition: color $transition-fast;
+    transform-origin: right center;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Connexion Box
+// ---------------------------------------------------------------------------
+.connexionBox {
+  height: 100%;
+  width: 300px;
+  @include flex-row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+}
+
+#connexionBoxDesktop {
+  opacity: 0;
+  transition: opacity $transition-fast;
+}
+
+.btnConnexion {
+  height: 36px;
+  width: 36px;
+  @include flex-center;
+  opacity: 1;
+  transform: var(--scale, scale(1));
+  transition: transform $transition-fast, opacity $transition-slow;
+  cursor: pointer;
+
+  > .icon {
+    transform-origin: center;
+    transform: rotateZ(0deg);
+    transition: transform $transition-fast, opacity $transition-fast;
+  }
+
+  &.active > .icon::after { opacity: 1; }
+}
+
+.btnUserLog,
+.btnAdminLog {
+  height: 36px;
+  width: fit-content;
+  @include flex-row;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transform: scale(1);
+  transform-origin: center;
+  transition: transform $transition-fast, opacity $transition-slow;
+  cursor: pointer;
+  gap: 0.5rem;
+
+  > .icon {
+    transform-origin: center;
+    transform: rotateX(0deg) var(--scale, scale(1));
+    transition: transform $transition-fast, opacity $transition-fast;
+  }
+
+  > .btnUserLogText {
+    font-family: $font-body;
+    font-weight: 400;
+    font-style: normal;
+    color: $color-text-muted;
+    transform: var(--scale, scale(1));
+    transition: transform $transition-fast;
+  }
+
+  &:hover { transform: scale(1.1); }
+}
+
+.btnUserLog {
+  &.pressed {
+    --scale: scale(1);
+
+    > .icon::after { opacity: 1; }
+    > .btnUserLogText { color: $color-text-primary; margin-left: 0; }
+  }
+
+  &.clicked {
+    --scale: scale(1.5);
+
+    > .icon::after { opacity: 1; }
+    > .btnUserLogText { color: $color-text-primary; }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Sélecteur de langue
+// ---------------------------------------------------------------------------
+.languageSelector {
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-weight: 400;
+  font-style: normal;
+  font-size: $font-size-lg;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-block;
+  opacity: 0;
+  transition: opacity $transition-fast;
+
+  select {
+    padding: 5px 40px 5px 10px;
+    border: 1px solid $color-text-muted;
+    border-radius: $radius-sm;
+    font-size: $font-size-lg;
+    color: $color-text-muted;
+    background-color: transparent;
+    font-family: inherit;
+    text-transform: uppercase;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+    width: auto;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#{$color-select-arrow}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+
+    &:focus { border-color: $color-text-muted; }
+  }
+}
+
+#languageSelectorDesktop {
+  opacity: 0;
+  transition: opacity $transition-slow;
+}
+
+// ---------------------------------------------------------------------------
+// Menu Tablet — barre top
+// ---------------------------------------------------------------------------
+.tabletMenuTop {
+  display: none;
+  height: fit-content;
+  width: 400px;
+  @include flex-row;
+  gap: 1rem;
+  justify-content: flex-end;
+  align-items: center;
+  margin-right: 1.5rem;
+  opacity: 0;
+  overflow: hidden;
+  transition: opacity $transition-fast, width $transition-fast;
+}
+
+.socialLinksTablet {
+  height: fit-content;
+  width: fit-content;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5rem;
+  padding-right: 0.75rem;
+}
+
+// ---------------------------------------------------------------------------
+// Burger Menu
+// ---------------------------------------------------------------------------
+.burgerContainer { display: none; }
+
+.burgerMenu {
+  transform-origin: center;
+  position: relative;
+  width: 40px !important;
+  height: 40px !important;
+  display: none;
+  cursor: pointer;
+  transform: scale(1);
+  transition: all $transition-fast;
+}
+
+%burger-bar {
+  position: absolute;
+  left: calc(50% - 21px);
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background-color: $color-text-muted;
+  transition: all $transition-fast;
+}
+
+#burgerBarTop    { @extend %burger-bar; top: 0; }
+#burgerBarMiddle { @extend %burger-bar; top: calc(50% - 3px); }
+#burgerBarBottom {
+  @extend %burger-bar;
+  top: calc(100% - 6px);
+  left: auto;
+  right: 0;
+}
+
+// ---------------------------------------------------------------------------
+// Nav Desktop
+// ---------------------------------------------------------------------------
+.navDesktop {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.navLeft {
+  height: 100%;
+  width: 272px;
+  @include flex-column;
+  justify-content: flex-start;
+  gap: 2.5rem;
+  padding-top: 2.5rem;
+}
+
+.mainNavContainerDesktop {
+  height: fit-content;
+  width: fit-content;
+  @include flex-column;
+  gap: 1rem;
+}
+
+.navLinks {
+  height: fit-content;
+  width: fit-content;
+  @include flex-column;
+  gap: 1.5rem;
+}
+
+.btnLateral {
+  width: 100%;
+  height: 100%;
+  @include flex-row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  opacity: 0;
+  transform-origin: left center;
+  transform: rotateY(0deg) var(--scale, scale(1));
+  transition: all $transition-fast;
+  cursor: pointer;
+
+  > .icon {
+    transform-origin: center;
+    transform: rotateY(0deg) var(--scale, scale(1));
+    transition: transform $transition-fast, opacity $transition-fast;
+  }
+
+  &:hover {
+    > .linkText { margin-left: 0.5rem; }
+  }
+
+  &.pressed {
+    --scale: scale(1);
+
+    > .icon::after  { opacity: 1; }
+    > .linkText { transform: scale(1); color: $color-text-primary; margin-left: 0; }
+  }
+
+  &.clicked {
+    > .icon { --scale: scale(1.5); }
+    > .icon::after  { opacity: 1; }
+    > .linkText { transform: scale(1.5); color: $color-text-primary; margin-left: 0.5rem; }
+  }
+}
+
+.linkText {
+  font-family: $font-body;
+  font-weight: 400;
+  font-style: normal;
+  color: $color-text-muted;
+  font-size: $font-size-md;
+  opacity: 0;
+  transform: var(--scale, scale(1));
+  text-transform: uppercase;
+  transition: color $transition-fast, transform $transition-fast, margin-left $transition-fast;
+}
+
+// ---------------------------------------------------------------------------
+// Social links Desktop
+// ---------------------------------------------------------------------------
+.socialLinksDesktop {
+  height: fit-content;
+  width: fit-content;
+  @include flex-column;
+  align-items: center;
+  gap: 1.5rem;
+  opacity: 1;
+}
+
+.btnSocialLateral {
+  position: relative;
+  display: flex;
+  height: fit-content;
+  width: fit-content;
+  justify-content: center;
+  opacity: 0;
+  transition: transform $transition-slow, opacity $transition-slow;
+  cursor: pointer;
+
+  > .icon {
+    opacity: 1;
+    transform-origin: right center;
+    transform: rotateY(0deg) var(--scale, scale(1));
+    transition: transform $transition-fast, opacity $transition-fast;
+  }
+
+  &:hover > .icon  { --scale: scale(1.5); }
+  &:active > .icon { --scale: scale(1); }
+  &:active > .icon::after { opacity: 1; }
+}
+
+.navRight { height: 100%; }
+
+// ---------------------------------------------------------------------------
+// Nav Tablet
+// ---------------------------------------------------------------------------
+.navTablet {
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: right;
+}
+
+.navLinksTablet {
+  height: fit-content;
+  width: fit-content;
+  @include flex-column;
+  gap: 1.5rem;
+}
+
+.mainNavContainerTablet {
+  height: 0;
+  width: 86px;
+  @include flex-center;
+  background-color: #06060977;
+  padding: 1rem 0 2rem;
+  border-radius: 0 0 0 $radius-lg;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity $transition-medium, height $transition-medium;
+}
+
+.btnTablet {
+  width: 100%;
+  height: 100%;
+  @include flex-column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  opacity: 0;
+  transform-origin: center;
+  transform: rotateY(0deg) var(--scale, scale(1));
+  transition: all $transition-fast;
+
+  &:hover  { transform: var(--scale, scale(1.2)); }
+  > .icon  { transform-origin: center right; width: 36px; height: 36px; }
+
+  &.pressedTablet {
+    color: $color-text-primary;
+    transform: var(--scale, scale(0.9));
+
+    .icon::after         { opacity: 1; }
+    .linkTextTablet      { color: $color-text-primary; }
+  }
+
+  &.clickedTablet {
+    transform: var(--scale, scale(1));
+
+    .icon::after         { opacity: 1; }
+    .linkTextTablet      { color: $color-text-primary; }
+  }
+}
+
+.linkTextTablet {
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-style: normal;
+  text-transform: uppercase;
+  font-weight: 300;
+  font-size: $font-size-xs;
+  transition: color $transition-fast;
+}
+
+.btnSocialTablet {
+  position: relative;
+  display: flex;
+  height: fit-content;
+  width: fit-content;
+  justify-content: center;
+  opacity: 0;
+  transition: transform $transition-fast, opacity $transition-fast;
+  cursor: pointer;
+
+  > .icon {
+    transform-origin: right center;
+    transform: rotateY(0deg) var(--scale, scale(1));
+    transition: transform $transition-fast, opacity $transition-fast;
+  }
+
+  &:hover > .icon  { --scale: scale(1.5); }
+  &:active > .icon { --scale: scale(1); }
+  &:active > .icon::after { opacity: 1; }
+}
+
+// ---------------------------------------------------------------------------
+// Nav Mobile
+// ---------------------------------------------------------------------------
+.navMobile {
+  width: 100%;
+  height: 100%;
+  display: none;
+  z-index: 1000;
+}
+
+.mainNavContainerMobile {
+  height: 100%;
+  width: 100%;
+  @include flex-column;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #060609;
+  padding: 12px 24px 24px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity $transition-fast, height 0.1s ease-in-out;
+  z-index: 1000;
+
+  > .languageSelector {
+    align-self: flex-end;
+    opacity: 0;
+    transition: opacity $transition-fast;
+  }
+}
+
+.navLinksMobile {
+  height: fit-content;
+  width: fit-content;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin: 3rem 0;
+}
+
+.btnMobile {
+  width: 100px;
+  height: 100px;
+  @include flex-column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  border: 1px solid $color-text-muted;
+  border-radius: $radius-lg;
+  opacity: 0;
+  transform-origin: center;
+  transform: rotateY(0deg) var(--scale, scale(1));
+  transition: transform $transition-fast, opacity $transition-fast,
+    background-color $transition-fast, color $transition-fast;
+
+  > .icon { width: 36px; height: 36px; }
+
+  &.pressedMobile {
+    background-color: $color-text-muted;
+    color: #060609;
+    transform: var(--scale, scale(0.9));
+
+    .icon::before     { opacity: 1; }
+    .linkTextMobile   { color: #060609; }
+  }
+
+  &.clickedMobile {
+    background-color: $color-text-primary;
+    transform: var(--scale, scale(1));
+
+    .icon::before     { opacity: 1; }
+    .linkTextMobile   { color: #060609; }
+  }
+}
+
+.linkTextMobile {
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-style: normal;
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: $font-size-xs;
+  transition: color $transition-fast;
+}
+
+.socialLinksMobile {
+  height: fit-content;
+  width: 100%;
+  @include flex-row;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.btnSocialMobile {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  cursor: pointer;
+  opacity: 0;
+  transform-origin: center;
+  transform: rotateY(0deg) var(--scale, scale(1));
+  transition: transform $transition-fast, opacity $transition-fast;
+}
+
+// ---------------------------------------------------------------------------
+// Boutons CTA
+// ---------------------------------------------------------------------------
+.btnMedium {
+  display: flex;
+  @include flex-center;
+  width: 220px;
+  height: 48px;
+  border: 1px solid $color-text-muted;
+  border-radius: 24px;
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: center;
+  transition: all $transition-fast;
+  cursor: pointer;
+  overflow: hidden;
+
+  &:hover {
+    transform: scale(1.1);
+    background-color: $color-text-muted;
+
+    .btnText    { color: $color-bg; }
+    .icon::before { opacity: 1; }
+  }
+
+  &:active {
+    transform: scale(0.9);
+    background-color: $color-text-primary;
+  }
+}
+
+.btnLarge  { width: 450px; }
+.btnSmall  { width: 100px; }
+.btnOff    { pointer-events: none !important; opacity: 0.25 !important; }
+
+.btnLabel {
+  width: fit-content;
+  height: fit-content;
+  @include flex-row;
+  @include flex-center;
+  gap: 0.5rem;
+}
+
+.btnText {
+  font-family: $font-body;
+  font-style: normal;
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 20px;
+  color: $color-text-muted;
+  transition: color $transition-fast;
+}
+
+// ---------------------------------------------------------------------------
+// Animations
+// ---------------------------------------------------------------------------
+.rotateIn { animation: rotateIn 0.3s forwards; }
+
+@keyframes rotateIn {
+  from { transform: rotateY(90deg) var(--scale, scale(1)); opacity: 0; }
+  to   { transform: rotateY(0deg)  var(--scale, scale(1)); opacity: 1; }
+}
+
+.rotateOut { animation: rotateOut 0.3s forwards; }
+
+@keyframes rotateOut {
+  from { transform: rotateY(0deg)  var(--scale, scale(1)); opacity: 1; }
+  to   { transform: rotateY(90deg) var(--scale, scale(1)); opacity: 0; }
+}
+
+.onlineStatus  { animation: onlineStatus  0.3s forwards; }
+.offlineStatus { animation: offlineStatus 0.3s forwards; }
+
+@keyframes onlineStatus  { from { transform: rotateZ(0deg); }    to { transform: rotateZ(-180deg); } }
+@keyframes offlineStatus { from { transform: rotateZ(-180deg); } to { transform: rotateZ(0deg); } }
+
+// ---------------------------------------------------------------------------
+// Responsive
+// ---------------------------------------------------------------------------
+@media (max-height: 1160px) {
+  .socialLinksDesktop { display: none; }
+}
+
+@include wide-header {
+  .navContainer   { height: 100%; width: 100%; }
+
+  .topBar {
+    height: 72px;
+    padding: 0 24px;
+  }
+
+  .mainLogo {
+    margin-top: 0;
+
+    h1 { font-size: 28px; }
+  }
+
+  .mainLogoText {
+    margin-top: -5px;
+    gap: 0.07rem;
+
+    span { font-size: 12px; letter-spacing: 11.75px; }
+  }
+
+  .languageSelector     { opacity: 1; }
+  .navDesktop           { display: none; }
+  .topBarDesktop        { display: none; }
+  .navTablet            { display: flex; }
+  .topBar > .languageSelector { display: none; }
+  .topBarContent        { display: flex; }
+  .tabletMenuTop        { display: flex; }
+  .burgerMenu           { display: flex; }
+
+  .burgerContainer {
+    height: 64px;
+    width: 76px;
+    display: flex;
+    transform: translateX(4px);
+    @include flex-center;
+    overflow: hidden;
+    margin-left: 0;
+  }
+}
+
+@include mobile {
+  .mainLogo     { margin-top: -3px; }
+  .mainLogoText { margin-top: -8px; }
+  .navTablet    { display: none; }
+  .topBarContent { display: none; }
+
+  .burgerContainer {
+    display: flex;
+    width: 64px;
+    padding: 0;
+    margin: 0;
+  }
+
+  .burgerMenu  { margin-top: 3px; width: 64px; }
+  .navMobile   { display: flex; }
+}

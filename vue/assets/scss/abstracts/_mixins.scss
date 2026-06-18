@@ -1,0 +1,90 @@
+// =============================================================================
+// MIXINS
+// =============================================================================
+@use 'variables' as *;
+
+// -----------------------------------------------------------------------------
+// Responsive
+// -----------------------------------------------------------------------------
+@mixin tablet {
+  @media (max-width: #{$bp-tablet}) { @content; }
+}
+@mixin mobile {
+  @media (max-width: #{$bp-mobile}) { @content; }
+}
+@mixin wide-header {
+  @media (max-width: #{$bp-header}) { @content; }
+}
+
+// -----------------------------------------------------------------------------
+// Icône triple état : grey (base) / dark (::before) / white (::after)
+// Utilisé pour les icônes de navigation et d'action
+// Usage : @include icon-triple('../images/icons/icon_foo_grey.webp', '...dark.webp', '...white.webp');
+// -----------------------------------------------------------------------------
+@mixin icon-triple($grey, $dark, $white) {
+  position: relative;
+  background: url($grey) center / contain no-repeat;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity $transition-fast;
+  }
+
+  &::before { background-image: url($dark); }
+  &::after  { background-image: url($white); }
+}
+
+// -----------------------------------------------------------------------------
+// Icône double état : grey (base) / white (::after)
+// Utilisé pour les icônes sociales
+// -----------------------------------------------------------------------------
+@mixin icon-dual($grey, $white) {
+  position: relative;
+  background: url($grey) center / contain no-repeat;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url($white) center / contain no-repeat;
+    opacity: 0;
+    transition: opacity $transition-fast;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Flex utilitaires
+// -----------------------------------------------------------------------------
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+// -----------------------------------------------------------------------------
+// Bloc semi-transparent avec blur
+// -----------------------------------------------------------------------------
+@mixin glass-block($radius: $radius-lg) {
+  background-color: $color-block-bg;
+  border: solid 1px $color-border;
+  backdrop-filter: blur(0);
+  border-radius: $radius;
+  transition: all $transition-fast;
+}

@@ -1,0 +1,77 @@
+// =============================================================================
+// ADMIN TOOL — Interface d'administration
+// =============================================================================
+@use '../abstracts' as *;
+
+// ---------------------------------------------------------------------------
+// Menu utilisateur
+// ---------------------------------------------------------------------------
+.userMenuContainer {
+  width: fit-content;
+  height: fit-content;
+  @include flex-column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.userMenuMainIcon {
+  width: $icon-size-lg;
+  height: $icon-size-lg;
+  margin-bottom: 2rem;
+}
+
+.lateralMessageBox {
+  width: 100%;
+  height: 50px;
+  @include flex-row;
+  justify-content: center;
+  align-items: center;
+}
+
+// ---------------------------------------------------------------------------
+// Gestion des utilisateurs
+// ---------------------------------------------------------------------------
+.entryUserOpen {
+  height: 200px;
+  gap: 0;
+  background-color: $color-block-bg-active;
+  border: solid 1px $color-border-active;
+  transition: all $transition-fast;
+  padding: 0 3px 0 0;
+  overflow: hidden;
+}
+
+.entryUserForm {
+  height: fit-content;
+  width: 95%;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 2fr 2fr 3fr auto;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+
+  > .formGroup   { width: 100%; height: fit-content; }
+  > .checkBoxGroup { height: fit-content; width: fit-content; margin: 0; }
+}
+
+.idSearchBox {
+  height: fit-content;
+  width: 100%;
+  @include flex-row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.statusSearchBox {
+  height: fit-content;
+  width: 100%;
+  @include flex-row;
+  justify-content: space-around;
+  align-items: center;
+  gap: 2rem;
+}

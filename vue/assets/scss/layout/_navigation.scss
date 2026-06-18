@@ -1,0 +1,715 @@
+// =============================================================================
+// NAVIGATION — Conteneurs de pages, grilles, blocs, formulaires, titres
+// =============================================================================
+@use '../abstracts' as *;
+
+// ---------------------------------------------------------------------------
+// Page Container
+// ---------------------------------------------------------------------------
+.pageContainer {
+  position: fixed;
+  width: calc(80% - 544px);
+  height: calc(100% - 72px);
+  transform: translateY(60px);
+  @include flex-column;
+  z-index: $z-nav;
+
+  > div {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    @include flex-column;
+  }
+}
+
+.centerContent {
+  width: 100%;
+  height: 100%;
+  @include flex-column;
+  justify-content: center;
+  align-items: center;
+}
+
+// ---------------------------------------------------------------------------
+// Grilles
+// ---------------------------------------------------------------------------
+.basicGrid {
+  width: 100%;
+  height: calc(100% - 180px);
+  display: grid;
+  grid-template-columns: 3.5fr 1fr;
+  grid-template-rows: 1fr;
+  gap: 1rem;
+  grid-template-areas: "mainBloc sideBloc";
+}
+
+.mainBlock {
+  @include flex-column;
+  gap: 1rem;
+  grid-area: mainBloc;
+}
+
+.sideBlock {
+  @include flex-column;
+  gap: 1rem;
+  grid-area: sideBloc;
+}
+
+.gridBlog {
+  width: 100%;
+  height: 80%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+  grid-template-areas:
+    "bB1 bB1 bB1 bB1 bB1 bB1 bB2 bB2 bB2 bB2 bB2 bB2 bF bF bF bF"
+    "bB1 bB1 bB1 bB1 bB1 bB1 bB2 bB2 bB2 bB2 bB2 bB2 bF bF bF bF"
+    "bB1 bB1 bB1 bB1 bB1 bB1 bB2 bB2 bB2 bB2 bB2 bB2 sF sF sF sF"
+    "bB1 bB1 bB1 bB1 bB1 bB1 bB2 bB2 bB2 bB2 bB2 bB2 sF sF sF sF"
+    "bM1 bM1 bM1 bM1 bM2 bM2 bM2 bM2 bM3 bM3 bM3 bM3 sF sF sF sF"
+    "bM1 bM1 bM1 bM1 bM2 bM2 bM2 bM2 bM3 bM3 bM3 bM3 sF sF sF sF"
+    "bM1 bM1 bM1 bM1 bM2 bM2 bM2 bM2 bM3 bM3 bM3 bM3 sF sF sF sF"
+    "bS1 bS1 bS1 bS2 bS2 bS2 bS3 bS3 bS3 bS4 bS4 bS4 sF sF sF sF"
+    "bS1 bS1 bS1 bS2 bS2 bS2 bS3 bS3 bS3 bS4 bS4 bS4 sF sF sF sF"
+    "bS1 bS1 bS1 bS2 bS2 bS2 bS3 bS3 bS3 bS4 bS4 bS4 sF sF sF sF";
+}
+
+// ---------------------------------------------------------------------------
+// Blocs génériques
+// ---------------------------------------------------------------------------
+.basicBlock {
+  @include glass-block;
+  width: 100%;
+  height: fit-content;
+  @include flex-column;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem 0;
+}
+
+.blockTitle {
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: 200;
+  font-style: normal;
+  letter-spacing: 10px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.blockSubTxt {
+  color: $color-text-faint;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: 200;
+  font-style: normal;
+  text-align: center;
+}
+
+// ---------------------------------------------------------------------------
+// Entry Blocks (liste d'utilisateurs, etc.)
+// ---------------------------------------------------------------------------
+.entryListContainer {
+  position: relative;
+  width: 100%;
+  height: fit-content;
+  @include flex-column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
+}
+
+.entryBlock {
+  width: 100%;
+  height: 40px;
+  @include flex-column;
+  align-items: center;
+  gap: 0;
+  @include glass-block($radius-md);
+  border-radius: 10px 20px 20px 10px;
+  padding: 0 3px 0 0;
+  overflow: hidden;
+}
+
+.entryFilters {
+  position: absolute;
+  top: -32px;
+  border: none;
+  background-color: transparent;
+  opacity: 1;
+
+  > .entryTop { margin-right: 36px; }
+}
+
+.entryTop {
+  align-self: flex-start;
+  flex: 0 0 auto;
+  width: 100%;
+  height: 40px;
+  @include flex-row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+}
+
+.entryUserInfosContainer {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto 2fr auto 2fr auto 3fr auto 1fr auto 1fr;
+  gap: 0;
+  align-items: center;
+  transition: color $transition-fast;
+  padding: 0;
+}
+
+.entryTXT {
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-size: $font-size-md;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.filtersTXT {
+  color: $color-text-faint;
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.entryTXTupper {
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-size: $font-size-md;
+  font-weight: 200;
+  font-style: normal;
+  text-transform: uppercase;
+}
+
+.entrySeparatorContainer {
+  width: fit-content;
+  height: fit-content;
+  text-align: center;
+}
+
+.entryIdContainer,
+.entryNameContainer,
+.entryFirstNameContainer,
+.entryMailContainer,
+.entrySubscriptionContainer,
+.entryIsAdminContainer {
+  width: 100%;
+  height: fit-content;
+  text-align: center;
+}
+
+.btnEntrySettings {
+  height: 36px;
+  width: 36px;
+  @include flex-center;
+  opacity: 1;
+  transform: var(--scale, scale(1));
+  transition: transform $transition-fast, opacity $transition-slow;
+  cursor: pointer;
+}
+
+.entrySettingsBox {
+  height: 160px;
+  width: 100%;
+  @include flex-column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.entryBtnBox {
+  height: 48px;
+  width: 100%;
+  @include flex-center;
+  margin: 1rem 0 2rem;
+}
+
+.entryBtnBoxContent {
+  height: fit-content;
+  width: fit-content;
+  @include flex-row;
+  gap: 1rem;
+  @include flex-center;
+}
+
+.entryBtnBoxMessage {
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-size: 20px;
+  font-weight: 200;
+  font-style: normal;
+}
+
+// ---------------------------------------------------------------------------
+// Popups
+// ---------------------------------------------------------------------------
+.blurPopup {
+  border-radius: $radius-lg;
+  border: solid 1px $color-border;
+  backdrop-filter: blur(0);
+  background-color: $color-block-bg;
+  opacity: 0;
+  transform-origin: center;
+  transition: opacity $transition-medium, backdrop-filter $transition-slow linear;
+}
+
+.scrollList { grid-area: scrollList; }
+
+.socialFeed {
+  grid-area: sF;
+  opacity: 0;
+  transition: opacity $transition-medium;
+}
+
+// ---------------------------------------------------------------------------
+// Titres de section
+// ---------------------------------------------------------------------------
+.titleMain {
+  display: flex;
+  width: 100%;
+  height: fit-content;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 78px;
+  transition: gap 1s ease-out;
+  margin-bottom: 1rem;
+  z-index: $z-nav;
+
+  > span {
+    color: $color-text-muted;
+    font-family: $font-body;
+    font-size: 56px;
+    font-weight: 200;
+    font-style: normal;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: color $transition-fast;
+    transform-origin: right center;
+  }
+}
+
+.titleTop {
+  display: flex;
+  width: 100%;
+  height: fit-content;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  transition: gap 1s ease-out;
+  margin-bottom: 4rem;
+  z-index: $z-nav;
+
+  > span {
+    color: $color-text-muted;
+    font-family: $font-body;
+    font-size: 40px;
+    font-weight: 200;
+    font-style: normal;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: color $transition-fast;
+    transform-origin: right center;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Messages
+// ---------------------------------------------------------------------------
+.messageBox {
+  width: 100%;
+  height: 100px;
+  @include flex-column;
+  justify-content: center;
+  align-items: center;
+}
+
+.message {
+  display: flex;
+  width: 100%;
+  height: fit-content;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+
+  > span {
+    font-family: $font-body;
+    font-size: $font-size-md;
+    font-weight: 200;
+    font-style: normal;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: color $transition-fast;
+    transform-origin: right center;
+    color: $color-text-muted;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Page Home
+// ---------------------------------------------------------------------------
+.homeContent {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  @include flex-column;
+  justify-content: center;
+  align-items: center;
+  z-index: -100;
+}
+
+.homeTitle {
+  position: absolute;
+  top: 57.5%;
+}
+
+#btnProfileHome {
+  position: absolute;
+  opacity: 0;
+  bottom: 20%;
+}
+
+// ---------------------------------------------------------------------------
+// Formulaires
+// ---------------------------------------------------------------------------
+.formContainer {
+  width: 100%;
+  height: 100%;
+  @include flex-column;
+  justify-content: center;
+  align-items: center;
+}
+
+.formContainerLateral {
+  width: calc(100% - 4rem);
+  height: fit-content;
+  @include flex-column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.formContainerLateral > .formGroup,
+.idSearchBox > .formGroup { width: 100%; height: fit-content; }
+
+form {
+  height: fit-content;
+  width: 420px;
+  @include flex-column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.formGroup {
+  width: 100%;
+  position: relative;
+  height: 114px;
+  @include flex-column;
+  gap: 0.5rem;
+
+  &:focus-within label {
+    color: $color-text-primary;
+    transition: color $transition-fast;
+  }
+
+  > label {
+    font-family: $font-body;
+    font-size: 20px;
+    font-weight: 200;
+    font-style: normal;
+    text-transform: uppercase;
+    opacity: 1;
+    color: $color-text-muted;
+    transition: color $transition-fast;
+    pointer-events: none;
+  }
+
+  > input {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 40px;
+    border-radius: $radius-md;
+    border: solid 1px $color-text-muted;
+    background-color: rgba(180, 180, 181, 0.1);
+    backdrop-filter: blur(0);
+    opacity: 1;
+    transition: opacity $transition-fast, backdrop-filter $transition-slow linear;
+    pointer-events: auto;
+    caret-color: $color-text-primary;
+    outline: none;
+    padding-left: 10px;
+    color: $color-text-primary;
+    font-family: $font-body;
+    font-size: 20px;
+    font-weight: 200;
+    font-style: normal;
+
+    &::placeholder {
+      color: $color-text-faint;
+      font-family: $font-body;
+      font-size: 20px;
+      font-weight: 200;
+      font-style: normal;
+    }
+
+    &:focus {
+      border: $color-text-primary 1px solid;
+      transition: border $transition-fast;
+    }
+  }
+}
+
+.validationIcons {
+  position: absolute;
+  right: -32px;
+  top: 48px;
+  width: $icon-size;
+  height: $icon-size;
+  opacity: 1;
+  transition: opacity $transition-fast;
+}
+
+.errorMessage {
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: 200;
+  font-style: normal;
+  text-align: right;
+}
+
+.eyeButton {
+  cursor: pointer;
+  position: absolute;
+  right: 16px;
+  top: 48px;
+  width: $icon-size;
+  height: $icon-size;
+  opacity: 1;
+}
+
+.checkboxGroup {
+  display: flex;
+  width: fit-content;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  opacity: 1;
+  position: relative;
+  margin: 0;
+
+  label {
+    display: flex;
+    align-items: center;
+    font-family: $font-body;
+    font-size: $font-size-md;
+    color: $color-text-muted;
+    pointer-events: none;
+  }
+
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    border: solid 1px $color-text-muted;
+
+    &:checked + label::after {
+      content: "";
+      width: 24px;
+      height: 24px;
+      background-image: url("../images/icons/icon_validation_grey.webp");
+      background-size: contain;
+      background-repeat: no-repeat;
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translate(0, -50%);
+    }
+  }
+}
+
+.linkClickGroup {
+  display: flex;
+  width: fit-content;
+  height: fit-content;
+  @include flex-column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.linkClickCombo {
+  display: flex;
+  width: fit-content;
+  height: fit-content;
+  @include flex-row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.linkClickText,
+.introLinkClickText {
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-size: $font-size-md;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.introLinkClickText { display: block; }
+
+.linkClickText {
+  display: block;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover { color: $color-text-primary; transition: color $transition-fast; }
+}
+
+// ---------------------------------------------------------------------------
+// Connexion / Register
+// ---------------------------------------------------------------------------
+#btnLoginConnexion    { margin: 2.5rem 0; }
+#btnRegisterRegister  { margin: 2.5rem 0 0; }
+
+// ---------------------------------------------------------------------------
+// Blog
+// ---------------------------------------------------------------------------
+#blogFilters {
+  grid-area: bF;
+  border: solid 1px rgba(128, 128, 128, 0.5);
+  border-radius: $radius-lg;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity $transition-medium ease-in;
+}
+
+.blogItemBig,
+.blogItemMed,
+.blogItemSmall {
+  opacity: 0;
+  transition: opacity $transition-medium ease-in;
+}
+
+.blog1 { grid-area: bB1; }
+.blog2 { grid-area: bB2; }
+.blog3 { grid-area: bM1; }
+.blog4 { grid-area: bM2; }
+.blog5 { grid-area: bM3; }
+.blog6 { grid-area: bS1; }
+.blog7 { grid-area: bS2; }
+.blog8 { grid-area: bS3; }
+.blog9 { grid-area: bS4; }
+
+// ---------------------------------------------------------------------------
+// Responsive
+// ---------------------------------------------------------------------------
+@media (max-width: 2560px) {
+  .titleMain { gap: 48px; }
+  .title > span { font-size: 40px; }
+  .titleTop { gap: 24px; }
+  .titleTop > span { font-size: 40px; }
+}
+
+@media (min-width: 2160px) {
+  .pageContainer {
+    width: calc(100% - 700px);
+    height: calc(100% - 80px);
+    transform: translateY(40px);
+  }
+}
+
+@include wide-header {
+  .pageContainer {
+    width: calc(100% - 200px);
+    height: calc(100% - 80px);
+    transform: translateY(40px);
+  }
+
+  .titleMain { gap: 42px; }
+  .title > span { font-size: 40px; }
+  .titleTop { gap: 20px; }
+  .titleTop > span { font-size: 28px; }
+  .homeTitle { top: 62.5%; }
+  #btnProfileHome { bottom: 20%; }
+}
+
+@media (max-width: 1280px) {
+  .homeTitle { top: 65%; }
+  .title { gap: 41px; }
+  .title > span { font-size: 1.75rem; }
+  #btnProfileHome { bottom: 15%; }
+}
+
+@include mobile {
+  .pageContainer {
+    width: 100%;
+    height: calc(100% - 80px);
+    transform: translateY(40px);
+    z-index: -100;
+  }
+
+  .title { gap: 18px; }
+  .title > span { font-size: 1.25rem; }
+  .homeTitle { top: 65%; }
+  #btnProfileHome { bottom: 10%; }
+}
+
+// ---------------------------------------------------------------------------
+// Animations de page
+// ---------------------------------------------------------------------------
+.rotateInSlow  { animation: rotateInSlow  1s   forwards; }
+.rotateOutSlow { animation: rotateOutSlow 0.6s forwards; }
+.moveInBottom     { animation: moveInBottom     0.75s ease-out forwards; }
+.moveOutBottom    { animation: moveOutBottom    0.5s  ease-in  forwards; }
+.moveInBottomFast { animation: moveInBottomFast 0.75s ease-out forwards; }
+.moveOutBottomFast{ animation: moveOutBottomFast 0.5s ease-in  forwards; }
+
+@keyframes rotateInSlow {
+  from { transform: rotateY(90deg) var(--scale, scale(1)); opacity: 0; }
+  to   { transform: rotateY(0deg)  var(--scale, scale(1)); opacity: 1; }
+}
+
+@keyframes rotateOutSlow {
+  from { transform: rotateY(0deg)  var(--scale, scale(1)); opacity: 1; }
+  to   { transform: rotateY(90deg) var(--scale, scale(1)); opacity: 0; }
+}
+
+@keyframes moveInBottom {
+  from { transform: translateY(100px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+@keyframes moveOutBottom {
+  from { transform: translateY(0);     opacity: 1; }
+  to   { transform: translateY(100px); opacity: 0; }
+}
+
+@keyframes moveInBottomFast {
+  from { transform: translateY(1200px); opacity: 0; }
+  to   { transform: translateY(0);      opacity: 1; }
+}
+
+@keyframes moveOutBottomFast {
+  from { transform: translateY(0);    opacity: 1; }
+  to   { transform: translateY(600px); opacity: 0; }
+}

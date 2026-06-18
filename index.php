@@ -11,14 +11,15 @@ if (isset($_GET['action'])) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="vue/assets/css/reset.css" />
-  <link rel="stylesheet" href="vue/assets/css/style.css" />
-  <link rel="stylesheet" href="vue/assets/css/backgrounds.css" />
-  <link rel="stylesheet" href="vue/assets/css/mainNav.css" />
-  <link rel="stylesheet" href="vue/assets/css/icons.css" />
-  <link rel="stylesheet" href="vue/assets/css/navigation.css" />
-  <link rel="stylesheet" href="vue/assets/css/animations.css" />
-  <link rel="stylesheet" href="vue/assets/css/admintool.css" />
+  <link rel="stylesheet" href="vue/assets/css/main.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./node_modules/three/build/three.module.min.js",
+      "three/addons/": "./node_modules/three/examples/jsm/"
+    }
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Sarala:wght@400;700&display=swap"
@@ -1252,25 +1253,15 @@ if (isset($_GET['action'])) {
     </div>
   </div>
   <div class="backgroundsContainer">
+    <canvas id="bgCanvas"></canvas>
     <div class="topBarBackground"></div>
     <div class="backgrounds">
       <div class="backgMotif" id="backgMotif"></div>
       <div class="backgBlur" id="backgBlur"></div>
-<div id="backgroundHome">
-    <div class="layer-fx" id="backF1"></div>
-    <div class="loop-wrapper">
-        <img id="backF2" class="loop-img" />
-        <img id="backF3" class="loop-img" />
-        <img id="backF4" class="loop-img" />
-        <img id="backF5" class="loop-img" />
-        <img id="backF6" class="loop-img" />
-        <img id="backF7" class="loop-img" />
-    </div>
-    <video id="backAnim" class="layer-video" muted playsinline></video>
-</div>
     </div>
   </div>
 </body>
+<script type="module" src="vue/threejs-background.js"></script>
 <script src="controller/start.js" defer></script>
 <script src="controller/language.js" defer></script>
 <script src="vue/interface.js" defer></script>
