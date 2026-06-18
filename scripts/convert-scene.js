@@ -15,8 +15,9 @@
  */
 
 const { execSync, spawnSync } = require('child_process');
-const path  = require('path');
-const fs    = require('fs');
+const path     = require('path');
+const fs       = require('fs');
+const obj2gltf = require('obj2gltf');
 
 // ── Chemins ──────────────────────────────────────────────────────────────────
 const ROOT       = path.resolve(__dirname, '..');
@@ -43,24 +44,24 @@ function cleanup() {
   [OBJ_FILE, MTL_FILE].forEach(f => { try { if (fs.existsSync(f)) fs.unlinkSync(f); } catch(_) {} });
 }
 
-// ── Étape 2 : OBJ → glTF via obj2gltf ────────────────────────────────────────
-function objToGlb() {
+// ── Étape 2 : OBJ → glTF via obj2gltf (API programmatique) ──────────────────
+async function objToGlb() {
   console.log('[convert] OBJ → glTF via obj2gltf …');
-  const obj2gltf = path.join(ROOT, 'node_modules/.bin/obj2gltf');
-  const result = spawnSync(
-    obj2gltf,
-    ['-i', OBJ_FILE, '-o', GLB_FILE, '--binary'],
-    { stdio: 'inherit', cwd: ROOT, timeout: 60_000 }
-  );
-  if (result.status !== 0) {
-    console.error('[convert] ✗ obj2gltf échoué.');
+  try {
+    const glb = await obj2gltf(OBJ_FILE, {
+      binary: true,
+      separateTextures: false,
+    });
+    fs.writeFileSync(GLB_FILE, glb);
+    return true;
+  } catch (e) {
+    console.error('[convert] ✗ obj2gltf échoué :', e.message);
     return false;
   }
-  return true;
 }
 
 // ── Fonction principale de conversion ────────────────────────────────────────
-function convert() {
+async function convert() {
   const start = Date.now();
   console.log('\n[convert] ── FBX → glTF ──────────────────────────────────');
   console.log(`[convert] Source : ${FBX_FILE}`);
@@ -87,7 +88,7 @@ function convert() {
 
   // Code 2 → OBJ exporté, on finit avec obj2gltf
   if (exitCode === 2 && fs.existsSync(OBJ_FILE)) {
-    const ok = objToGlb();
+    const ok = await objToGlb();
     if (ok && fs.existsSync(GLB_FILE)) {
       const kb      = (fs.statSync(GLB_FILE).size / 1024).toFixed(1);
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
@@ -105,6 +106,22 @@ function convert() {
 // ── Mode watch ────────────────────────────────────────────────────────────────
 const watchMode = process.argv.includes('--watch');
 
-convert();
+convert().then(() => {
+  if (watchMode) {
+    let debounce  = null;
+    let lastMtime = fs.statSync(FBX_FILE).mtimeMs;
 
-if 
+    console.log('\n[convert] 👁  Watch actif — en attente de modifications sur MainScene.fbx …');
+    console.log('[convert]   (Ctrl+C pour arrêter)\n');
+
+    fs.watchFile(FBX_FILE, { interval: 1500 }, (curr) => {
+      if (curr.mtimeMs === lastMtime) return;
+      lastMtime = curr.mtimeMs;
+      clearTimeout(debounce);
+      debounce = setTimeout(() => {
+        console.log('[convert] Modification détectée → relance …');
+        convert();
+      }, 1500);
+    });
+  }
+});
