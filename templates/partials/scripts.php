@@ -1,0 +1,10 @@
+<script type="module" src="vue/threejs-background.js"></script>
+<script src="controller/start.js" defer></script>
+<script src="controller/language.js" defer></script>
+<script src="vue/interface.js" defer></script>
+<script src="vue/backgrounds.js" defer></script>
+<script src="vue/form_validation.js" defer></script>
+<script src="vue/scroll.js" defer></script>
+<script src="vue/navigation.js" defer></script>
+<script src="vue/admintool.js" defer></script>
+<script src="vue/scene-editor.js" defer></script>

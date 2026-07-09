@@ -1,24 +1,26 @@
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 // //////////////////////////////// ADMIN TOOL MENU ///////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////////////////////////////
-const BTN_CONTENTCREATION = document.getElementById("btnContentCreation");
-const BTN_CONTENTMANAGEMENT = document.getElementById("btnContentManagement");
-const BTN_IMAGESMANAGEMENT = document.getElementById("btnImagesManagement");
-const BTN_USERSMANAGEMENT = document.getElementById("btnUsersManagement");
-const BTN_COMMENTSMANAGEMENT = document.getElementById("btnUsersManagement");
-const BTN_ANALYTICS = document.getElementById("btnAnalytics");
+const BTN_USERSMANAGEMENT        = document.getElementById("btnUsersManagement");
+const BTN_TAGSMANAGEMENT         = document.getElementById("btnTagsManagement");
+const BTN_MEDIASMANAGEMENT       = document.getElementById("btnMediasManagement");
+const BTN_PAGESMANAGEMENT        = document.getElementById("btnPagesManagement");
+const BTN_EXPERIENCESMANAGEMENT  = document.getElementById("btnExperiencesManagement");
+const BTN_COMMENTSMANAGEMENT     = document.getElementById("btnCommentsManagement");
+const BTN_ANALYTICS              = document.getElementById("btnAnalytics");
+const BTN_SCENEEDITOR            = document.getElementById("btnSceneEditor");
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 // /////////////////////////////// USERS MANAGEMENT ///////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 const USER_LIST_CONTAINER = document.getElementById("usersListContainer");
 const USER_FILTERS = document.getElementById("userEntryFilters");
 const USER_TEMPLATE = document.getElementById("userEntryTemplate");
-const FILTER_ID = document.getElementById("userFilterId");
-const FILTER_NAME = document.getElementById("userFilterName");
-const FILTER_FIRSTNAME = document.getElementById("userFilterFirstname");
-const FILTER_EMAIL = document.getElementById("userFilteremail");
+const FILTER_ID           = document.getElementById("userFilterId");
+const FILTER_NAME         = document.getElementById("userFilterName");
+const FILTER_FIRSTNAME    = document.getElementById("userFilterFirstname");
+const FILTER_EMAIL        = document.getElementById("userFilteremail");
 const FILTER_SUBSCRIPTION = document.getElementById("subscription");
-const FILTER_ISADMIN = document.getElementById("userFilterIsAdmin");
+const FILTER_ROLE         = document.getElementById("userFilterRole");
 // ///////////////////// ENTRIES FILTERS /////////////////////////////////////
 let currentSortField = "id";
 let sortAsc = true;
@@ -28,12 +30,6 @@ function sortUsers(data, field, asc) {
   sorted.sort((a, b) => {
     let valA = a[field];
     let valB = b[field];
-
-    // Gérer les booléens
-    if (field === "isAdmin") {
-      valA = a[field] ? 1 : 0;
-      valB = b[field] ? 1 : 0;
-    }
 
     // Date au format string
     if (field === "subscription") {
@@ -52,12 +48,12 @@ function sortUsers(data, field, asc) {
 }
 function setupFilters() {
   const filters = [
-    { el: FILTER_ID, field: "id" },
-    { el: FILTER_NAME, field: "name" },
-    { el: FILTER_FIRSTNAME, field: "firstname" },
-    { el: FILTER_EMAIL, field: "mail" },
+    { el: FILTER_ID,           field: "id" },
+    { el: FILTER_NAME,         field: "name" },
+    { el: FILTER_FIRSTNAME,    field: "firstname" },
+    { el: FILTER_EMAIL,        field: "mail" },
     { el: FILTER_SUBSCRIPTION, field: "subscription" },
-    { el: FILTER_ISADMIN, field: "isAdmin" },
+    { el: FILTER_ROLE,         field: "role" },
   ];
 
   filters.forEach(({ el, field }) => {
@@ -118,7 +114,7 @@ async function renderList(sortField, asc) {
   }
 }
 function loadUsers() {
-  fetch("controller/user.php")
+  fetch("controller/controller.php?action=admin_users&sub=list")
     .then((res) => res.json())
     .then((json) => {
       if (json.success) {
@@ -216,14 +212,12 @@ function createUserEntry(user) {
   entry.querySelector("#userInfoMail").textContent = user.mail;
   entry.querySelector("#userInfoSubscription").textContent =
     user.subscription || "";
-  entry.querySelector("#userInfoIsAdmin").textContent = user.isAdmin
-    ? "Admin"
-    : "User";
+  entry.querySelector("#userInfoRole").textContent = user.role || "user";
   const form = entry.querySelector("#formUpdateUser");
   form.querySelector("#inputUpdateName").value = user.name;
   form.querySelector("#inputUpdateFirstName").value = user.firstname;
   form.querySelector("#inputUpdateMail").value = user.mail;
-  form.querySelector("#inputUpdateIsAdmin").checked = user.isAdmin;
+  form.querySelector("#inputUpdateRole").value = user.role || "user";
   const btnSettings = entry.querySelector("#btnUserEntrySettings");
   btnSettings.addEventListener("click", () => toggleEntryEdition(entry));
   const btnSave = entry.querySelector("#btnSaveUser");
@@ -285,15 +279,14 @@ function createUserEntry(user) {
   btnSave.addEventListener("click", () => {
     resetMessages();
     const updatedUser = {
-      action: "update",
       id: user.id,
       name: form.querySelector("#inputUpdateName").value.trim(),
       firstname: form.querySelector("#inputUpdateFirstName").value.trim(),
       mail: form.querySelector("#inputUpdateMail").value.trim(),
-      isAdmin: form.querySelector("#inputUpdateIsAdmin").checked,
+      role: form.querySelector("#inputUpdateRole").value,
     };
     btnSave.classList.add("btnOff");
-    fetch("controller/user.php", {
+    fetch("controller/controller.php?action=admin_users&sub=update", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedUser),
@@ -311,9 +304,7 @@ function createUserEntry(user) {
           entry.querySelector("#userInfoFirstname").textContent =
             user.firstname;
           entry.querySelector("#userInfoMail").textContent = user.mail;
-          entry.querySelector("#userInfoIsAdmin").textContent = user.isAdmin
-            ? "Admin"
-            : "User";
+          entry.querySelector("#userInfoRole").textContent = user.role;
           // Affiche le message temporaire
           showEntryMessage(entry, "entryBtnBoxContentUpdateComplete");
           btnSave.classList.add("btnOff");
@@ -344,10 +335,10 @@ function createUserEntry(user) {
   btnDeleteValidate.addEventListener("click", () => {
     btnDelete.classList.add("btnOff");
     btnSave.classList.add("btnOff");
-    fetch("controller/user.php", {
+    fetch("controller/controller.php?action=admin_users&sub=delete", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "delete", id: user.id }),
+      body: JSON.stringify({ id: user.id }),
     })
       .then((res) => res.json())
       .then((json) => {
@@ -386,14 +377,14 @@ const ENTRY_BTN_BOX_SEARCH_ERROR = document.getElementById(
 );
 function getSearchFilters() {
   return {
-  idFrom: document.getElementById('inputSearchUserIdA').value.trim(),
-  idTo: document.getElementById('inputSearchUserIdB').value.trim(),
-  name: document.getElementById('inputSearchUserName').value.trim(),
-  firstname: document.getElementById('inputSearchUserFirstname').value.trim(),
-  mail: document.getElementById('inputSearchUserMail').value.trim(),
+  idFrom:       document.getElementById('inputSearchUserIdA').value.trim(),
+  idTo:         document.getElementById('inputSearchUserIdB').value.trim(),
+  name:         document.getElementById('inputSearchUserName').value.trim(),
+  firstname:    document.getElementById('inputSearchUserFirstname').value.trim(),
+  mail:         document.getElementById('inputSearchUserMail').value.trim(),
   subscription: document.getElementById('inputSearchUserSubscription').value,
-  isAdmin: document.getElementById('inputSearchIsAdmin').checked ? 1 : '',
-  newsletter: document.getElementById('inputSearchNewsletter').checked ? 1 : '',
+  role:         document.getElementById('inputSearchRole').value,
+  newsletter:   document.getElementById('inputSearchNewsletter').checked ? 1 : '',
   };
 }
 function showSearchMessage(type) {
@@ -427,7 +418,7 @@ async function handleUserSearch() {
   const filters = getSearchFilters();
 console.log("Filtres envoyés :", filters);
   try {
-    const response = await fetch("/controller/search_user.php", {
+    const response = await fetch("controller/controller.php?action=admin_users&sub=search", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -440,9 +431,9 @@ console.log("Filtres envoyés :", filters);
     const data = await response.json();
     console.log("Résultat du fetch :", data);
 
-    if (data.code === "success") {
-      if (data.users.length > 0) {
-        userData = data.users; // ✅ mise à jour
+    if (data.success) {
+      if (data.data && data.data.length > 0) {
+        userData = data.data; // ✅ mise à jour
         showSearchMessage("success");
         renderList(currentSortField, sortAsc);
       } else {

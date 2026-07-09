@@ -1,13 +1,14 @@
 const BACKG_MOTIF = document.getElementById('backgMotif');
 const BACKG_BLUR  = document.getElementById('backgBlur');
 
-// Appele lors de la navigation vers une sous-page (affiche l'overlay flou)
-function displayBackBlurMask() {
-  BACKG_MOTIF.style.opacity       = 0.5;
+// Affiche l'overlay flou + motif (navigation vers sous-page)
+// withMotif=false : blur seul sans le motif (ex: prévisualisation scène)
+function displayBackBlurMask(withMotif = true) {
+  if (withMotif) BACKG_MOTIF.style.opacity = 0.5;
   BACKG_BLUR.style.backdropFilter = 'blur(30px)';
 }
 
-// Appele lors du retour a l'accueil (retire l'overlay flou)
+// Retire l'overlay flou et le motif
 function hideBackBlurMask() {
   BACKG_MOTIF.style.opacity       = 0;
   BACKG_BLUR.style.backdropFilter = 'blur(0px)';

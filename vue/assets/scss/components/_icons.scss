@@ -205,9 +205,9 @@ $_icons-path: "../images/icons/";
 
 .iconProfil {
   @include icon-triple(
-    "#{$_icons-path}icon_profil_grey.webp",
-    "#{$_icons-path}icon_profil_dark.webp",
-    "#{$_icons-path}icon_profil_white.webp"
+    "#{$_icons-path}icon_user_grey.webp",
+    "#{$_icons-path}icon_user_dark.webp",
+    "#{$_icons-path}icon_user_white.webp"
   );
 }
 
@@ -221,9 +221,9 @@ $_icons-path: "../images/icons/";
 
 .iconUx {
   @include icon-triple(
-    "#{$_icons-path}icon_ux_grey.webp",
-    "#{$_icons-path}icon_ux_dark.webp",
-    "#{$_icons-path}icon_ux_white.webp"
+    "#{$_icons-path}icon_UX-UI_grey.webp",
+    "#{$_icons-path}icon_UX-UI_dark.webp",
+    "#{$_icons-path}icon_UX-UI_white.webp"
   );
 }
 
@@ -253,25 +253,25 @@ $_icons-path: "../images/icons/";
 
 .iconWeb {
   @include icon-triple(
-    "#{$_icons-path}icon_web_grey.webp",
-    "#{$_icons-path}icon_web_dark.webp",
-    "#{$_icons-path}icon_web_white.webp"
+    "#{$_icons-path}icon_webDesign_grey.webp",
+    "#{$_icons-path}icon_webDesign_dark.webp",
+    "#{$_icons-path}icon_webDesign_white.webp"
   );
 }
 
 .iconPixel {
   @include icon-triple(
-    "#{$_icons-path}icon_pixel_grey.webp",
-    "#{$_icons-path}icon_pixel_dark.webp",
-    "#{$_icons-path}icon_pixel_white.webp"
+    "#{$_icons-path}icon_pixelArt_grey.webp",
+    "#{$_icons-path}icon_pixelArt_dark.webp",
+    "#{$_icons-path}icon_pixelArt_white.webp"
   );
 }
 
 .iconPortfolio {
   @include icon-triple(
-    "#{$_icons-path}icon_portfolio_grey.webp",
-    "#{$_icons-path}icon_portfolio_dark.webp",
-    "#{$_icons-path}icon_portfolio_white.webp"
+    "#{$_icons-path}icon_projects_grey.webp",
+    "#{$_icons-path}icon_projects_dark.webp",
+    "#{$_icons-path}icon_projects_white.webp"
   );
 }
 
@@ -285,9 +285,9 @@ $_icons-path: "../images/icons/";
 
 .iconBio {
   @include icon-triple(
-    "#{$_icons-path}icon_bio_grey.webp",
-    "#{$_icons-path}icon_bio_dark.webp",
-    "#{$_icons-path}icon_bio_white.webp"
+    "#{$_icons-path}icon_About_grey.webp",
+    "#{$_icons-path}icon_About_dark.webp",
+    "#{$_icons-path}icon_About_white.webp"
   );
 }
 
@@ -296,6 +296,22 @@ $_icons-path: "../images/icons/";
     "#{$_icons-path}icon_Contact_grey.webp",
     "#{$_icons-path}icon_Contact_dark.webp",
     "#{$_icons-path}icon_Contact_white.webp"
+  );
+}
+
+.iconGC {
+  @include icon-triple(
+    "#{$_icons-path}icon_GC_Grey.webp",
+    "#{$_icons-path}icon_GC_Dark.webp",
+    "#{$_icons-path}icon_GC_White.webp"
+  );
+}
+
+.iconExpertise {
+  @include icon-triple(
+    "#{$_icons-path}icon_infinite_grey.webp",
+    "#{$_icons-path}icon_infinite_dark.webp",
+    "#{$_icons-path}icon_infinite_white.webp"
   );
 }
 

@@ -1,0 +1,395 @@
+// =============================================================================
+// ADMIN UI — Composants partagés pour tous les panels d'administration
+// =============================================================================
+// Ce fichier est LA source unique de vérité pour tous les éléments de
+// formulaire, listes et blocs de l'admin tool. Aucune duplication par panel.
+// =============================================================================
+@use '../abstracts' as *;
+
+// ---------------------------------------------------------------------------
+// Layout de panel — base commune à tous les contenus admin
+// ---------------------------------------------------------------------------
+.adminToolContent,
+.usersManagementContent,
+.tagsContent,
+.mediasContent,
+.pagesContent,
+.experiencesContent,
+.commentsContent,
+.analyticsContent {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  @include flex-column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 5rem 3rem 3rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+// Placeholder pour zones "à venir"
+.adminPlaceholder {
+  color: $color-text-faint;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  text-align: center;
+  padding: 2rem;
+}
+
+// ---------------------------------------------------------------------------
+// Système de formulaire admin — compact (override du form de connexion)
+// ---------------------------------------------------------------------------
+
+// Conteneur vertical
+.adminForm {
+  width: calc(100% - 4rem);
+  height: fit-content;
+  @include flex-column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+// Conteneur horizontal / inline (filtres, recherches)
+.adminFormInline {
+  width: calc(100% - 4rem);
+  height: fit-content;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+// Override du .formGroup global (114px par défaut) dans le contexte admin
+.adminForm .formGroup,
+.adminFormInline .formGroup {
+  height: fit-content;
+  min-width: 120px;
+}
+
+// ---------------------------------------------------------------------------
+// Label compact
+// ---------------------------------------------------------------------------
+.formLabel {
+  display: block;
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  font-weight: 200;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: $color-text-muted;
+  pointer-events: none;
+  margin-bottom: 4px;
+  transition: color $transition-fast;
+}
+
+.adminForm .formGroup:focus-within .formLabel,
+.adminFormInline .formGroup:focus-within .formLabel {
+  color: $color-text-primary;
+}
+
+// ---------------------------------------------------------------------------
+// Input texte / date / number / email
+// ---------------------------------------------------------------------------
+.formInput {
+  display: block;
+  width: 100%;
+  height: 36px;
+  border-radius: $radius-sm;
+  border: solid 1px rgba(128, 128, 128, 0.5);
+  background-color: rgba(180, 180, 181, 0.05);
+  color: $color-text-primary;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: 200;
+  padding: 0 10px;
+  outline: none;
+  caret-color: $color-text-primary;
+  transition: border $transition-fast, background-color $transition-fast;
+
+  &::placeholder {
+    color: $color-text-faint;
+    font-size: $font-size-xs;
+  }
+
+  &:focus {
+    border-color: $color-text-primary;
+    background-color: rgba(180, 180, 181, 0.08);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Select stylisé
+// ---------------------------------------------------------------------------
+.formSelect {
+  display: block;
+  width: 100%;
+  height: 36px;
+  border-radius: $radius-sm;
+  border: solid 1px rgba(128, 128, 128, 0.5);
+  background-color: rgba(180, 180, 181, 0.05);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b4b4b5' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  color: $color-text-primary;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: 200;
+  padding: 0 32px 0 10px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border $transition-fast;
+
+  option {
+    background-color: #0a0a0f;
+    color: $color-text-primary;
+  }
+
+  &:focus {
+    border-color: $color-text-primary;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Textarea
+// ---------------------------------------------------------------------------
+.formTextarea {
+  display: block;
+  width: 100%;
+  min-height: 80px;
+  border-radius: $radius-sm;
+  border: solid 1px rgba(128, 128, 128, 0.5);
+  background-color: rgba(180, 180, 181, 0.05);
+  color: $color-text-primary;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: 200;
+  padding: 8px 10px;
+  outline: none;
+  resize: vertical;
+  caret-color: $color-text-primary;
+  transition: border $transition-fast;
+
+  &::placeholder {
+    color: $color-text-faint;
+    font-size: $font-size-xs;
+  }
+
+  &:focus {
+    border-color: $color-text-primary;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Groupe bouton dans un formulaire (aligne avec les champs)
+// ---------------------------------------------------------------------------
+.formGroupBtn {
+  height: fit-content;
+  display: flex;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+// ---------------------------------------------------------------------------
+// Toggle (switch ON/OFF)
+// ---------------------------------------------------------------------------
+.formToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    flex-shrink: 0;
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    border: solid 1px rgba(128, 128, 128, 0.5);
+    background-color: rgba(180, 180, 181, 0.05);
+    cursor: pointer;
+    position: relative;
+    transition: background-color $transition-fast, border-color $transition-fast;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: $color-text-muted;
+      transition: left $transition-fast, background $transition-fast;
+    }
+
+    &:checked {
+      border-color: $color-text-primary;
+
+      &::after {
+        left: 18px;
+        background: $color-text-primary;
+      }
+    }
+  }
+
+  .formToggleLabel {
+    font-family: $font-body;
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+    pointer-events: none;
+    transition: color $transition-fast;
+  }
+
+  &:hover .formToggleLabel {
+    color: $color-text-primary;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Slider (range)
+// ---------------------------------------------------------------------------
+.formRange {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(128, 128, 128, 0.3);
+  outline: none;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: $color-text-muted;
+    border: 2px solid $color-border-active;
+    cursor: pointer;
+    transition: background $transition-fast, transform $transition-fast;
+
+    &:hover {
+      background: $color-text-primary;
+      transform: scale(1.2);
+    }
+  }
+
+  &::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: $color-text-muted;
+    border: 2px solid $color-border-active;
+    cursor: pointer;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Color picker
+// ---------------------------------------------------------------------------
+.formColor {
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-sm;
+  border: solid 1px rgba(128, 128, 128, 0.5);
+  background: transparent;
+  padding: 2px;
+  cursor: pointer;
+  outline: none;
+  transition: border $transition-fast;
+
+  &:focus,
+  &:hover {
+    border-color: $color-text-primary;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Message de feedback dans/après un formulaire
+// ---------------------------------------------------------------------------
+.formMessage {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: $radius-sm;
+  border: solid 1px $color-border;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  text-align: center;
+
+  &.formMessage--success { border-color: rgba(100, 200, 100, 0.4); color: rgba(100, 200, 100, 0.9); }
+  &.formMessage--error   { border-color: rgba(200, 80, 80, 0.4);  color: rgba(200, 80, 80, 0.9); }
+}
+
+// ---------------------------------------------------------------------------
+// Colonne de liste — conteneur générique d'entrées (panels)
+// Chaque panel définit sa propre grille de colonnes dans .entryInfosContainer
+// ---------------------------------------------------------------------------
+
+// Colonne générique (s'applique à tous les types de colonne de liste admin)
+.entryColContainer {
+  width: 100%;
+  height: fit-content;
+  text-align: center;
+}
+
+// Alias existant pour la compatibilité users.php
+.entryIdContainer,
+.entryNameContainer,
+.entryFirstNameContainer,
+.entryMailContainer,
+.entrySubscriptionContainer,
+.entryRoleContainer {
+  @extend .entryColContainer;
+}
+
+// ---------------------------------------------------------------------------
+// Formulaire inline d'entrée de liste (edit en ligne)
+// Override de .entryUserForm pour être adaptable à tous les panels
+// ---------------------------------------------------------------------------
+.entryEditForm {
+  height: fit-content;
+  width: 95%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0 1rem;
+
+  > .formGroup {
+    flex: 1 1 150px;
+    height: fit-content;
+  }
+
+  > .checkboxGroup,
+  > .formToggle {
+    flex-shrink: 0;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Section de panel avec titre (bloc visuellement séparé dans un sideBlock)
+// ---------------------------------------------------------------------------
+.adminSection {
+  width: 100%;
+  @include flex-column;
+  gap: 0.75rem;
+}
+
+.adminSectionTitle {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  font-weight: 200;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: $color-text-faint;
+  padding-bottom: 4px;
+  border-bottom: solid 1px $color-border;
+}

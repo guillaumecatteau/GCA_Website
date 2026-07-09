@@ -3,10 +3,19 @@
 // =============================================================================
 @use '../abstracts' as *;
 
+// Masquage de la scrollbar native — remplacée par .scrollbarCustom
+* {
+  scrollbar-width: none;        // Firefox
+  -ms-overflow-style: none;     // IE/Edge
+  &::-webkit-scrollbar {
+    display: none;              // Chrome/Safari
+  }
+}
+
 body {
   height: 100vh;
-  width: calc(100vw - var(--scrollbar-width, 0px));
-  overflow-x: hidden;
+  width: 100vw;                 // plus besoin de la compensation scrollbar
+  overflow: hidden;             // le scroll est géré par SectionScroller
   background-color: $color-bg;
   z-index: 0;
   display: flex;

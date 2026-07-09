@@ -18,6 +18,13 @@ document.addEventListener("DOMContentLoaded", () => {
   TL_USERPROFILE = document.querySelector(".userProfileTitle");
   TL_ADMINTOOL = document.querySelector(".adminToolTitle");
   TL_USERSMANAGEMENT = document.querySelector(".usersManagementTitle");
+  TL_SCENEEDITOR = document.querySelector(".sceneEditorTitle");
+  TL_TAGS = document.querySelector(".tagsTitle");
+  TL_MEDIAS = document.querySelector(".mediasTitle");
+  TL_PAGES = document.querySelector(".pagesTitle");
+  TL_EXPERIENCES = document.querySelector(".experiencesTitle");
+  TL_COMMENTS = document.querySelector(".commentsTitle");
+  TL_ANALYTICS = document.querySelector(".analyticsTitle");
   // CONTENTS
   CNT_HOME = document.getElementById("cntHOME");
   CNT_PROFILE = document.getElementById("cntPROFILE");
@@ -37,6 +44,14 @@ document.addEventListener("DOMContentLoaded", () => {
   CNT_USERPROFILE = document.getElementById("cntUSERPROFILE");
   CNT_ADMINTOOL = document.getElementById("cntADMINTOOL");
   CNT_USERSMANAGEMENT = document.getElementById("cntUSERSMANAGEMENT");
+  CNT_SCENEEDITOR = document.getElementById("cntSCENEEDITOR");
+  CNT_TAGS = document.getElementById("cntTAGS");
+  CNT_MEDIAS = document.getElementById("cntMEDIAS");
+  CNT_PAGES = document.getElementById("cntPAGES");
+  CNT_EXPERIENCES = document.getElementById("cntEXPERIENCES");
+  CNT_COMMENTS = document.getElementById("cntCOMMENTS");
+  CNT_ANALYTICS = document.getElementById("cntANALYTICS");
+  CNT_SECTIONNAV = document.getElementById("sectionNav");
   // BUTTONS & BACKGROUND
   BTN_HOME_PROFILE = document.getElementById("btnProfileHome");
   BG_HOME = document.getElementById("backgroundHome");
@@ -130,10 +145,11 @@ function hideContent(content, delay) {
 }
 
 let page = "home";
+let _homeScroller = null; // instance SectionScroller actuelle
 
 /////////////// HOME ///////////////
 function activateHome() {
-  const buttons = [BTN_HOME_DESK, BTN_HOME_TABLET, BTN_HOME_MOBILE];
+  const buttons = [BTN_HOME_TABLET, BTN_HOME_MOBILE];
   buttons.forEach((button) => {
     button.addEventListener("click", accessHome);
     button.addEventListener("touchend", accessHome);
@@ -152,7 +168,11 @@ function accessHome() {
 function displayHome() {
   window.GCABackground?.setPage('home');
   CNT_HOME.style.display = "flex";
+  CNT_SECTIONNAV.style.display = "flex";
   titleDisplay(TL_HOME);
+  // Init du scroll magnétique sur les sections de la home
+  _homeScroller = new SectionScroller(CNT_HOME, CNT_SECTIONNAV);
+  _homeScroller.init();
   setTimeout(() => {
     BTN_HOME_PROFILE.style.opacity = "1";
     BTN_HOME_PROFILE.classList.add("moveInBottom");
@@ -161,7 +181,6 @@ function displayHome() {
 /////////////// PROFILE ///////////////
 function activateProfile() {
   const buttons = [
-    BTN_PROFIL_DESK,
     BTN_PROFIL_TABLET,
     BTN_PROFIL_MOBILE,
     BTN_HOME_PROFILE,
@@ -188,7 +207,7 @@ function displayProfile() {
 }
 /////////////// GAMES ///////////////
 function activateGames() {
-  const buttons = [BTN_GAMES_DESK, BTN_GAMES_TABLET, BTN_GAMES_MOBILE];
+  const buttons = [BTN_GAMES_TABLET, BTN_GAMES_MOBILE];
   buttons.forEach((button) => {
     button.addEventListener("click", accessGames);
     button.addEventListener("touchend", accessGames);
@@ -211,7 +230,7 @@ function displayGames() {
 }
 /////////////// UXUI ///////////////
 function activateUxUi() {
-  const buttons = [BTN_UXUI_DESK, BTN_UXUI_TABLET, BTN_UXUI_MOBILE];
+  const buttons = [BTN_UXUI_TABLET, BTN_UXUI_MOBILE];
   buttons.forEach((button) => {
     button.addEventListener("click", accessUxUi);
     button.addEventListener("touchend", accessUxUi);
@@ -234,7 +253,7 @@ function displayUxUi() {
 }
 /////////////// 3D ///////////////
 function activate3d() {
-  const buttons = [BTN_3D_DESK, BTN_3D_TABLET, BTN_3D_MOBILE];
+  const buttons = [BTN_3D_TABLET, BTN_3D_MOBILE];
   buttons.forEach((button) => {
     button.addEventListener("click", access3d);
     button.addEventListener("touchend", access3d);
@@ -257,7 +276,7 @@ function display3d() {
 }
 /////////////// 2D ///////////////
 function activate2d() {
-  const buttons = [BTN_2D_DESK, BTN_2D_TABLET, BTN_2D_MOBILE];
+  const buttons = [BTN_2D_TABLET, BTN_2D_MOBILE];
   buttons.forEach((button) => {
     button.addEventListener("click", access2d);
     button.addEventListener("touchend", access2d);
@@ -280,7 +299,7 @@ function display2d() {
 }
 /////////////// VIDEO ///////////////
 function activateVideo() {
-  const buttons = [BTN_VIDEO_DESK, BTN_VIDEO_TABLET, BTN_VIDEO_MOBILE];
+  const buttons = [BTN_VIDEO_TABLET, BTN_VIDEO_MOBILE];
   buttons.forEach((button) => {
     button.addEventListener("click", accessVideo);
     button.addEventListener("touchend", accessVideo);
@@ -303,7 +322,7 @@ function displayVideo() {
 }
 /////////////// WEB ///////////////
 function activateWeb() {
-  const buttons = [BTN_WEB_DESK, BTN_WEB_TABLET, BTN_WEB_MOBILE];
+  const buttons = [BTN_WEB_TABLET, BTN_WEB_MOBILE];
   buttons.forEach((button) => {
     button.addEventListener("click", accessWeb);
     button.addEventListener("touchend", accessWeb);
@@ -326,7 +345,7 @@ function displayWeb() {
 }
 /////////////// PIXEL ///////////////
 function activatePixel() {
-  const buttons = [BTN_PIXEL_DESK, BTN_PIXEL_TABLET, BTN_PIXEL_MOBILE];
+  const buttons = [BTN_PIXEL_TABLET, BTN_PIXEL_MOBILE];
   buttons.forEach((button) => {
     button.addEventListener("click", accessPixel);
     button.addEventListener("touchend", accessPixel);
@@ -350,7 +369,6 @@ function displayPixel() {
 /////////////// PORTFOLIO ///////////////
 function activatePortfolio() {
   const buttons = [
-    BTN_PORTFOLIO_DESK,
     BTN_PORTFOLIO_TABLET,
     BTN_PORTFOLIO_MOBILE,
   ];
@@ -376,7 +394,7 @@ function displayPortfolio() {
 }
 /////////////// BLOG ///////////////
 function activateBlog() {
-  const buttons = [BTN_BLOG_DESK, BTN_BLOG_TABLET, BTN_BLOG_MOBILE];
+  const buttons = [BTN_BLOG_TABLET, BTN_BLOG_MOBILE];
   buttons.forEach((button) => {
     button.addEventListener("click", accessBlog);
     button.addEventListener("touchend", accessBlog);
@@ -401,7 +419,7 @@ function displayBlog() {
 
 /////////////// BIO ///////////////
 function activateBio() {
-  const buttons = [BTN_BIO_DESK, BTN_BIO_TABLET, BTN_BIO_MOBILE];
+  const buttons = [BTN_BIO_TABLET, BTN_BIO_MOBILE];
   buttons.forEach((button) => {
     button.addEventListener("click", accessBio);
     button.addEventListener("touchend", accessBio);
@@ -424,7 +442,7 @@ function displayBio() {
 }
 /////////////// CONTACT ///////////////
 function activateContact() {
-  const buttons = [BTN_CONTACT_DESK, BTN_CONTACT_TABLET, BTN_CONTACT_MOBILE];
+  const buttons = [BTN_CONTACT_TABLET, BTN_CONTACT_MOBILE];
   buttons.forEach((button) => {
     button.addEventListener("click", accessContact);
     button.addEventListener("touchend", accessContact);
@@ -556,6 +574,162 @@ function displayAdminTool() {
   titleDisplay(TL_ADMINTOOL);
   displayContent(CNT_ADMINTOOL, 50);
   activateUsersManagement();
+  activateTagsManagement();
+  activateMediasManagement();
+  activatePagesManagement();
+  activateExperiencesManagement();
+  activateCommentsManagement();
+  activateSceneEditor();
+  activateAnalytics();
+}
+/////////////// SCENEEDITOR ///////////////
+function activateSceneEditor() {
+  const btn = document.getElementById('btnSceneEditor');
+  if (!btn) return;
+  btn.addEventListener("click",    accessSceneEditor);
+  btn.addEventListener("touchend", accessSceneEditor);
+}
+function accessSceneEditor() {
+  if (page !== "sceneEditor") {
+    hideBackBlurMask();
+    unloadPage();
+    setTimeout(() => {
+      displaySceneEditor();
+      page = "sceneEditor";
+    }, 501);
+  }
+}
+function displaySceneEditor() {
+  window.GCABackground?.setPage('admintool');
+  window.GCABackground?.setEditorMode(true);
+  CNT_SCENEEDITOR.classList.add('se-visible');
+  titleDisplay(TL_SCENEEDITOR);
+  initSceneEditor();
+}
+/////////////// TAGS ///////////////
+function activateTagsManagement() {
+  const btn = document.getElementById('btnTagsManagement');
+  if (!btn) return;
+  btn.addEventListener('click',    accessTagsManagement);
+  btn.addEventListener('touchend', accessTagsManagement);
+}
+function accessTagsManagement() {
+  if (page !== 'tagsManagement') {
+    displayBackBlurMask();
+    unloadPage();
+    setTimeout(() => { displayTagsManagement(); page = 'tagsManagement'; }, 501);
+  }
+}
+function displayTagsManagement() {
+  window.GCABackground?.setPage('admintool');
+  if (typeof initTagsManagement === 'function') initTagsManagement();
+  CNT_TAGS.style.display = 'flex';
+  titleDisplay(TL_TAGS);
+  displayContent(CNT_TAGS, 50);
+}
+/////////////// MEDIAS ///////////////
+function activateMediasManagement() {
+  const btn = document.getElementById('btnMediasManagement');
+  if (!btn) return;
+  btn.addEventListener('click',    accessMediasManagement);
+  btn.addEventListener('touchend', accessMediasManagement);
+}
+function accessMediasManagement() {
+  if (page !== 'mediasManagement') {
+    displayBackBlurMask();
+    unloadPage();
+    setTimeout(() => { displayMediasManagement(); page = 'mediasManagement'; }, 501);
+  }
+}
+function displayMediasManagement() {
+  window.GCABackground?.setPage('admintool');
+  if (typeof initMediasManagement === 'function') initMediasManagement();
+  CNT_MEDIAS.style.display = 'flex';
+  titleDisplay(TL_MEDIAS);
+  displayContent(CNT_MEDIAS, 50);
+}
+/////////////// PAGES ///////////////
+function activatePagesManagement() {
+  const btn = document.getElementById('btnPagesManagement');
+  if (!btn) return;
+  btn.addEventListener('click',    accessPagesManagement);
+  btn.addEventListener('touchend', accessPagesManagement);
+}
+function accessPagesManagement() {
+  if (page !== 'pagesManagement') {
+    displayBackBlurMask();
+    unloadPage();
+    setTimeout(() => { displayPagesManagement(); page = 'pagesManagement'; }, 501);
+  }
+}
+function displayPagesManagement() {
+  window.GCABackground?.setPage('admintool');
+  if (typeof initPagesManagement === 'function') initPagesManagement();
+  CNT_PAGES.style.display = 'flex';
+  titleDisplay(TL_PAGES);
+  displayContent(CNT_PAGES, 50);
+}
+/////////////// EXPERIENCES ///////////////
+function activateExperiencesManagement() {
+  const btn = document.getElementById('btnExperiencesManagement');
+  if (!btn) return;
+  btn.addEventListener('click',    accessExperiencesManagement);
+  btn.addEventListener('touchend', accessExperiencesManagement);
+}
+function accessExperiencesManagement() {
+  if (page !== 'experiencesManagement') {
+    displayBackBlurMask();
+    unloadPage();
+    setTimeout(() => { displayExperiencesManagement(); page = 'experiencesManagement'; }, 501);
+  }
+}
+function displayExperiencesManagement() {
+  window.GCABackground?.setPage('admintool');
+  if (typeof initExperiencesManagement === 'function') initExperiencesManagement();
+  CNT_EXPERIENCES.style.display = 'flex';
+  titleDisplay(TL_EXPERIENCES);
+  displayContent(CNT_EXPERIENCES, 50);
+}
+/////////////// COMMENTS ///////////////
+function activateCommentsManagement() {
+  const btn = document.getElementById('btnCommentsManagement');
+  if (!btn) return;
+  btn.addEventListener('click',    accessCommentsManagement);
+  btn.addEventListener('touchend', accessCommentsManagement);
+}
+function accessCommentsManagement() {
+  if (page !== 'commentsManagement') {
+    displayBackBlurMask();
+    unloadPage();
+    setTimeout(() => { displayCommentsManagement(); page = 'commentsManagement'; }, 501);
+  }
+}
+function displayCommentsManagement() {
+  window.GCABackground?.setPage('admintool');
+  if (typeof initCommentsManagement === 'function') initCommentsManagement();
+  CNT_COMMENTS.style.display = 'flex';
+  titleDisplay(TL_COMMENTS);
+  displayContent(CNT_COMMENTS, 50);
+}
+/////////////// ANALYTICS ///////////////
+function activateAnalytics() {
+  const btn = document.getElementById('btnAnalytics');
+  if (!btn) return;
+  btn.addEventListener('click',    accessAnalytics);
+  btn.addEventListener('touchend', accessAnalytics);
+}
+function accessAnalytics() {
+  if (page !== 'analytics') {
+    displayBackBlurMask();
+    unloadPage();
+    setTimeout(() => { displayAnalytics(); page = 'analytics'; }, 501);
+  }
+}
+function displayAnalytics() {
+  window.GCABackground?.setPage('admintool');
+  CNT_ANALYTICS.style.display = 'flex';
+  titleDisplay(TL_ANALYTICS);
+  displayContent(CNT_ANALYTICS, 50);
 }
 /////////////// USERSMANAGEMENT ///////////////
 function activateUsersManagement() {
@@ -610,6 +784,9 @@ function unloadPage() {
   switch (page) {
     case "home":
       titleHide(TL_HOME);
+      // Détruire le scroller pour éviter les listeners orphelins
+      if (_homeScroller) { _homeScroller.destroy(); _homeScroller = null; }
+      CNT_SECTIONNAV.style.display = "none";
       BTN_HOME_PROFILE.classList.remove("moveInBottom", "moveOutBottom");
       void BTN_HOME_PROFILE.offsetWidth;
       BTN_HOME_PROFILE.style.opacity = "0";
@@ -729,8 +906,44 @@ function unloadPage() {
       titleHide(TL_USERSMANAGEMENT);
       hideContent(CNT_USERSMANAGEMENT, 25);
       deactivateUsersManagement();
+      setTimeout(() => { CNT_USERSMANAGEMENT.style.display = "none"; }, 501);
+      break;
+    case "tagsManagement":
+      titleHide(TL_TAGS);
+      hideContent(CNT_TAGS, 25);
+      setTimeout(() => { CNT_TAGS.style.display = "none"; }, 501);
+      break;
+    case "mediasManagement":
+      titleHide(TL_MEDIAS);
+      hideContent(CNT_MEDIAS, 25);
+      setTimeout(() => { CNT_MEDIAS.style.display = "none"; }, 501);
+      break;
+    case "pagesManagement":
+      titleHide(TL_PAGES);
+      hideContent(CNT_PAGES, 25);
+      setTimeout(() => { CNT_PAGES.style.display = "none"; }, 501);
+      break;
+    case "experiencesManagement":
+      titleHide(TL_EXPERIENCES);
+      hideContent(CNT_EXPERIENCES, 25);
+      setTimeout(() => { CNT_EXPERIENCES.style.display = "none"; }, 501);
+      break;
+    case "commentsManagement":
+      titleHide(TL_COMMENTS);
+      hideContent(CNT_COMMENTS, 25);
+      setTimeout(() => { CNT_COMMENTS.style.display = "none"; }, 501);
+      break;
+    case "analytics":
+      titleHide(TL_ANALYTICS);
+      hideContent(CNT_ANALYTICS, 25);
+      setTimeout(() => { CNT_ANALYTICS.style.display = "none"; }, 501);
+      break;
+    case "sceneEditor":
+      titleHide(TL_SCENEEDITOR);
+      hideBackBlurMask();
+      window.GCABackground?.setEditorMode(false);
       setTimeout(() => {
-        CNT_USERSMANAGEMENT.style.display = "none";
+        CNT_SCENEEDITOR.classList.remove('se-visible');
       }, 501);
       break;
     default:

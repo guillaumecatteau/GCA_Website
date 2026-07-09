@@ -1,0 +1,706 @@
+// ============================================================================
+// Scene Editor — styles de l'outil d'édition des états de scène
+// ============================================================================
+@use '../abstracts' as *;
+
+// ── Conteneur principal ──────────────────────────────────────────────────────
+// Placé directement dans <body>, HORS du pageContainer (évite le conflit avec
+// .pageContainer > div { display: flex }).
+// Le display est géré uniquement par CSS : none par défaut, flex via .se-visible.
+.sceneEditorContent {
+  display: none;
+
+  &.se-visible {
+    display: flex;
+    position: fixed;
+    top: $topbar-height;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: stretch;
+    background: transparent;
+    pointer-events: none;
+    z-index: 200; // au-dessus du navContainer (z-index: 100)
+  }
+
+  .sceneEditorTitle {
+    position: absolute;
+    top: 1rem;
+    left: 2rem;
+    pointer-events: none;
+  }
+}
+
+// ── Inspecteur (panneau droit) ────────────────────────────────────────────────
+.seTopbox {
+  padding: 0.9rem 0.75rem 0.75rem;
+  border-bottom: 2px solid rgba(255,167,38,0.25);
+  background: rgba(255,167,38,0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  flex-shrink: 0;
+}
+
+.seTopboxRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .seLabel {
+    min-width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+}
+
+.seTopboxBtns {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.seTopboxFeedback {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 18px;
+}
+
+.seLabel {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.40);
+  white-space: nowrap;
+}
+
+.seSelect {
+  flex: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.5rem;
+  height: 32px;
+  min-width: 0;
+  cursor: pointer;
+
+  &:focus { outline: none; border-color: rgba(255,167,38,0.6); }
+  option  { background: #0d0d18; }
+}
+
+.seInput {
+  flex: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.5rem;
+  height: 32px;
+  min-width: 0;
+
+  &:focus { outline: none; border-color: rgba(255,167,38,0.6); }
+}
+
+.seDirtyBadge {
+  color: #ffa726;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.seStatusMsg {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+
+  &.seStatusOk    { color: #69f0ae; }
+  &.seStatusError { color: #ff6b6b; }
+}
+
+// ── Inspecteur (panneau droit) ────────────────────────────────────────────────
+.seInspector {
+  font-family: $font-body; // Sarala pour tout le panneau
+  flex-shrink: 0;
+  width: 340px;
+  margin-top: 4.5rem;
+  height: calc(100% - 4.5rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgba(4, 5, 8, 0.97);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  pointer-events: all;
+}
+
+// ── Barre d'onglets ────────────────────────────────────────────────────────────────
+.seTabBar {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+
+.seTab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(255,255,255,0.45);
+  font-family: $font-heading;
+  font-size: 0.60rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.55rem 0.6rem 0.4rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+
+  &:hover { color: rgba(255,255,255,0.8); }
+
+  &.seTab--active {
+    color: #ffa726;
+    border-bottom-color: #ffa726;
+  }
+}
+
+// ── Panneaux d'onglets ──────────────────────────────────────────────────────
+.seTabPanes {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 2rem;
+
+  &::-webkit-scrollbar       { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+}
+
+.seTabPane {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  &.seTabPane--hidden { display: none; }
+
+  .seSectionBody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.5rem 0.75rem 0.75rem;
+  }
+}
+
+// ── Groupes ───────────────────────────────────────────────────────────────────
+.seGroup {
+  margin-top: 0.4rem;
+}
+
+.seGroupLabel {
+  display: block;
+  font-size: 0.60rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.30);
+  margin-bottom: 0.35rem;
+  padding-left: 0.1rem;
+  border-left: 2px solid rgba(255,167,38,0.4);
+  padding-left: 0.4rem;
+}
+
+// ── Ligne de contrôle ─────────────────────────────────────────────────────────
+.seRow {
+  display: grid;
+  grid-template-columns: 52px 1fr 58px 26px;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 28px;
+
+  label {
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.55);
+    white-space: nowrap;
+    text-align: right;
+    padding-right: 0.2rem;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 3px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #ffa726;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    &:hover::-webkit-slider-thumb { background: #ffcc02; transform: scale(1.2); }
+  }
+
+  input[type="number"] {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 3px;
+    color: #ccc;
+    font-size: 0.68rem;
+    padding: 0.2rem 0.3rem;
+    text-align: right;
+    height: 24px;
+    -moz-appearance: textfield;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button { -webkit-appearance: none; }
+    &:focus { outline: none; border-color: rgba(255,167,38,0.5); }
+  }
+
+  .seUnit {
+    font-size: 0.58rem;
+    color: rgba(255,255,255,0.25);
+    text-align: center;
+  }
+}
+
+// Ligne couleur (color picker)
+.seRowColor {
+  grid-template-columns: 52px 1fr;
+
+  input[type="color"] {
+    width: 100%;
+    height: 28px;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 3px;
+    padding: 2px;
+    background: rgba(255,255,255,0.05);
+    cursor: pointer;
+    &:focus { outline: none; border-color: rgba(255,167,38,0.5); }
+  }
+}
+
+.seRowCheck {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.2rem 0;
+
+  label { flex: 1; }
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: rgba(255,167,38,0.9);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+}
+
+// ── Éditeur gradient Logo Light ───────────────────────────────────────────────
+.seGradientEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.seGradientPreview {
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: linear-gradient(to right, #4488ff, #aa44ff, #ff6644);
+}
+
+.seGradientStops {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.seGradientStop {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  input[type="color"] {
+    flex: 1;
+    height: 26px;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 3px;
+    padding: 2px;
+    background: rgba(255,255,255,0.05);
+    cursor: pointer;
+    &:focus { outline: none; border-color: rgba(255,167,38,0.5); }
+  }
+
+  .seGradientRemoveBtn {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    font-size: 0.85rem;
+    line-height: 1;
+    background: rgba(255,80,60,0.2);
+    border: 1px solid rgba(255,80,60,0.4);
+    border-radius: 3px;
+    color: rgba(255,120,100,0.9);
+    cursor: pointer;
+    &:hover { background: rgba(255,80,60,0.4); }
+  }
+}
+
+.seGradientAddBtn {
+  align-self: flex-start;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+}
+
+// ── Bouton générique éditeur ──────────────────────────────────────────────────
+.seBtn {
+  background: rgba(255,167,38,0.15);
+  border: 1px solid rgba(255,167,38,0.35);
+  border-radius: 3px;
+  color: rgba(255,167,38,0.9);
+  font-size: 0.72rem;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+  &:hover { background: rgba(255,167,38,0.3); }
+}
+
+// ── Lumières additionnelles ───────────────────────────────────────────────────
+.se-addLightRow {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin-top: 0.5rem;
+
+  select {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+    color: #e0e0e0;
+    font-size: 0.72rem;
+    padding: 0.25rem 0.4rem;
+    height: 28px;
+    cursor: pointer;
+    option { background: #0d0d18; }
+  }
+}
+
+.seExtraLight {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 4px;
+  padding: 0.4rem 0.5rem;
+  margin-bottom: 0.35rem;
+  background: rgba(255,255,255,0.02);
+}
+
+.seExtraLightHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+
+  .seGroupLabel {
+    border-left-color: rgba(100,200,255,0.5);
+    margin-bottom: 0;
+  }
+
+  .seExtraLightRemoveBtn {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    font-size: 0.8rem;
+    line-height: 1;
+    background: rgba(255,80,60,0.2);
+    border: 1px solid rgba(255,80,60,0.4);
+    border-radius: 3px;
+    color: rgba(255,120,100,0.9);
+    cursor: pointer;
+    &:hover { background: rgba(255,80,60,0.4); }
+  }
+}
+
+// ── Éditeur d'animation ───────────────────────────────────────────────────────
+.seAnimEditor {
+  padding: 0;
+}
+
+.seAnimTimeline {
+  position: relative;
+  height: 24px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.seAnimKfMarker {
+  position: absolute;
+  top: 2px;
+  width: 10px;
+  height: 18px;
+  background: rgba(255,167,38,0.85);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  cursor: pointer;
+  transition: background 0.15s;
+  &:hover { background: #ffd740; }
+  &.seAnimKfMarker--active { background: #ffd740; box-shadow: 0 0 4px rgba(255,215,64,0.6); }
+}
+
+.seAnimDurationHint {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.04em;
+  margin: 0.1rem 0 0.35rem;
+}
+
+.seAnimControls {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.seKeyframe {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 4px;
+  padding: 0.4rem 0.5rem;
+  margin-bottom: 0.3rem;
+  background: rgba(255,255,255,0.02);
+}
+
+.seKeyframeHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.3rem;
+
+  .seGroupLabel {
+    flex: 1;
+    margin-bottom: 0;
+    min-width: 80px;
+  }
+
+  .seKfSelect {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 3px;
+    color: #ccc;
+    font-size: 0.68rem;
+    padding: 0.15rem 0.3rem;
+    height: 22px;
+    cursor: pointer;
+    option { background: #0d0d18; }
+  }
+
+  .seKfRemoveBtn {
+    flex-shrink: 0;
+    width: 20px; height: 20px;
+    padding: 0;
+    font-size: 0.8rem;
+    line-height: 1;
+    background: rgba(255,80,60,0.2);
+    border: 1px solid rgba(255,80,60,0.4);
+    border-radius: 3px;
+    color: rgba(255,120,100,0.9);
+    cursor: pointer;
+    &:hover { background: rgba(255,80,60,0.4); }
+  }
+}
+
+.seKfStateLabel {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.3);
+  margin-top: 0.2rem;
+}
+
+// ── Sous-états ──────────────────────────────────────────────────────────────
+.seSubState {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 4px;
+  padding: 0.4rem 0.5rem;
+  margin-bottom: 0.3rem;
+  background: rgba(255,255,255,0.02);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+
+  &.seSubState--active {
+    border-color: rgba(255,167,38,0.45);
+    background: rgba(255,167,38,0.05);
+  }
+
+  &:hover:not(.seSubState--active) {
+    background: rgba(255,255,255,0.04);
+  }
+}
+
+.seSubStateHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.2rem;
+}
+
+.seSubStateLabel {
+  flex: 1;
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.04em;
+}
+
+.seSubStateEditBtn {
+  font-size: 0.62rem;
+  padding: 0.15rem 0.45rem;
+}
+
+.seSubStateRemoveBtn {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 0.8rem;
+  line-height: 1;
+  background: rgba(255,80,60,0.2);
+  border: 1px solid rgba(255,80,60,0.4);
+  border-radius: 3px;
+  color: rgba(255,120,100,0.9);
+  cursor: pointer;
+  &:hover { background: rgba(255,80,60,0.4); }
+}
+
+.seSubStateStatus {
+  font-size: 0.60rem;
+  color: rgba(255,255,255,0.28);
+  margin-top: 0.15rem;
+}
+
+// ── Renderbox (rendu — collapsible) ──────────────────────────────────────────
+.seRenderbox {
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+
+.seRenderboxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+  background: rgba(0,0,0,0.18);
+  transition: background 0.15s;
+
+  &:hover { background: rgba(255,255,255,0.03); }
+}
+
+.seRenderboxLabel {
+  font-size: 0.60rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.40);
+}
+
+.seRenderboxToggle {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.30);
+  font-size: 0.62rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s;
+  &:hover { color: rgba(255,255,255,0.65); }
+}
+
+// ── AnimStateBox (box état dans l'onglet Anim) ────────────────────────────────
+.seAnimStateBox {
+  border: 1px solid rgba(255,167,38,0.22);
+  border-radius: 5px;
+  background: rgba(255,167,38,0.035);
+  overflow: hidden;
+  margin-bottom: 0.35rem;
+}
+
+.seAnimStateBoxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.65rem 0.35rem;
+  border-bottom: 1px solid rgba(255,167,38,0.12);
+  gap: 0.5rem;
+}
+
+.seAnimStateBoxLabel {
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+  flex-shrink: 0;
+}
+
+.seAnimStateBoxTitle {
+  font-size: 0.78rem;
+  color: #ffa726;
+  font-weight: 600;
+  flex: 1;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.02em;
+}
+
+.seAnimStateBoxBody {
+  padding: 0.5rem 0.65rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+// ── Read-out ──────────────────────────────────────────────────────────────────
+.seReadout {
+  margin: 0.75rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 4px;
+  padding: 0.75rem;
+
+  .seReadoutLabel {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  #seCaptureBtn {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.seReadoutPre {
+  font-size: 0.60rem;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.45);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 320px;
+  overflow-y: auto;
+  margin: 0;
+
+  &::-webkit-scrollbar       { width: 3px; }
+  &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+}

@@ -44,9 +44,9 @@ window.getAnimationDevice = getAnimationDevice;
 // --------------------------------------
 
 function startSequence() {
-  startBackground(); // Ajout : démarre le background selon le device
+  startBackground();
   setTimeout(() => {
-  displayMainLogo();
+    displayMainLogo();
   }, 2000);
 
   setTimeout(() => {
@@ -55,27 +55,10 @@ function startSequence() {
   }, 2300);
 
   setTimeout(() => {
-    displayLatNav();
-  }, 2600);
-
-  setTimeout(() => {
-    displaySocialIconsDesktop();
-  }, 3400);
-
-  setTimeout(() => {
     displayHome();
   }, 3600);
 
   setTimeout(() => {
-    displayLatNavTextStart();
-  }, 5000);
-
-  setTimeout(() => {
-    hideLatNavTextStart();
-  }, 6500);
-
-  setTimeout(() => {
-    activateLatNav();
     activateNavigation();
   }, 7500);
 }

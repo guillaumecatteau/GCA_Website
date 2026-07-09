@@ -11,25 +11,26 @@ function emailExists($mail)
     return $stmt->fetchColumn() > 0;
 }
 
-function registerUser($name, $firstname, $mail, $hashedPassword, $questionA, $questionB, $newsletter, $subscriptionDate)
+function registerUser($name, $firstname, $mail, $hashedPassword, $questionA, $questionB, $newsletter, $subscriptionDate, $role = 'user')
 {
     global $bdd;
 
-    $sql = "INSERT INTO users (name, firstname, mail, password, questionA, questionB, newsletter, subscription)
-            VALUES (:name, :firstname, :mail, :password, :questionA, :questionB, :newsletter, :subscription)";
+    $sql = "INSERT INTO users (name, firstname, mail, password, questionA, questionB, newsletter, subscription, role)
+            VALUES (:name, :firstname, :mail, :password, :questionA, :questionB, :newsletter, :subscription, :role)";
 
     $stmt = $bdd->prepare($sql);
 
     try {
         $stmt->execute([
-            ':name' => $name,
-            ':firstname' => $firstname,
-            ':mail' => $mail,
-            ':password' => $hashedPassword,
-            ':questionA' => $questionA,
-            ':questionB' => $questionB,
-            ':newsletter' => $newsletter,
-            ':subscription' => $subscriptionDate
+            ':name'         => $name,
+            ':firstname'    => $firstname,
+            ':mail'         => $mail,
+            ':password'     => $hashedPassword,
+            ':questionA'    => $questionA,
+            ':questionB'    => $questionB,
+            ':newsletter'   => $newsletter,
+            ':subscription' => $subscriptionDate,
+            ':role'         => in_array($role, ['user','vip','admin']) ? $role : 'user',
         ]);
         return true;
     } catch (PDOException $e) {
@@ -50,11 +51,71 @@ function getUserByMail($mail)
 function getAllUsers()
 {
     global $bdd;
-    $sql = "SELECT id, name, firstname, mail, subscription, isAdmin FROM users ORDER BY id ASC";
+    $sql = "SELECT id, name, firstname, mail, subscription, role, avatar, newsletter FROM users ORDER BY id ASC";
     $stmt = $bdd->prepare($sql);
     $stmt->execute();
-
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getUserById(int $id)
+{
+    global $bdd;
+    $stmt = $bdd->prepare("SELECT id, name, firstname, mail, subscription, role, avatar, newsletter FROM users WHERE id = :id");
+    $stmt->execute([':id' => $id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function updateUser(int $id, array $fields): bool
+{
+    global $bdd;
+    $allowed = ['name','firstname','mail','role','avatar','newsletter'];
+    $set = [];
+    $params = [':id' => $id];
+    foreach ($fields as $col => $val) {
+        if (!in_array($col, $allowed, true)) continue;
+        if ($col === 'role' && !in_array($val, ['user','vip','admin'], true)) continue;
+        $set[] = "`$col` = :$col";
+        $params[":$col"] = $val;
+    }
+    if (empty($set)) return false;
+    $stmt = $bdd->prepare("UPDATE users SET " . implode(', ', $set) . " WHERE id = :id");
+    return $stmt->execute($params);
+}
+
+function deleteUser(int $id): bool
+{
+    global $bdd;
+    $stmt = $bdd->prepare("DELETE FROM users WHERE id = :id");
+    return $stmt->execute([':id' => $id]);
+}
+
+function updateUserPassword(int $id, string $hashedPassword): bool
+{
+    global $bdd;
+    $stmt = $bdd->prepare("UPDATE users SET password = :password WHERE id = :id");
+    return $stmt->execute([':password' => $hashedPassword, ':id' => $id]);
+}
+
+function setResetToken(string $mail, string $token, string $expiry): bool
+{
+    global $bdd;
+    $stmt = $bdd->prepare("UPDATE users SET reset_token = :token, reset_token_expiry = :expiry WHERE mail = :mail");
+    return $stmt->execute([':token' => $token, ':expiry' => $expiry, ':mail' => $mail]);
+}
+
+function getUserByResetToken(string $token)
+{
+    global $bdd;
+    $stmt = $bdd->prepare("SELECT id, mail FROM users WHERE reset_token = :token AND reset_token_expiry > NOW()");
+    $stmt->execute([':token' => $token]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function clearResetToken(int $id): bool
+{
+    global $bdd;
+    $stmt = $bdd->prepare("UPDATE users SET reset_token = NULL, reset_token_expiry = NULL WHERE id = :id");
+    return $stmt->execute([':id' => $id]);
 }
 
 function importUsersFromCSV(string $csvTmpPath): array
@@ -222,12 +283,17 @@ function searchUsers($filters) {
         $params[':isAdmin'] = (int)$filters['isAdmin'];
     }
 
+    if (isset($filters['role']) && $filters['role'] !== '') {
+        $conditions[] = 'role = :role';
+        $params[':role'] = $filters['role'];
+    }
+
     if (isset($filters['newsletter']) && $filters['newsletter'] !== '') {
         $conditions[] = 'newsletter = :newsletter';
         $params[':newsletter'] = (int)$filters['newsletter'];
     }
 
-    $sql = 'SELECT id, name, firstname, mail, subscription, isAdmin, newsletter FROM users';
+    $sql = 'SELECT id, name, firstname, mail, subscription, role, avatar, newsletter FROM users';
 
     if (!empty($conditions)) {
         $sql .= ' WHERE ' . implode(' AND ', $conditions);

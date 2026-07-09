@@ -22,20 +22,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Création de la session utilisateur
         $_SESSION['user'] = [
-            'id' => $user['id'],
-            'name' => $user['name'],
+            'id'        => $user['id'],
+            'name'      => $user['name'],
             'firstname' => $user['firstname'],
-            'mail' => $user['mail'],
-            'isAdmin' => $user['isAdmin'],
+            'mail'      => $user['mail'],
+            'role'      => $user['role'] ?? ($user['isAdmin'] ? 'admin' : 'user'),
+            'avatar'    => $user['avatar'] ?? null,
         ];
 
+        $role = $_SESSION['user']['role'];
         echo json_encode([
-            'success' => true,
-            'code' => $user['isAdmin'] ? 'LOGIN_ADMIN' : 'LOGIN_SUCCESS',
-            'message' => 'Connexion réussie.',
+            'success'   => true,
+            'code'      => ($role === 'admin' || $role === 'vip') ? 'LOGIN_ADMIN' : 'LOGIN_SUCCESS',
+            'message'   => 'Connexion réussie.',
             'firstname' => $user['firstname'],
-            'name' => $user['name'],
-            'message' => 'Connexion réussie.'
+            'name'      => $user['name'],
+            'role'      => $role,
         ]);
     } catch (Exception $e) {
         echo json_encode([

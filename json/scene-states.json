@@ -1,0 +1,1040 @@
+{
+    "home": {
+        "label": "Home",
+        "camera": {
+            "posX": 0.9,
+            "posY": 5.95,
+            "posZ": 8,
+            "fov": 60,
+            "near": 0.1,
+            "far": 520,
+            "lookAtOffsetX": -0.35,
+            "lookAtOffsetY": 0.15,
+            "lookAtOffsetZ": 0
+        },
+        "theme": {
+            "wire": "#666666",
+            "glow": "#1a1a2e",
+            "speed": 0.0018
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 1
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 1.44,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5,
+                "castShadow": true,
+                "useLeadColor": false,
+                "leadColorPos": 0
+            },
+            "rim": {
+                "color": "#3366ff",
+                "intensity": 1.03,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3,
+                "castShadow": false,
+                "useLeadColor": false,
+                "leadColorPos": 0
+            }
+        },
+        "logo": {
+            "scale": 1,
+            "posX": 0,
+            "posY": 2.2,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": -0.66159,
+            "rotZ": 0
+        },
+        "logoBody": {
+            "color": "#0a0a14",
+            "metalness": 0,
+            "roughness": 0.51,
+            "emissiveIntensity": 0,
+            "castShadow": true
+        },
+        "logoLight": {
+            "stops": [
+                "#4488ff",
+                "#e770ff",
+                "#ff6644",
+                "#ffd642",
+                "#88fe5d",
+                "#4488ff"
+            ],
+            "gradientSpeed": 0.3,
+            "texScale": 3.1,
+            "emissiveIntensity": 1,
+            "lightIntensity": 9.7,
+            "lightRange": 6.9,
+            "normalOffset": 0.4,
+            "castShadow": false,
+            "useLeadColor": false,
+            "leadColorPos": 0.5,
+            "rimTintBlend": 0.5,
+            "keyTintBlend": 0
+        },
+        "ground": {
+            "color": "#111122",
+            "metalness": 0.5,
+            "roughness": 0.73,
+            "receiveShadow": true
+        },
+        "environment": {
+            "visible": true
+        },
+        "bloom": {
+            "enabled": true,
+            "threshold": 0.25,
+            "strength": 0.3,
+            "radius": 0,
+            "exposure": 1
+        },
+        "dof": {
+            "enabled": false,
+            "focus": 11.7,
+            "aperture": 0.00069,
+            "maxblur": 0.05
+        },
+        "shadow": {
+            "keyResolution": 64,
+            "keyRadius": 3,
+            "ptResolution": 64,
+            "ptRadius": 3
+        },
+        "particles": {
+            "count": 720,
+            "colorNear": "#7d7d7d",
+            "colorFar": "#000000",
+            "colorMaxDist": 5.5,
+            "size": 0.05,
+            "opacity": 0.3,
+            "orbitSpeed": 0.5,
+            "orbitCurve": 5,
+            "turbulence": 0.29,
+            "lifeMin": 2.5,
+            "lifeMax": 5,
+            "mouseInfluence": 1,
+            "mouseRadius": 4.4,
+            "mouseDepth": 4
+        },
+        "renderer": {
+            "clearColor": "#000000"
+        },
+        "reflection": {
+            "enabled": false,
+            "resolution": 128,
+            "bodyIntensity": 0.3,
+            "groundIntensity": 0.5,
+            "updateEvery": 3
+        },
+        "extraLights": [
+            {
+                "id": "el_1781927568905",
+                "type": "SpotLight",
+                "label": "SpotLight",
+                "visible": true,
+                "color": "#ffffff",
+                "intensity": 18.15,
+                "castShadow": true,
+                "distance": 10,
+                "decay": 2,
+                "posX": 0,
+                "posY": 3,
+                "posZ": 0,
+                "angle": 0.5236,
+                "penumbra": 0.1
+            }
+        ]
+    },
+    "profile": {
+        "label": "Profile",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#4fc3f7",
+            "glow": "#0d2137",
+            "speed": 0.0025
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#3366ff",
+                "intensity": 0.35,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#4fc3f7",
+            "size": 0.03,
+            "opacity": 0.4
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "games": {
+        "label": "Games",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 65,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#7c4dff",
+            "glow": "#1a0050",
+            "speed": 0.004
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.4
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#7c4dff",
+                "intensity": 0.5,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#7c4dff",
+            "size": 0.035,
+            "opacity": 0.5
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "uxui": {
+        "label": "UX/UI",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#00e5ff",
+            "glow": "#003d45",
+            "speed": 0.0025
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#00e5ff",
+                "intensity": 0.4,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#00e5ff",
+            "size": 0.03,
+            "opacity": 0.4
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "3d": {
+        "label": "3D",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#ff6d00",
+            "glow": "#3e1200",
+            "speed": 0.003
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.4
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#ff6d00",
+                "intensity": 0.45,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#ff6d00",
+            "size": 0.03,
+            "opacity": 0.45
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "2d": {
+        "label": "2D",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#ff4081",
+            "glow": "#3e0020",
+            "speed": 0.003
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#ff4081",
+                "intensity": 0.45,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#ff4081",
+            "size": 0.03,
+            "opacity": 0.45
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "video": {
+        "label": "Vidéo",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#e040fb",
+            "glow": "#2a0045",
+            "speed": 0.003
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#e040fb",
+                "intensity": 0.45,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#e040fb",
+            "size": 0.03,
+            "opacity": 0.45
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "web": {
+        "label": "Web",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#69f0ae",
+            "glow": "#003020",
+            "speed": 0.0025
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#69f0ae",
+                "intensity": 0.4,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#69f0ae",
+            "size": 0.03,
+            "opacity": 0.4
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "pixel": {
+        "label": "Pixel Art",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#ffd600",
+            "glow": "#3a2800",
+            "speed": 0.003
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#ffd600",
+                "intensity": 0.4,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#ffd600",
+            "size": 0.03,
+            "opacity": 0.45
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "portfolio": {
+        "label": "Portfolio",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#ffd740",
+            "glow": "#382500",
+            "speed": 0.0025
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#ffd740",
+                "intensity": 0.4,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#ffd740",
+            "size": 0.03,
+            "opacity": 0.45
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "blog": {
+        "label": "Blog",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#90a4ae",
+            "glow": "#0d1b26",
+            "speed": 0.0018
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#3366ff",
+                "intensity": 0.35,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#90a4ae",
+            "size": 0.03,
+            "opacity": 0.4
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "bio": {
+        "label": "Bio",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#ffccbc",
+            "glow": "#3e1000",
+            "speed": 0.0018
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffccbc",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#3366ff",
+                "intensity": 0.35,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#ffccbc",
+            "size": 0.025,
+            "opacity": 0.35
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "contact": {
+        "label": "Contact",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#80deea",
+            "glow": "#003040",
+            "speed": 0.0025
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#80deea",
+                "intensity": 0.4,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#80deea",
+            "size": 0.03,
+            "opacity": 0.4
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "connexion": {
+        "label": "Connexion",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#ef9a9a",
+            "glow": "#3e0808",
+            "speed": 0.0025
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#ef9a9a",
+                "intensity": 0.4,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#ef9a9a",
+            "size": 0.03,
+            "opacity": 0.4
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "register": {
+        "label": "Inscription",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#a5d6a7",
+            "glow": "#073e10",
+            "speed": 0.0025
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#a5d6a7",
+                "intensity": 0.4,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#a5d6a7",
+            "size": 0.03,
+            "opacity": 0.4
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "userprofile": {
+        "label": "Profil utilisateur",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#4fc3f7",
+            "glow": "#0d2137",
+            "speed": 0.0025
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#3366ff",
+                "intensity": 0.35,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#4fc3f7",
+            "size": 0.03,
+            "opacity": 0.4
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "admintool": {
+        "label": "Admin Tool",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#ffa726",
+            "glow": "#3e1800",
+            "speed": 0.004
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#ffa726",
+                "intensity": 0.5,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#ffa726",
+            "size": 0.035,
+            "opacity": 0.5
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    },
+    "usersmanagement": {
+        "label": "Gestion Utilisateurs",
+        "camera": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 6,
+            "fov": 60,
+            "near": 0.1,
+            "far": 500
+        },
+        "theme": {
+            "wire": "#ef9a9a",
+            "glow": "#3e0808",
+            "speed": 0.003
+        },
+        "lights": {
+            "ambient": {
+                "color": "#ffffff",
+                "intensity": 0.45
+            },
+            "key": {
+                "color": "#ffffff",
+                "intensity": 0.9,
+                "posX": 3,
+                "posY": 4,
+                "posZ": 5
+            },
+            "rim": {
+                "color": "#ef9a9a",
+                "intensity": 0.45,
+                "posX": -4,
+                "posY": -2,
+                "posZ": -3
+            }
+        },
+        "logo": {
+            "posX": 0,
+            "posY": 0,
+            "posZ": 0,
+            "rotX": 0,
+            "rotY": 0,
+            "rotZ": 0
+        },
+        "particles": {
+            "color": "#ef9a9a",
+            "size": 0.03,
+            "opacity": 0.45
+        },
+        "renderer": {
+            "clearColor": "#040508"
+        }
+    }
+}
