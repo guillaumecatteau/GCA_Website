@@ -17,11 +17,18 @@
 }
 
 // -----------------------------------------------------------------------------
-// Icône triple état : grey (base) / dark (::before) / white (::after)
-// Utilisé pour les icônes de navigation et d'action
-// Usage : @include icon-triple('../images/icons/icon_foo_grey.webp', '...dark.webp', '...white.webp');
+// Icône à fichier unique — grey (base) / dark via filtre / white via filtre
+//
+// Seul le fichier _grey est nécessaire.
+// Dark  = brightness(0)           → noir
+// White = brightness(0) invert(1) → blanc
+//
+// Usage : @include icon-grey('../images/icons/icon_foo_grey.webp');
+//
+// Migration : remplace icon-triple($grey, $dark, $white) et icon-dual($grey, $white)
+// Les anciens arguments $dark et $white sont désormais ignorés s'ils sont passés.
 // -----------------------------------------------------------------------------
-@mixin icon-triple($grey, $dark, $white) {
+@mixin icon-grey($grey) {
   position: relative;
   background: url($grey) center / contain no-repeat;
 
@@ -30,33 +37,25 @@
     content: "";
     position: absolute;
     inset: 0;
-    background-position: center;
+    background: url($grey) center / contain no-repeat;
     background-size: contain;
+    background-position: center;
     background-repeat: no-repeat;
     opacity: 0;
     transition: opacity $transition-fast;
   }
 
-  &::before { background-image: url($dark); }
-  &::after  { background-image: url($white); }
+  &::before { filter: brightness(0); }           // état dark → noir
+  &::after  { filter: brightness(0) invert(1); } // état white → blanc
 }
 
-// -----------------------------------------------------------------------------
-// Icône double état : grey (base) / white (::after)
-// Utilisé pour les icônes sociales
-// -----------------------------------------------------------------------------
-@mixin icon-dual($grey, $white) {
-  position: relative;
-  background: url($grey) center / contain no-repeat;
+// Alias de compatibilité — accepte les anciens arguments mais les ignore
+@mixin icon-triple($grey, $dark: null, $white: null) {
+  @include icon-grey($grey);
+}
 
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: url($white) center / contain no-repeat;
-    opacity: 0;
-    transition: opacity $transition-fast;
-  }
+@mixin icon-dual($grey, $white: null) {
+  @include icon-grey($grey);
 }
 
 // -----------------------------------------------------------------------------
@@ -84,7 +83,7 @@
 @mixin glass-block($radius: $radius-lg) {
   background-color: $color-block-bg;
   border: solid 1px $color-border;
-  backdrop-filter: blur(0);
+  backdrop-filter: blur(12px);
   border-radius: $radius;
   transition: all $transition-fast;
 }

@@ -7,7 +7,7 @@ function getAllExperiences(): array
 {
     global $bdd;
     $stmt = $bdd->query(
-        "SELECT id, title_fr, title_nl, date_start, date_end, logo_media_id
+        "SELECT id, title_fr, title_en, date_start, date_end, logo_media_id
          FROM experiences ORDER BY date_start DESC"
     );
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -29,17 +29,17 @@ function createExperience(array $data): int|false
 {
     global $bdd;
     $stmt = $bdd->prepare(
-        "INSERT INTO experiences (title_fr, title_nl, date_start, date_end, logo_media_id, description_fr, description_nl)
-         VALUES (:tfr, :tnl, :ds, :de, :logo, :dfr, :dnl)"
+        "INSERT INTO experiences (title_fr, title_en, date_start, date_end, logo_media_id, description_fr, description_en)
+         VALUES (:tfr, :ten, :ds, :de, :logo, :dfr, :den)"
     );
     $stmt->execute([
         ':tfr'  => $data['title_fr']       ?? '',
-        ':tnl'  => $data['title_nl']       ?? '',
+        ':ten'  => $data['title_en']       ?? '',
         ':ds'   => $data['date_start']     ?? null,
         ':de'   => $data['date_end']       ?? null,
         ':logo' => !empty($data['logo_media_id']) ? (int)$data['logo_media_id'] : null,
         ':dfr'  => $data['description_fr'] ?? null,
-        ':dnl'  => $data['description_nl'] ?? null,
+        ':den'  => $data['description_en'] ?? null,
     ]);
     $id = (int)$bdd->lastInsertId();
     _syncExperienceRelations($id, $data);
@@ -49,7 +49,7 @@ function createExperience(array $data): int|false
 function updateExperience(int $id, array $data): bool
 {
     global $bdd;
-    $allowed = ['title_fr','title_nl','date_start','date_end','logo_media_id','description_fr','description_nl'];
+    $allowed = ['title_fr','title_en','date_start','date_end','logo_media_id','description_fr','description_en'];
     $set = [];
     $params = [':id' => $id];
     foreach ($allowed as $col) {
@@ -76,7 +76,7 @@ function getExperienceTags(int $expId): array
 {
     global $bdd;
     $stmt = $bdd->prepare(
-        "SELECT t.id, t.title_fr, t.title_nl
+        "SELECT t.id, t.title_fr, t.title_en
          FROM tags t JOIN experiences_tags et ON t.id = et.tag_id
          WHERE et.experience_id = :eid AND t.category = 'job'"
     );
@@ -88,7 +88,7 @@ function getExperiencePages(int $expId): array
 {
     global $bdd;
     $stmt = $bdd->prepare(
-        "SELECT p.id, p.type, p.slug, p.title_fr, p.title_nl
+        "SELECT p.id, p.type, p.slug, p.title_fr, p.title_en
          FROM pages p JOIN experiences_pages ep ON p.id = ep.page_id
          WHERE ep.experience_id = :eid"
     );

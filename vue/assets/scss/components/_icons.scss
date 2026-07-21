@@ -1,9 +1,19 @@
+﻿// =============================================================================
+// ICONS â€” SystÃ¨me d'icÃ´nes Ã  fichier unique (grey uniquement)
 // =============================================================================
-// ICONS — Système d'icônes tri-état et bi-état avec le mixin icon-triple/dual
+// Chaque icÃ´ne n'utilise QUE le fichier _grey.
+// Les Ã©tats dark et white sont obtenus par filtre CSS :
+//   ::before  â†’ filter: brightness(0)           â†’ noir  (Ã©tat dark)
+//   ::after   â†’ filter: brightness(0) invert(1) â†’ blanc (Ã©tat white/actif)
+//
+// Les anciens fichiers _dark et _white ne sont plus chargÃ©s.
+// Voir abstracts/_mixins.scss mixin icon-grey().
 // =============================================================================
 @use '../abstracts' as *;
 
-// Base commune à toutes les icônes
+// ---------------------------------------------------------------------------
+// Base commune Ã  toutes les icÃ´nes
+// ---------------------------------------------------------------------------
 .icon {
   height: $icon-size;
   width: $icon-size;
@@ -14,377 +24,82 @@
   opacity: 1;
 }
 
-// =============================================================================
-// Icônes d'action — triple état (grey / dark / white)
-// =============================================================================
-
-// Chemin de base des icônes
-$_icons-path: "../images/icons/";
-
-.iconConnect {
-  @include icon-triple(
-    "#{$_icons-path}icon_connect_grey.webp",
-    "#{$_icons-path}icon_connect_dark.webp",
-    "#{$_icons-path}icon_connect_white.webp"
-  );
-}
-
-.iconUser {
-  @include icon-triple(
-    "#{$_icons-path}icon_user_grey.webp",
-    "#{$_icons-path}icon_user_dark.webp",
-    "#{$_icons-path}icon_user_white.webp"
-  );
-}
-
-.iconAdmin {
-  @include icon-triple(
-    "#{$_icons-path}icon_admin_grey.webp",
-    "#{$_icons-path}icon_admin_dark.webp",
-    "#{$_icons-path}icon_admin_white.webp"
-  );
-}
-
-.iconEye {
-  display: block;
-  @include icon-triple(
-    "#{$_icons-path}icon_Eye_grey.webp",
-    "#{$_icons-path}icon_Eye_dark.webp",
-    "#{$_icons-path}icon_Eye_white.webp"
-  );
-}
-
-.iconEyeClosed {
-  display: block;
-  @include icon-triple(
-    "#{$_icons-path}icon_EyeClosed_grey.webp",
-    "#{$_icons-path}icon_EyeClosed_dark.webp",
-    "#{$_icons-path}icon_EyeClosed_white.webp"
-  );
-}
-
-.iconValid {
-  @include icon-triple(
-    "#{$_icons-path}icon_validation_grey.webp",
-    "#{$_icons-path}icon_validation_dark.webp",
-    "#{$_icons-path}icon_validation_white.webp"
-  );
-}
-
-.iconProhibed {
-  @include icon-triple(
-    "#{$_icons-path}icon_prohibed_grey.webp",
-    "#{$_icons-path}icon_prohibed_dark.webp",
-    "#{$_icons-path}icon_prohibed_white.webp"
-  );
-}
-
-.iconInscription {
-  @include icon-triple(
-    "#{$_icons-path}icon_inscription_grey.webp",
-    "#{$_icons-path}icon_inscription_dark.webp",
-    "#{$_icons-path}icon_inscription_white.webp"
-  );
-}
-
-.iconSettings {
-  @include icon-triple(
-    "#{$_icons-path}icon_settings_grey.webp",
-    "#{$_icons-path}icon_settings_dark.webp",
-    "#{$_icons-path}icon_settings_white.webp"
-  );
-}
-
-.iconRetry {
-  @include icon-triple(
-    "#{$_icons-path}icon_retry_grey.webp",
-    "#{$_icons-path}icon_retry_dark.webp",
-    "#{$_icons-path}icon_retry_white.webp"
-  );
-}
-
-.iconSave {
-  @include icon-triple(
-    "#{$_icons-path}icon_save_grey.webp",
-    "#{$_icons-path}icon_save_dark.webp",
-    "#{$_icons-path}icon_save_white.webp"
-  );
-}
-
-.iconBack {
-  @include icon-triple(
-    "#{$_icons-path}icon_back_grey.webp",
-    "#{$_icons-path}icon_back_dark.webp",
-    "#{$_icons-path}icon_back_white.webp"
-  );
-}
-
-.iconDeny {
-  @include icon-triple(
-    "#{$_icons-path}icon_deny_grey.webp",
-    "#{$_icons-path}icon_deny_dark.webp",
-    "#{$_icons-path}icon_deny_white.webp"
-  );
-}
-
-.iconDelete {
-  @include icon-triple(
-    "#{$_icons-path}icon_delete_grey.webp",
-    "#{$_icons-path}icon_delete_dark.webp",
-    "#{$_icons-path}icon_delete_white.webp"
-  );
-}
-
-.iconContentCreation {
-  @include icon-triple(
-    "#{$_icons-path}icon_contentCreation_grey.webp",
-    "#{$_icons-path}icon_contentCreation_dark.webp",
-    "#{$_icons-path}icon_contentCreation_white.webp"
-  );
-}
-
-.iconContentManagement {
-  @include icon-triple(
-    "#{$_icons-path}icon_contentManagement_grey.webp",
-    "#{$_icons-path}icon_contentManagement_dark.webp",
-    "#{$_icons-path}icon_contentManagement_white.webp"
-  );
-}
-
-.iconUsersManagement {
-  @include icon-triple(
-    "#{$_icons-path}icon_usersManagement_grey.webp",
-    "#{$_icons-path}icon_usersManagement_dark.webp",
-    "#{$_icons-path}icon_usersManagement_white.webp"
-  );
-}
-
-.iconCommentsManagement {
-  @include icon-triple(
-    "#{$_icons-path}icon_commentsManagement_grey.webp",
-    "#{$_icons-path}icon_commentsManagement_dark.webp",
-    "#{$_icons-path}icon_commentsManagement_white.webp"
-  );
-}
-
-.iconAnalytics {
-  @include icon-triple(
-    "#{$_icons-path}icon_analytics_grey.webp",
-    "#{$_icons-path}icon_analytics_dark.webp",
-    "#{$_icons-path}icon_analytics_white.webp"
-  );
-}
-
-.iconSearch {
-  @include icon-triple(
-    "#{$_icons-path}icon_search_grey.webp",
-    "#{$_icons-path}icon_search_dark.webp",
-    "#{$_icons-path}icon_search_white.webp"
-  );
-}
-
-.iconUploadList {
-  @include icon-triple(
-    "#{$_icons-path}icon_uploadList_grey.webp",
-    "#{$_icons-path}icon_uploadList_dark.webp",
-    "#{$_icons-path}icon_uploadList_white.webp"
-  );
-}
+// Chemin de base
+$_p: "../images/icons/";
 
 // =============================================================================
-// Icônes de navigation — triple état
+// IcÃ´nes d'action
 // =============================================================================
 
-.iconHome {
-  @include icon-triple(
-    "#{$_icons-path}icon_home_grey.webp",
-    "#{$_icons-path}icon_home_dark.webp",
-    "#{$_icons-path}icon_home_white.webp"
-  );
-}
-
-.iconProfil {
-  @include icon-triple(
-    "#{$_icons-path}icon_user_grey.webp",
-    "#{$_icons-path}icon_user_dark.webp",
-    "#{$_icons-path}icon_user_white.webp"
-  );
-}
-
-.iconGames {
-  @include icon-triple(
-    "#{$_icons-path}icon_games_grey.webp",
-    "#{$_icons-path}icon_games_dark.webp",
-    "#{$_icons-path}icon_games_white.webp"
-  );
-}
-
-.iconUx {
-  @include icon-triple(
-    "#{$_icons-path}icon_UX-UI_grey.webp",
-    "#{$_icons-path}icon_UX-UI_dark.webp",
-    "#{$_icons-path}icon_UX-UI_white.webp"
-  );
-}
-
-.icon3d {
-  @include icon-triple(
-    "#{$_icons-path}icon_3d_grey.webp",
-    "#{$_icons-path}icon_3d_dark.webp",
-    "#{$_icons-path}icon_3d_white.webp"
-  );
-}
-
-.icon2d {
-  @include icon-triple(
-    "#{$_icons-path}icon_2d_grey.webp",
-    "#{$_icons-path}icon_2d_dark.webp",
-    "#{$_icons-path}icon_2d_white.webp"
-  );
-}
-
-.iconVideo {
-  @include icon-triple(
-    "#{$_icons-path}icon_video_grey.webp",
-    "#{$_icons-path}icon_video_dark.webp",
-    "#{$_icons-path}icon_video_white.webp"
-  );
-}
-
-.iconWeb {
-  @include icon-triple(
-    "#{$_icons-path}icon_webDesign_grey.webp",
-    "#{$_icons-path}icon_webDesign_dark.webp",
-    "#{$_icons-path}icon_webDesign_white.webp"
-  );
-}
-
-.iconPixel {
-  @include icon-triple(
-    "#{$_icons-path}icon_pixelArt_grey.webp",
-    "#{$_icons-path}icon_pixelArt_dark.webp",
-    "#{$_icons-path}icon_pixelArt_white.webp"
-  );
-}
-
-.iconPortfolio {
-  @include icon-triple(
-    "#{$_icons-path}icon_projects_grey.webp",
-    "#{$_icons-path}icon_projects_dark.webp",
-    "#{$_icons-path}icon_projects_white.webp"
-  );
-}
-
-.iconBlog {
-  @include icon-triple(
-    "#{$_icons-path}icon_blog_grey.webp",
-    "#{$_icons-path}icon_blog_dark.webp",
-    "#{$_icons-path}icon_blog_white.webp"
-  );
-}
-
-.iconBio {
-  @include icon-triple(
-    "#{$_icons-path}icon_About_grey.webp",
-    "#{$_icons-path}icon_About_dark.webp",
-    "#{$_icons-path}icon_About_white.webp"
-  );
-}
-
-.iconContact {
-  @include icon-triple(
-    "#{$_icons-path}icon_Contact_grey.webp",
-    "#{$_icons-path}icon_Contact_dark.webp",
-    "#{$_icons-path}icon_Contact_white.webp"
-  );
-}
-
-.iconGC {
-  @include icon-triple(
-    "#{$_icons-path}icon_GC_Grey.webp",
-    "#{$_icons-path}icon_GC_Dark.webp",
-    "#{$_icons-path}icon_GC_White.webp"
-  );
-}
-
-.iconExpertise {
-  @include icon-triple(
-    "#{$_icons-path}icon_infinite_grey.webp",
-    "#{$_icons-path}icon_infinite_dark.webp",
-    "#{$_icons-path}icon_infinite_white.webp"
-  );
-}
+.iconConnect         { @include icon-grey("#{$_p}icon_connect_grey.webp"); }
+.iconUser            { @include icon-grey("#{$_p}icon_user_grey.webp"); }
+.iconAdmin           { @include icon-grey("#{$_p}icon_admin_grey.webp"); }
+.iconEye             { display: block; @include icon-grey("#{$_p}icon_Eye_grey.webp"); }
+.iconEyeClosed       { display: block; @include icon-grey("#{$_p}icon_EyeClosed_grey.webp"); }
+.iconValid           { @include icon-grey("#{$_p}icon_validation_grey.webp"); }
+.iconProhibed        { @include icon-grey("#{$_p}icon_prohibed_grey.webp"); }
+.iconInscription     { @include icon-grey("#{$_p}icon_inscription_grey.webp"); }
+.iconSettings        { @include icon-grey("#{$_p}icon_settings_grey.webp"); }
+.iconRetry           { @include icon-grey("#{$_p}icon_retry_grey.webp"); }
+.iconSave            { @include icon-grey("#{$_p}icon_save_grey.webp"); }
+.iconBack            { @include icon-grey("#{$_p}icon_back_grey.webp"); }
+.iconDeny            { @include icon-grey("#{$_p}icon_deny_grey.webp"); }
+.iconDelete          { @include icon-grey("#{$_p}icon_delete_grey.webp"); }
+.iconAdd             { @include icon-grey("#{$_p}icon_Write_grey.webp"); }
+.iconEdit            { @include icon-grey("#{$_p}icon_Write_grey.webp"); }
+.iconSearch          { @include icon-grey("#{$_p}icon_search_grey.webp"); }
+.iconUploadList      { @include icon-grey("#{$_p}icon_uploadList_grey.webp"); }
+.iconFullscreen      { @include icon-grey("#{$_p}icon_fullscreen_grey.webp"); }
+.iconFirst           { @include icon-grey("#{$_p}icon_first_grey.webp"); }
+.iconLast            { @include icon-grey("#{$_p}icon_last_grey.webp"); }
+.iconNext            { @include icon-grey("#{$_p}icon_next_grey.webp"); }
+.iconPrevious        { @include icon-grey("#{$_p}icon_previous_grey.webp"); }
+.iconGalleries       { @include icon-grey("#{$_p}icon_galleries_grey.webp"); }
+.iconWrite           { @include icon-grey("#{$_p}icon_Write_grey.webp"); }
 
 // =============================================================================
-// Icônes sociales — double état (grey / white)
+// IcÃ´nes de gestion (admin)
 // =============================================================================
 
-.iconArtstation {
-  @include icon-dual(
-    "#{$_icons-path}icon_artstation_Grey.webp",
-    "#{$_icons-path}icon_artstation_white.webp"
-  );
-}
+.iconContentCreation    { @include icon-grey("#{$_p}icon_contentCreation_grey.webp"); }
+.iconContentManagement  { @include icon-grey("#{$_p}icon_contentManagement_grey.webp"); }
+.iconUsersManagement    { @include icon-grey("#{$_p}icon_usersManagement_grey.webp"); }
+.iconCommentsManagement { @include icon-grey("#{$_p}icon_commentsManagement_grey.webp"); }
+.iconAnalytics          { @include icon-grey("#{$_p}icon_analytics_grey.webp"); }
+.iconImagesManagement   { @include icon-grey("#{$_p}icon_galleries_grey.webp"); }
 
-.iconLinkedin {
-  @include icon-dual(
-    "#{$_icons-path}icon_Linkedin_Grey.webp",
-    "#{$_icons-path}icon_Linkedin_white.webp"
-  );
-}
+// =============================================================================
+// IcÃ´nes de navigation de page
+// =============================================================================
 
-.iconYoutube {
-  @include icon-dual(
-    "#{$_icons-path}icon_Youtube_Grey.webp",
-    "#{$_icons-path}icon_Youtube_white.webp"
-  );
-}
+.iconHome      { @include icon-grey("#{$_p}icon_Home_grey.webp"); }
+.iconProfil    { @include icon-grey("#{$_p}icon_user_grey.webp"); }
+.iconGames     { @include icon-grey("#{$_p}icon_Games_grey.webp"); }
+.iconUx        { @include icon-grey("#{$_p}icon_UX-UI_grey.webp"); }
+.icon3d        { @include icon-grey("#{$_p}icon_3d_grey.webp"); }
+.icon2d        { @include icon-grey("#{$_p}icon_2d_grey.webp"); }
+.iconVideo     { @include icon-grey("#{$_p}icon_video_grey.webp"); }
+.iconWeb       { @include icon-grey("#{$_p}icon_webDesign_grey.webp"); }
+.iconPixel     { @include icon-grey("#{$_p}icon_pixelArt_grey.webp"); }
+.iconPortfolio { @include icon-grey("#{$_p}icon_projects_grey.webp"); }
+.iconBlog      { @include icon-grey("#{$_p}icon_blog_grey.webp"); }
+.iconBio       { @include icon-grey("#{$_p}icon_About_grey.webp"); }
+.iconContact   { @include icon-grey("#{$_p}icon_contact_grey.webp"); }
+.iconGC        { @include icon-grey("#{$_p}icon_GC_Grey.webp"); }
+.iconExpertise { @include icon-grey("#{$_p}icon_infinite_grey.webp"); }
 
-.iconFacebook {
-  @include icon-dual(
-    "#{$_icons-path}icon_Facebook_Grey.webp",
-    "#{$_icons-path}icon_Facebook_white.webp"
-  );
-}
+// =============================================================================
+// IcÃ´nes sociales
+// =============================================================================
 
-.iconX {
-  @include icon-dual(
-    "#{$_icons-path}icon_X_Grey.webp",
-    "#{$_icons-path}icon_X_white.webp"
-  );
-}
+.iconArtstation      { @include icon-grey("#{$_p}icon_ArtstationRound_Grey.webp"); }
+.iconLinkedin        { @include icon-grey("#{$_p}icon_LinkedInRound_Grey.webp"); }
+.iconYoutube         { @include icon-grey("#{$_p}icon_YoutubeRound_Grey.webp"); }
+.iconFacebook        { @include icon-grey("#{$_p}icon_FacebookRound_Grey.webp"); }
+.iconX               { @include icon-grey("#{$_p}icon_XRound_Grey.webp"); }
+.iconRoundArtstation { @include icon-grey("#{$_p}icon_ArtstationRound_Grey.webp"); }
+.iconRoundLinkedin   { @include icon-grey("#{$_p}icon_LinkedInRound_Grey.webp"); }
+.iconRoundYoutube    { @include icon-grey("#{$_p}icon_YoutubeRound_Grey.webp"); }
+.iconRoundFacebook   { @include icon-grey("#{$_p}icon_FacebookRound_Grey.webp"); }
+.iconRoundX          { @include icon-grey("#{$_p}icon_XRound_Grey.webp"); }
 
-.iconRoundArtstation {
-  @include icon-dual(
-    "#{$_icons-path}icon_artstationRound_Grey.webp",
-    "#{$_icons-path}icon_artstationRound_white.webp"
-  );
-}
-
-.iconRoundLinkedin {
-  @include icon-dual(
-    "#{$_icons-path}icon_LinkedinRound_Grey.webp",
-    "#{$_icons-path}icon_LinkedinRound_white.webp"
-  );
-}
-
-.iconRoundYoutube {
-  @include icon-dual(
-    "#{$_icons-path}icon_YoutubeRound_Grey.webp",
-    "#{$_icons-path}icon_YoutubeRound_white.webp"
-  );
-}
-
-.iconRoundFacebook {
-  @include icon-dual(
-    "#{$_icons-path}icon_FacebookRound_Grey.webp",
-    "#{$_icons-path}icon_FacebookRound_white.webp"
-  );
-}
-
-.iconRoundX {
-  @include icon-dual(
-    "#{$_icons-path}icon_XRound_Grey.webp",
-    "#{$_icons-path}icon_XRound_white.webp"
-  );
-}

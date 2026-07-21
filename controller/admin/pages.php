@@ -80,9 +80,9 @@ function _sanitizePageData(array $body): array
     return [
         'type'             => $body['type']       ?? '',
         'title_fr'         => $str($body['title_fr']   ?? ''),
-        'title_nl'         => $str($body['title_nl']   ?? ''),
+        'title_en'         => $str($body['title_en']   ?? ''),
         'subtitle_fr'      => $str($body['subtitle_fr'] ?? ''),
-        'subtitle_nl'      => $str($body['subtitle_nl'] ?? ''),
+        'subtitle_en'      => $str($body['subtitle_en'] ?? ''),
         'main_visual_id'   => !empty($body['main_visual_id'])  ? (int)$body['main_visual_id']  : null,
         'thumbnail_id'     => !empty($body['thumbnail_id'])    ? (int)$body['thumbnail_id']    : null,
         'is_visible'       => (int)(bool)($body['is_visible']       ?? 0),

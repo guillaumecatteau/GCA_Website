@@ -1,7 +1,79 @@
 // =============================================================================
-// ANIMATIONS — Keyframes globales (entrées / sorties)
+// ANIMATIONS — Source unique de tous les @keyframes d'entrée / sortie
+// =============================================================================
+// Convention de nommage :
+//   rotateIn/Out      — flip Y 90°→0° (nav links, icônes)         0.3s
+//   rotateInSlow/Out  — flip Y 90°→0° (titres lettre par lettre)  1s / 0.6s
+//   moveInBottom/Out  — slide Y +100px→0 (boutons home)           0.75s / 0.5s
+//   moveInBottomFast  — slide Y +1200px→0 (panels admin)          0.75s / 0.5s
+//   bounceInTop/Right — bounce d'entrée (usage ponctuel)          1s
+//   onlineStatus      — rotation icône connexion                   0.3s
+//   offlineStatus     — rotation icône déconnexion                 0.3s
 // =============================================================================
 
+// ---------------------------------------------------------------------------
+// rotateIn / rotateOut — animation principale pour les icônes et liens nav
+// ---------------------------------------------------------------------------
+.rotateIn  { animation: rotateIn  0.3s forwards; }
+.rotateOut { animation: rotateOut 0.3s forwards; }
+
+@keyframes rotateIn {
+  from { transform: rotateY(90deg) var(--scale, scale(1)); opacity: 0; }
+  to   { transform: rotateY(0deg)  var(--scale, scale(1)); opacity: 1; }
+}
+@keyframes rotateOut {
+  from { transform: rotateY(0deg)  var(--scale, scale(1)); opacity: 1; }
+  to   { transform: rotateY(90deg) var(--scale, scale(1)); opacity: 0; }
+}
+
+// ---------------------------------------------------------------------------
+// rotateInSlow / rotateOutSlow — pour les titres (lettre par lettre)
+// ---------------------------------------------------------------------------
+.rotateInSlow  { animation: rotateInSlow  1s   forwards; }
+.rotateOutSlow { animation: rotateOutSlow 0.6s forwards; }
+
+@keyframes rotateInSlow {
+  from { transform: rotateY(90deg) var(--scale, scale(1)); opacity: 0; }
+  to   { transform: rotateY(0deg)  var(--scale, scale(1)); opacity: 1; }
+}
+@keyframes rotateOutSlow {
+  from { transform: rotateY(0deg)  var(--scale, scale(1)); opacity: 1; }
+  to   { transform: rotateY(90deg) var(--scale, scale(1)); opacity: 0; }
+}
+
+// ---------------------------------------------------------------------------
+// moveInBottom / moveOutBottom — slide depuis le bas (ex: bouton home profile)
+// ---------------------------------------------------------------------------
+.moveInBottom  { animation: moveInBottom  0.75s ease-out forwards; }
+.moveOutBottom { animation: moveOutBottom 0.5s  ease-in  forwards; }
+
+@keyframes moveInBottom {
+  from { transform: translateY(100px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+@keyframes moveOutBottom {
+  from { transform: translateY(0);     opacity: 1; }
+  to   { transform: translateY(100px); opacity: 0; }
+}
+
+// ---------------------------------------------------------------------------
+// moveInBottomFast / moveOutBottomFast — slide depuis plus loin (panels admin)
+// ---------------------------------------------------------------------------
+.moveInBottomFast  { animation: moveInBottomFast  0.75s ease-out forwards; }
+.moveOutBottomFast { animation: moveOutBottomFast 0.5s  ease-in  forwards; }
+
+@keyframes moveInBottomFast {
+  from { transform: translateY(1200px); opacity: 0; }
+  to   { transform: translateY(0);      opacity: 1; }
+}
+@keyframes moveOutBottomFast {
+  from { transform: translateY(0);      opacity: 1; }
+  to   { transform: translateY(600px);  opacity: 0; }
+}
+
+// ---------------------------------------------------------------------------
+// bounceInTop / bounceInRight — entrées avec rebond (usage ponctuel)
+// ---------------------------------------------------------------------------
 .bounceInTop { animation: bounceInTop 1s ease; }
 
 @keyframes bounceInTop {
@@ -18,3 +90,12 @@
   80%  { transform: translateX(10px); }
   100% { transform: translateX(0); }
 }
+
+// ---------------------------------------------------------------------------
+// onlineStatus / offlineStatus — rotation de l'icône de connexion
+// ---------------------------------------------------------------------------
+.onlineStatus  { animation: onlineStatus  0.3s forwards; }
+.offlineStatus { animation: offlineStatus 0.3s forwards; }
+
+@keyframes onlineStatus  { from { transform: rotateZ(0deg);    } to { transform: rotateZ(-180deg); } }
+@keyframes offlineStatus { from { transform: rotateZ(-180deg); } to { transform: rotateZ(0deg);    } }

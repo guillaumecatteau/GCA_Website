@@ -31,18 +31,18 @@ UPDATE users SET role = 'user'  WHERE isAdmin = 0;
 CREATE TABLE IF NOT EXISTS tags (
   id         INT          NOT NULL AUTO_INCREMENT,
   title_fr   VARCHAR(150) NOT NULL DEFAULT '',
-  title_nl   VARCHAR(150) NOT NULL DEFAULT '',
+  title_en   VARCHAR(150) NOT NULL DEFAULT '',,
   category   ENUM('category','job','technology') NOT NULL,
   PRIMARY KEY (id),
   KEY idx_category (category)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Migrer les données existantes
-INSERT INTO tags (title_fr, title_nl, category)
+INSERT INTO tags (title_fr, title_en, category)
   SELECT category, category, 'category' FROM categories
   WHERE category IS NOT NULL AND category != '';
 
-INSERT INTO tags (title_fr, title_nl, category)
+INSERT INTO tags (title_fr, title_en, category)
   SELECT job, job, 'job' FROM jobs
   WHERE job IS NOT NULL AND job != '';
 
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS medias (
   type           ENUM('image','video','youtube','audio','audio_link') NOT NULL DEFAULT 'image',
   file_path      VARCHAR(512) NOT NULL,
   description_fr TEXT,
-  description_nl TEXT,
+  description_en TEXT,
   alt_text       VARCHAR(255),
   uploaded_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS medias_tags (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Migrer les images existantes vers medias
-INSERT INTO medias (type, file_path, description_fr, description_nl, alt_text)
+INSERT INTO medias (type, file_path, description_fr, description_en, alt_text)
   SELECT 'image', link, descriptionFR, descriptionEN, titleFR
   FROM images
   WHERE link IS NOT NULL AND link != '';
@@ -82,9 +82,9 @@ CREATE TABLE IF NOT EXISTS pages (
   type             ENUM('projet','expertise','blog') NOT NULL,
   slug             VARCHAR(255) NOT NULL,
   title_fr         VARCHAR(255) NOT NULL DEFAULT '',
-  title_nl         VARCHAR(255) NOT NULL DEFAULT '',
+  title_en         VARCHAR(255) NOT NULL DEFAULT '',
   subtitle_fr      VARCHAR(255)          DEFAULT NULL,
-  subtitle_nl      VARCHAR(255)          DEFAULT NULL,
+  subtitle_en      VARCHAR(255)          DEFAULT NULL,
   main_visual_id   INT                   DEFAULT NULL,
   thumbnail_id     INT                   DEFAULT NULL,
   is_visible       TINYINT(1)   NOT NULL DEFAULT 0,
@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS page_blocks (
   sort_order INT    NOT NULL DEFAULT 0,
   block_type ENUM('text','media','gallery','canvas') NOT NULL DEFAULT 'text',
   content_fr TEXT,
-  content_nl TEXT,
+  content_en TEXT,
   media_id   INT           DEFAULT NULL,
   PRIMARY KEY (id),
   KEY idx_page  (page_id),
@@ -164,12 +164,12 @@ CREATE TABLE IF NOT EXISTS page_block_gallery (
 CREATE TABLE IF NOT EXISTS experiences (
   id             INT          NOT NULL AUTO_INCREMENT,
   title_fr       VARCHAR(200) NOT NULL DEFAULT '',
-  title_nl       VARCHAR(200) NOT NULL DEFAULT '',
+  title_en       VARCHAR(200) NOT NULL DEFAULT '',
   date_start     DATE         NOT NULL,
   date_end       DATE                  DEFAULT NULL,
   logo_media_id  INT                   DEFAULT NULL,
   description_fr TEXT,
-  description_nl TEXT,
+  description_en TEXT,
   PRIMARY KEY (id),
   FOREIGN KEY (logo_media_id) REFERENCES medias(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

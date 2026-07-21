@@ -77,7 +77,64 @@ if (isset($_GET['action'])) {
     </div>
   </nav>
 
+  <!-- ── Popups globaux — hors pageContainer pour éviter le contexte transform ── -->
+
+  <!-- Confirmation suppression tag -->
+  <div class="confirmOverlay" id="tagDeleteConfirm" style="display:none">
+    <div class="confirmBox">
+      <p class="confirmMsg" lang="FR" data-en="Delete this tag permanently?">Supprimer ce tag définitivement ?</p>
+      <div class="confirmActions">
+        <div class="btnMedium btnDanger" id="btnConfirmDeleteTag">
+          <div class="btnLabel"><span class="btnText" lang="FR" data-en="Delete">Supprimer</span></div>
+        </div>
+        <div class="btnMedium" id="btnCancelDeleteTag">
+          <div class="btnLabel"><span class="btnText" lang="FR" data-en="Cancel">Annuler</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Browser d'icônes -->
+  <div class="confirmOverlay" id="tagIconBrowser" style="display:none">
+    <div class="iconBrowserBox">
+      <div class="iconBrowserHeader">
+        <span lang="FR" data-en="Choose an icon">Choisir une icône</span>
+        <button type="button" class="btnSmall" id="btnCloseIconBrowser">✕</button>
+      </div>
+      <div class="iconBrowserFolders">
+        <button type="button" class="iconFolderBtn iconFolderBtn--active" data-folder="vue/assets/images/icons">Webp</button>
+        <button type="button" class="iconFolderBtn" data-folder="vue/assets/images/icons/PNGs">PNG</button>
+      </div>
+      <div class="iconBrowserGrid" id="tagIconBrowserGrid">
+        <!-- Injecté par JS -->
+      </div>
+    </div>
+  </div>
+
   <?php require 'templates/admin/scene-editor.php'; ?>
+
+  <!-- ── Bouton debug strokes (dev only) ── -->
+  <button id="debugToggleBtn" title="Toggle debug strokes" style="
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    width:36px; height:36px; border-radius:50%;
+    background:rgba(20,20,30,0.85); border:1px solid rgba(255,255,255,0.15);
+    color:rgba(255,255,255,0.4); font-size:14px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:opacity .2s, border-color .2s; opacity:0.5;
+  ">⬡</button>
+  <script>
+    (function(){
+      var btn = document.getElementById('debugToggleBtn');
+      var on  = false;
+      btn.addEventListener('click', function(){
+        on = !on;
+        document.body.classList.toggle('debug-visible', on);
+        btn.style.borderColor = on ? 'rgba(255,80,80,0.8)' : 'rgba(255,255,255,0.15)';
+        btn.style.color       = on ? 'rgba(255,80,80,0.9)' : 'rgba(255,255,255,0.4)';
+        btn.style.opacity     = on ? '1' : '0.5';
+      });
+    })();
+  </script>
 
   <?php require 'templates/partials/backgrounds.php'; ?>
   <?php require 'templates/partials/scripts.php'; ?>

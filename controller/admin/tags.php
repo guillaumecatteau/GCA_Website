@@ -29,29 +29,52 @@ switch ("$method:$sub") {
 
     case 'POST:create':
         requireAdmin();
-        $fr  = htmlspecialchars(trim($body['title_fr'] ?? ''), ENT_QUOTES, 'UTF-8');
-        $nl  = htmlspecialchars(trim($body['title_nl'] ?? ''), ENT_QUOTES, 'UTF-8');
-        $cat = $body['category'] ?? '';
+        $fr   = htmlspecialchars(trim($body['title_fr'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $en   = htmlspecialchars(trim($body['title_en'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $cat  = $body['category'] ?? '';
+        $icon = $body['icon_path'] ? htmlspecialchars(trim($body['icon_path']), ENT_QUOTES, 'UTF-8') : null;
         if (!$fr || !$cat) {
             echo json_encode(['success' => false, 'code' => 'MISSING_FIELD']);
             break;
         }
-        $id = createTag($fr, $nl ?: $fr, $cat);
+        $id = createTag($fr, $en ?: $fr, $cat, $icon ?: null);
         echo json_encode($id ? ['success' => true, 'id' => $id] : ['success' => false, 'code' => 'INVALID_CATEGORY']);
         break;
 
     case 'POST:update':
         requireAdmin();
-        $id  = (int)($body['id'] ?? 0);
-        $fr  = htmlspecialchars(trim($body['title_fr'] ?? ''), ENT_QUOTES, 'UTF-8');
-        $nl  = htmlspecialchars(trim($body['title_nl'] ?? ''), ENT_QUOTES, 'UTF-8');
-        $cat = $body['category'] ?? '';
+        $id   = (int)($body['id'] ?? 0);
+        $fr   = htmlspecialchars(trim($body['title_fr'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $en   = htmlspecialchars(trim($body['title_en'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $cat  = $body['category'] ?? '';
+        $icon = isset($body['icon_path']) ? (htmlspecialchars(trim($body['icon_path']), ENT_QUOTES, 'UTF-8') ?: null) : null;
         if (!$id || !$fr || !$cat) {
             echo json_encode(['success' => false, 'code' => 'MISSING_FIELD']);
             break;
         }
-        echo json_encode(['success' => updateTag($id, $fr, $nl ?: $fr, $cat)]);
+        echo json_encode(['success' => updateTag($id, $fr, $en ?: $fr, $cat, $icon)]);
         break;
+
+    case 'GET:icons': {
+        // Liste les images disponibles dans un dossier autorisé
+        $folder  = $_GET['folder'] ?? 'vue/assets/images/icons';
+        $allowed = ['vue/assets/images/icons', 'vue/assets/images/icons/PNGs'];
+        if (!in_array($folder, $allowed, true)) {
+            echo json_encode(['success' => false, 'code' => 'INVALID_FOLDER']); break;
+        }
+        $base     = realpath(__DIR__ . '/../../') . '/';
+        $fullPath = realpath($base . $folder);
+        if (!$fullPath || !is_dir($fullPath)) {
+            echo json_encode(['success' => true, 'folder' => $folder, 'files' => []]); break;
+        }
+        $exts = ['png','jpg','jpeg','webp','svg','gif'];
+        $files = array_values(array_filter(scandir($fullPath), function($f) use ($exts, $fullPath) {
+            if ($f[0] === '.' || is_dir($fullPath . '/' . $f)) return false;
+            return in_array(strtolower(pathinfo($f, PATHINFO_EXTENSION)), $exts, true);
+        }));
+        echo json_encode(['success' => true, 'folder' => $folder, 'files' => $files]);
+        break;
+    }
 
     case 'POST:delete':
         requireAdmin();

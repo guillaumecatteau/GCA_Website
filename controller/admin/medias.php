@@ -35,7 +35,7 @@ switch ("$method:$sub") {
         $type = $_POST['type'] ?? 'image';
         $meta = [
             'description_fr' => htmlspecialchars($_POST['description_fr'] ?? '', ENT_QUOTES, 'UTF-8'),
-            'description_nl' => htmlspecialchars($_POST['description_nl'] ?? '', ENT_QUOTES, 'UTF-8'),
+            'description_en' => htmlspecialchars($_POST['description_en'] ?? '', ENT_QUOTES, 'UTF-8'),
             'alt_text'       => htmlspecialchars($_POST['alt_text'] ?? '',       ENT_QUOTES, 'UTF-8'),
             'tags'           => json_decode($_POST['tags'] ?? '[]', true) ?: [],
         ];
@@ -57,7 +57,7 @@ switch ("$method:$sub") {
         if (!$url) { echo json_encode(['success' => false, 'code' => 'MISSING_URL']); break; }
         $meta = [
             'description_fr' => htmlspecialchars($body['description_fr'] ?? '', ENT_QUOTES, 'UTF-8'),
-            'description_nl' => htmlspecialchars($body['description_nl'] ?? '', ENT_QUOTES, 'UTF-8'),
+            'description_en' => htmlspecialchars($body['description_en'] ?? '', ENT_QUOTES, 'UTF-8'),
             'alt_text'       => htmlspecialchars($body['alt_text'] ?? '',       ENT_QUOTES, 'UTF-8'),
             'tags'           => (array)($body['tags'] ?? []),
         ];
@@ -70,7 +70,7 @@ switch ("$method:$sub") {
         if (!$id) { echo json_encode(['success' => false, 'code' => 'MISSING_ID']); break; }
         $fields = [
             'description_fr' => htmlspecialchars($body['description_fr'] ?? '', ENT_QUOTES, 'UTF-8'),
-            'description_nl' => htmlspecialchars($body['description_nl'] ?? '', ENT_QUOTES, 'UTF-8'),
+            'description_en' => htmlspecialchars($body['description_en'] ?? '', ENT_QUOTES, 'UTF-8'),
             'alt_text'       => htmlspecialchars($body['alt_text'] ?? '',       ENT_QUOTES, 'UTF-8'),
             'tags'           => (array)($body['tags'] ?? []),
         ];

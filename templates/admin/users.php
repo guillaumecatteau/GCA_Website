@@ -83,6 +83,10 @@
       </div>
     </div>
     <div class="sideBlock">
+      <button class="btnBackToAdmin">
+        <span class="icon iconAdmin"></span>
+        <span lang="FR" data-en="Back to Admin">Retour Admin</span>
+      </button>
       <div class="basicBlock" id="userSearchBlock">
         <span class="blockTitle" lang="FR" data-en="Search">Recherche<br>utilisateurs</span>
         <form class="formContainerLateral" action="" method="POST" id="formSearchUser">

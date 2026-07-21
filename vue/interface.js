@@ -18,20 +18,9 @@ const NAME_ADMINLOG = [NAME_ADMINLOG_DESK];
 
 function connectBtnIdle() {
   BTN_CONNEXION.forEach((button) => {
-    button.addEventListener("pointerenter", () => {
-      button.style.transform = "scale(1.5)";
-    });
-    button.addEventListener("pointerleave", () => {
-      button.style.transform = "scale(1)";
-    });
-    button.addEventListener("pointerdown", (e) => {
-      button.style.transform = "scale(1)";
-    });
-    button.addEventListener("keydown", (e) => {
-      button.style.transform = "scale(1)";
-    });
+    // Le scale hover est géré intégralement par CSS (.btnConnexion > .icon hover)
+    // Plus de manipulation inline de style.transform ici
     button.addEventListener("pointerup", (e) => {
-      button.style.transform = "scale(1.5)";
       switch (connexionstatus) {
         case "offline":
           accessConnexion();
@@ -44,7 +33,6 @@ function connectBtnIdle() {
       }
     });
     button.addEventListener("keyup", (e) => {
-      button.style.transform = "scale(1.5)";
       switch (connexionstatus) {
         case "offline":
           accessConnexion();
@@ -53,7 +41,6 @@ function connectBtnIdle() {
           // Handle online state
           break;
         default:
-          // Handle other states
           break;
       }
     });
@@ -657,6 +644,73 @@ BTN_BURGER.addEventListener("keyup", (e) => {
     handleBurgerToggle();
   }
 });
+
+// =============================================================================
+// STAGGER ANIMATION UTILITIES — système d'animation réutilisable
+// =============================================================================
+// Usage :
+//   staggerReveal(elements, { delay, animation, startAt, reverse, onDone })
+//   staggerHide  (elements, { delay, animation, startAt, reverse, onDone })
+//
+// elements  : Array, NodeList ou sélecteur CSS string
+// delay     : ms entre chaque élément (défaut 60)
+// animation : classe CSS liée à un @keyframes (défaut 'rotateIn'/'rotateOut')
+// startAt   : décalage initial en nb d'éléments — permet de CHAÎNER deux groupes
+//             sans pause (ex: sociales après section icons = startAt: sectionItems.length)
+// reverse   : inverse l'ordre de la séquence
+// onDone    : callback appelé après le dernier élément
+//
+// Pattern interne :
+//   1. Masquer tous les éléments (opacity 0 inline) — évite flash de l'état CSS initial
+//   2. Stagger : ajouter la classe animation avec setTimeout(delay * (startAt + i))
+//   3. animationend : retirer la classe + retirer l'opacity inline (le CSS reprend)
+// =============================================================================
+
+/**
+ * Anime l'apparition en stagger d'une liste d'éléments.
+ */
+function staggerReveal(elements, { delay = 60, animation = 'rotateIn', startAt = 0, reverse = false, onDone } = {}) {
+  const els = typeof elements === 'string'
+    ? Array.from(document.querySelectorAll(elements))
+    : Array.from(elements);
+  if (reverse) els.reverse();
+  if (els.length === 0) { onDone?.(); return; }
+  els.forEach(el => { el.style.opacity = '0'; });
+  els.forEach((el, i) => {
+    setTimeout(() => {
+      el.classList.add(animation);
+      el.addEventListener('animationend', () => {
+        el.classList.remove(animation);
+        // Fixer opacity:1 inline pour que les éléments restent visibles même si
+        // leur CSS de base dit opacity:0 (ex: .btnSocialLateral qui démarre caché)
+        el.style.opacity = '1';
+        if (i === els.length - 1) onDone?.();
+      }, { once: true });
+    }, delay * (startAt + i));
+  });
+}
+
+/**
+ * Anime la disparition en stagger d'une liste d'éléments.
+ * Après animationend, opacity: 0 est appliqué inline sur chaque élément.
+ */
+function staggerHide(elements, { delay = 60, animation = 'rotateOut', startAt = 0, reverse = false, onDone } = {}) {
+  const els = typeof elements === 'string'
+    ? Array.from(document.querySelectorAll(elements))
+    : Array.from(elements);
+  if (reverse) els.reverse();
+  if (els.length === 0) { onDone?.(); return; }
+  els.forEach((el, i) => {
+    setTimeout(() => {
+      el.classList.add(animation);
+      el.addEventListener('animationend', () => {
+        el.classList.remove(animation);
+        el.style.opacity = '0';
+        if (i === els.length - 1) onDone?.();
+      }, { once: true });
+    }, delay * (startAt + i));
+  });
+}
 
 // TOP BAR DISPLAY
 

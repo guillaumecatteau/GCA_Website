@@ -22,10 +22,34 @@
   height: 100%;
   @include flex-column;
   justify-content: flex-start;
-  align-items: center;
-  padding: 5rem 3rem 3rem;
+  align-items: stretch;
+  padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+// ── Strokes de débug ─────────────────────────────────────────────────────
+// Visibles uniquement quand <body class="debug-visible">
+// Le bouton toggle est injecté par JS (debugToggle.js)
+body.debug-visible {
+  .pageContainer    { outline: 2px solid red; }
+  .navContainer     { outline: 2px solid blue; }
+  .topBar           { outline: 2px solid yellow; }
+  .adminToolContent,
+  .usersManagementContent,
+  .tagsContent,
+  .mediasContent,
+  .pagesContent,
+  .experiencesContent,
+  .commentsContent,
+  .analyticsContent { outline: 2px solid magenta; }
+  .adminToolLayout  { outline: 2px solid lime; }
+  .adminToolMain    { outline: 2px solid cyan; }
+  .adminToolSidebar { outline: 2px solid orange; }
+  .title.titleTop   { outline: 2px dashed yellow; }
+  .basicGrid        { outline: 2px solid lime; }
+  .mainBlock        { outline: 2px solid cyan; }
+  .sideBlock        { outline: 2px solid orange; }
 }
 
 // Placeholder pour zones "à venir"
@@ -74,7 +98,7 @@
 .formLabel {
   display: block;
   font-family: $font-body;
-  font-size: $font-size-xs;
+  font-size: 9px;
   font-weight: 200;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -101,7 +125,7 @@
   background-color: rgba(180, 180, 181, 0.05);
   color: $color-text-primary;
   font-family: $font-body;
-  font-size: $font-size-sm;
+  font-size: 12px;
   font-weight: 200;
   padding: 0 10px;
   outline: none;
@@ -175,7 +199,7 @@
 
   &::placeholder {
     color: $color-text-faint;
-    font-size: $font-size-xs;
+    font-size: 12px;
   }
 
   &:focus {

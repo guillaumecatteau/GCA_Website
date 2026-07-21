@@ -42,8 +42,12 @@
         <!-- Entries injectées par JS -->
       </div>
     </div>
-    <div class="sideBlock" id="pageEditorSide" style="display:none">
-      <div class="basicBlock" id="pageEditorBlock">
+    <div class="sideBlock" id="pageEditorSide">
+      <button class="btnBackToAdmin">
+        <span class="icon iconAdmin"></span>
+        <span lang="FR" data-en="Back to Admin">Retour Admin</span>
+      </button>
+      <div class="basicBlock" id="pageEditorBlock" style="display:none">
         <span class="blockTitle" id="pageEditorTitle" lang="FR" data-en="New page">Nouvelle page</span>
         <!-- Formulaire injecté par JS -->
       </div>

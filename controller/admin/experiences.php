@@ -52,12 +52,12 @@ function _sanitizeExpData(array $body): array
     $str = fn($v) => htmlspecialchars(trim($v ?? ''), ENT_QUOTES, 'UTF-8');
     return [
         'title_fr'       => $str($body['title_fr']       ?? ''),
-        'title_nl'       => $str($body['title_nl']       ?? ''),
+        'title_en'       => $str($body['title_en']       ?? ''),
         'date_start'     => $body['date_start']           ?: null,
         'date_end'       => $body['date_end']             ?: null,
         'logo_media_id'  => !empty($body['logo_media_id']) ? (int)$body['logo_media_id'] : null,
         'description_fr' => $str($body['description_fr'] ?? ''),
-        'description_nl' => $str($body['description_nl'] ?? ''),
+        'description_en' => $str($body['description_en'] ?? ''),
         'tags'           => (array)($body['tags']  ?? []),
         'pages'          => (array)($body['pages'] ?? []),
     ];

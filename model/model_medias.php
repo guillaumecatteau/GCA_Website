@@ -18,7 +18,7 @@ function getAllMedias(int $page = 1, int $perPage = 40): array
     global $bdd;
     $offset = ($page - 1) * $perPage;
     $stmt = $bdd->prepare(
-        "SELECT id, type, file_path, description_fr, description_nl, alt_text, uploaded_at
+        "SELECT id, type, file_path, description_fr, description_en, alt_text, uploaded_at
          FROM medias ORDER BY uploaded_at DESC LIMIT :limit OFFSET :offset"
     );
     $stmt->bindValue(':limit',  $perPage, PDO::PARAM_INT);
@@ -40,15 +40,15 @@ function createMedia(string $type, string $file_path, array $meta = []): int|fal
     global $bdd;
     if (!in_array($type, MEDIA_TYPES, true)) return false;
     $stmt = $bdd->prepare(
-        "INSERT INTO medias (type, file_path, description_fr, description_nl, alt_text)
-         VALUES (:type, :path, :dfr, :dnl, :alt)"
+        "INSERT INTO medias (type, file_path, description_fr, description_en, alt_text)
+         VALUES (:type, :path, :dfr, :den, :alt)"
     );
     $stmt->execute([
         ':type' => $type,
         ':path' => $file_path,
         ':dfr'  => $meta['description_fr'] ?? '',
-        ':dnl'  => $meta['description_nl'] ?? '',
-        ':alt'  => $meta['alt_text']       ?? '',
+        ':den'  => $meta['description_en'] ?? '',
+        ':alt'  => $meta['alt_text']       ?? '',,
     ]);
     $id = (int)$bdd->lastInsertId();
     if (!empty($meta['tags']) && is_array($meta['tags'])) {
@@ -60,7 +60,7 @@ function createMedia(string $type, string $file_path, array $meta = []): int|fal
 function updateMedia(int $id, array $fields): bool
 {
     global $bdd;
-    $allowed = ['description_fr','description_nl','alt_text'];
+    $allowed = ['description_fr','description_en','alt_text'];
     $set = [];
     $params = [':id' => $id];
     foreach ($fields as $col => $val) {
@@ -106,7 +106,7 @@ function getMediaTags(int $mediaId): array
 {
     global $bdd;
     $stmt = $bdd->prepare(
-        "SELECT t.id, t.title_fr, t.title_nl, t.category
+        "SELECT t.id, t.title_fr, t.title_en, t.category
          FROM tags t JOIN medias_tags mt ON t.id = mt.tag_id
          WHERE mt.media_id = :id"
     );
@@ -124,7 +124,7 @@ function searchMedias(array $filters): array
         $params[':type'] = $filters['type'];
     }
     if (!empty($filters['q'])) {
-        $conditions[] = '(m.description_fr LIKE :q OR m.description_nl LIKE :q OR m.alt_text LIKE :q)';
+        $conditions[] = '(m.description_fr LIKE :q OR m.description_en LIKE :q OR m.alt_text LIKE :q)';
         $params[':q'] = '%' . $filters['q'] . '%';
     }
     if (!empty($filters['tag_id'])) {

@@ -19,7 +19,7 @@ function getAllPages(string $type = '', bool $visibleOnly = false): array
     }
     $where = empty($conditions) ? '' : 'WHERE ' . implode(' AND ', $conditions);
     $stmt = $bdd->prepare(
-        "SELECT p.id, p.type, p.slug, p.title_fr, p.title_nl,
+        "SELECT p.id, p.type, p.slug, p.title_fr, p.title_en,
                 p.is_visible, p.comments_enabled,
                 p.date_start, p.date_end, p.date_publication,
                 p.thumbnail_id, p.created_at, p.updated_at
@@ -60,11 +60,11 @@ function createPage(array $data): int|false
     $slug = generateSlug($data['title_fr'] ?? '', $data['type']);
     $stmt = $bdd->prepare(
         "INSERT INTO pages
-           (type, slug, title_fr, title_nl, subtitle_fr, subtitle_nl,
+           (type, slug, title_fr, title_en, subtitle_fr, subtitle_en,
             main_visual_id, thumbnail_id, is_visible, comments_enabled,
             date_start, date_end, date_publication)
          VALUES
-           (:type, :slug, :tfr, :tnl, :sfr, :snl,
+           (:type, :slug, :tfr, :ten, :sfr, :sen,
             :mvi, :thi, :vis, :com,
             :ds, :de, :dp)"
     );
@@ -72,9 +72,9 @@ function createPage(array $data): int|false
         ':type' => $data['type'],
         ':slug' => $slug,
         ':tfr'  => $data['title_fr']    ?? '',
-        ':tnl'  => $data['title_nl']    ?? '',
+        ':ten'  => $data['title_en']    ?? '',
         ':sfr'  => $data['subtitle_fr'] ?? null,
-        ':snl'  => $data['subtitle_nl'] ?? null,
+        ':sen'  => $data['subtitle_en'] ?? null,
         ':mvi'  => $data['main_visual_id'] ? (int)$data['main_visual_id'] : null,
         ':thi'  => $data['thumbnail_id']   ? (int)$data['thumbnail_id']   : null,
         ':vis'  => (int)($data['is_visible']       ?? 0),
@@ -92,7 +92,7 @@ function updatePage(int $id, array $data): bool
 {
     global $bdd;
     $allowed = [
-        'title_fr','title_nl','subtitle_fr','subtitle_nl',
+        'title_fr','title_en','subtitle_fr','subtitle_en',
         'main_visual_id','thumbnail_id','is_visible','comments_enabled',
         'date_start','date_end','date_publication',
     ];
@@ -128,7 +128,7 @@ function searchPages(array $filters): array
         $params[':type'] = $filters['type'];
     }
     if (!empty($filters['q'])) {
-        $conditions[] = '(p.title_fr LIKE :q OR p.title_nl LIKE :q)';
+        $conditions[] = '(p.title_fr LIKE :q OR p.title_en LIKE :q)';
         $params[':q'] = '%' . $filters['q'] . '%';
     }
     if (isset($filters['is_visible']) && $filters['is_visible'] !== '') {
@@ -141,7 +141,7 @@ function searchPages(array $filters): array
     }
     $where = empty($conditions) ? '' : 'WHERE ' . implode(' AND ', $conditions);
     $stmt = $bdd->prepare(
-        "SELECT p.id, p.type, p.slug, p.title_fr, p.title_nl,
+        "SELECT p.id, p.type, p.slug, p.title_fr, p.title_en,
                 p.is_visible, p.date_publication, p.updated_at
          FROM pages p $where ORDER BY p.updated_at DESC"
     );
@@ -155,7 +155,7 @@ function getPageBlocks(int $pageId): array
 {
     global $bdd;
     $stmt = $bdd->prepare(
-        "SELECT id, sort_order, block_type, content_fr, content_nl, media_id
+        "SELECT id, sort_order, block_type, content_fr, content_en, media_id
          FROM page_blocks WHERE page_id = :pid ORDER BY sort_order"
     );
     $stmt->execute([':pid' => $pageId]);
@@ -173,8 +173,8 @@ function savePageBlocks(int $pageId, array $blocks): void
     global $bdd;
     $bdd->prepare("DELETE FROM page_blocks WHERE page_id = :pid")->execute([':pid' => $pageId]);
     $ins = $bdd->prepare(
-        "INSERT INTO page_blocks (page_id, sort_order, block_type, content_fr, content_nl, media_id)
-         VALUES (:pid, :ord, :type, :fr, :nl, :mid)"
+        "INSERT INTO page_blocks (page_id, sort_order, block_type, content_fr, content_en, media_id)
+         VALUES (:pid, :ord, :type, :fr, :en, :mid)"
     );
     foreach ($blocks as $i => $b) {
         $ins->execute([
@@ -182,7 +182,7 @@ function savePageBlocks(int $pageId, array $blocks): void
             ':ord'  => $i,
             ':type' => $b['block_type'] ?? 'text',
             ':fr'   => $b['content_fr'] ?? null,
-            ':nl'   => $b['content_nl'] ?? null,
+            ':en'   => $b['content_en'] ?? null,
             ':mid'  => !empty($b['media_id']) ? (int)$b['media_id'] : null,
         ]);
         $blockId = (int)$bdd->lastInsertId();
@@ -220,7 +220,7 @@ function getPageTags(int $pageId): array
 {
     global $bdd;
     $stmt = $bdd->prepare(
-        "SELECT t.id, t.title_fr, t.title_nl, t.category
+        "SELECT t.id, t.title_fr, t.title_en, t.category
          FROM tags t JOIN pages_tags pt ON t.id = pt.tag_id
          WHERE pt.page_id = :pid"
     );
@@ -232,7 +232,7 @@ function getRelatedPages(int $pageId): array
 {
     global $bdd;
     $stmt = $bdd->prepare(
-        "SELECT p.id, p.type, p.slug, p.title_fr, p.title_nl
+        "SELECT p.id, p.type, p.slug, p.title_fr, p.title_en
          FROM pages p JOIN pages_related pr ON p.id = pr.related_page_id
          WHERE pr.page_id = :pid"
     );
@@ -244,7 +244,7 @@ function getPageExperiences(int $pageId): array
 {
     global $bdd;
     $stmt = $bdd->prepare(
-        "SELECT e.id, e.title_fr, e.title_nl
+        "SELECT e.id, e.title_fr, e.title_en
          FROM experiences e JOIN pages_experiences pe ON e.id = pe.experience_id
          WHERE pe.page_id = :pid"
     );

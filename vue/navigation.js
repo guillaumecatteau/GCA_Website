@@ -173,9 +173,19 @@ function displayHome() {
   // Init du scroll magnétique sur les sections de la home
   _homeScroller = new SectionScroller(CNT_HOME, CNT_SECTIONNAV);
   _homeScroller.init();
+  // Icônes section puis icônes sociales desktop en stagger continu
+  const _sectionItems = Array.from(CNT_SECTIONNAV.querySelectorAll('.sectionNavItem'));
+  const _socialItems  = Array.from(document.querySelectorAll('#socialLinksDesktop .btnSocialLateral'));
+  staggerReveal(_sectionItems, { delay: 60 });
+  staggerReveal(_socialItems,  { delay: 60, startAt: _sectionItems.length });
   setTimeout(() => {
     BTN_HOME_PROFILE.style.opacity = "1";
     BTN_HOME_PROFILE.classList.add("moveInBottom");
+    // Retirer la classe après animation pour que le CSS hover (bounce) fonctionne
+    // L'animation forwards fill bloque le transform du :hover si la classe reste
+    BTN_HOME_PROFILE.addEventListener('animationend', () => {
+      BTN_HOME_PROFILE.classList.remove('moveInBottom');
+    }, { once: true });
   }, 450);
 }
 /////////////// PROFILE ///////////////
@@ -580,7 +590,6 @@ function displayAdminTool() {
   activateExperiencesManagement();
   activateCommentsManagement();
   activateSceneEditor();
-  activateAnalytics();
 }
 /////////////// SCENEEDITOR ///////////////
 function activateSceneEditor() {
@@ -777,7 +786,12 @@ function activateNavigation() {
   activateConnexion();
 }
 
-document.addEventListener("DOMContentLoaded", () => {});
+document.addEventListener("DOMContentLoaded", () => {
+  // Délégation globale pour les boutons "Retour à l'Admin tool" présents dans chaque sous-panel
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.btnBackToAdmin')) accessAdminTool();
+  });
+});
 
 function unloadPage() {
   console.log("→ unloadPage : current page =", page);
@@ -786,7 +800,10 @@ function unloadPage() {
       titleHide(TL_HOME);
       // Détruire le scroller pour éviter les listeners orphelins
       if (_homeScroller) { _homeScroller.destroy(); _homeScroller = null; }
-      CNT_SECTIONNAV.style.display = "none";
+      // Animer la disparition des icônes section, puis cacher la nav
+      staggerHide(CNT_SECTIONNAV.querySelectorAll('.sectionNavItem'), {
+        delay: 40, reverse: true, onDone: () => { CNT_SECTIONNAV.style.display = 'none'; }
+      });
       BTN_HOME_PROFILE.classList.remove("moveInBottom", "moveOutBottom");
       void BTN_HOME_PROFILE.offsetWidth;
       BTN_HOME_PROFILE.style.opacity = "0";
