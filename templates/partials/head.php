@@ -1,5 +1,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<base href="/" />
 <link rel="stylesheet" href="vue/assets/css/main.css?v=<?= filemtime(__DIR__.'/../../vue/assets/css/main.css') ?>" />
 <script type="importmap">
 {

@@ -6,8 +6,8 @@
   <div class="formContainer">
     <form action="" method="POST" class="form" id="formConnexion">
       <div class="formGroup">
-        <label for="inputMailConnexion">Adresse e-mail :</label>
-        <input type="text" id="inputMailConnexion" name="mail" size="30" maxlength="100" placeholder="Entrez votre mail" autofocus />
+        <label class="formLabel" for="inputMailConnexion">Adresse e-mail</label>
+        <input class="formInput" type="text" id="inputMailConnexion" name="mail" maxlength="100" placeholder="Entrez votre mail" autofocus />
         <p class="errorMessage" id="mailErrorTextConnexion" style="display: none">Adresse email non valide !</p>
         <div class="validationIcons">
           <span class="icon iconValid" id="mailValidConnexion" style="display: none"></span>
@@ -15,8 +15,8 @@
         </div>
       </div>
       <div class="formGroup">
-        <label for="inputPasswordConnexion">Mot de passe :</label>
-        <input type="password" id="inputPasswordConnexion" name="password" maxlength="16" placeholder="Entrez votre mot de passe" required />
+        <label class="formLabel" for="inputPasswordConnexion">Mot de passe</label>
+        <input class="formInput" type="password" id="inputPasswordConnexion" name="password" maxlength="16" placeholder="Entrez votre mot de passe" required />
         <p class="errorMessage" id="passwordErrorTextConnexion" style="display: none">8 caractères minimum, 1 majuscule, 1 chiffre !</p>
         <div class="validationIcons">
           <span class="icon iconValid" id="passwordValidConnexion" style="display: none"></span>
@@ -27,10 +27,11 @@
           <span class="icon iconEye" style="display: none"></span>
         </button>
       </div>
-      <div class="checkboxGroup">
+      <label class="formCheckboxLabel">
         <input type="checkbox" id="rememberMeConnexion" name="remember" />
-        <label for="rememberMeConnexion"> Se souvenir de moi </label>
-      </div>
+        <span class="formCheckbox"></span>
+        <span class="formCheckboxText" lang="FR" data-en="Remember me">Se souvenir de moi</span>
+      </label>
       <div class="btnMedium btnOff" id="btnLoginConnexion">
         <div class="btnLabel">
           <span class="icon iconConnect"></span>

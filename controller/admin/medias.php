@@ -83,6 +83,42 @@ switch ("$method:$sub") {
         echo json_encode(['success' => $id ? deleteMedia($id) : false]);
         break;
 
+    case 'GET:browse':
+        $folder = trim($_GET['folder'] ?? '');
+        $folder = preg_replace('/\.\.|\\/', '', $folder); // no traversal
+        $absDir = realpath(__DIR__ . '/../../' . ltrim($folder, '/'));
+        $base   = realpath(__DIR__ . '/../../');
+        if (!$absDir || !str_starts_with($absDir, $base) || !is_dir($absDir)) {
+            echo json_encode(['success' => false, 'code' => 'NOT_FOUND']); break;
+        }
+        $imgExts = ['jpg','jpeg','png','gif','webp','svg'];
+        $files = []; $dirs = [];
+        foreach (new DirectoryIterator($absDir) as $f) {
+            if ($f->isDot()) continue;
+            if ($f->isDir()) {
+                $dirs[] = ['name' => $f->getFilename(), 'path' => ltrim($folder, '/') . '/' . $f->getFilename()];
+            } elseif (in_array(strtolower($f->getExtension()), $imgExts)) {
+                $files[] = ltrim($folder, '/') . '/' . $f->getFilename();
+            }
+        }
+        usort($dirs, fn($a,$b) => strcmp($a['name'],$b['name']));
+        sort($files);
+        echo json_encode(['success' => true, 'files' => $files, 'dirs' => $dirs]);
+        break;
+
+    case 'POST:register':
+        requireAdmin();
+        $path = trim($body['file_path'] ?? '');
+        if (!$path) { echo json_encode(['success' => false, 'code' => 'MISSING_PATH']); break; }
+        $existing = getMediaByPath($path);
+        if ($existing) {
+            echo json_encode(['success' => true, 'id' => $existing['id'], 'existing' => true]);
+        } else {
+            $id = createMedia('image', $path, []);
+            echo json_encode($id ? ['success' => true, 'id' => $id] : ['success' => false, 'code' => 'DB_ERROR']);
+        }
+        break;
+
     default:
         http_response_code(400);
         echo json_encode(['success' => false, 'code' => 'INVALID_SUB']);

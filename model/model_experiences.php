@@ -7,7 +7,8 @@ function getAllExperiences(): array
 {
     global $bdd;
     $stmt = $bdd->query(
-        "SELECT id, title_fr, title_en, date_start, date_end, logo_media_id
+        "SELECT id, title_fr, title_en, date_start, date_end, logo_media_id, logo_path,
+                status, diploma_fr, diploma_en, show_in_timeline
          FROM experiences ORDER BY date_start DESC"
     );
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -29,17 +30,22 @@ function createExperience(array $data): int|false
 {
     global $bdd;
     $stmt = $bdd->prepare(
-        "INSERT INTO experiences (title_fr, title_en, date_start, date_end, logo_media_id, description_fr, description_en)
-         VALUES (:tfr, :ten, :ds, :de, :logo, :dfr, :den)"
+        "INSERT INTO experiences (title_fr, title_en, date_start, date_end, logo_media_id, logo_path, description_fr, description_en, status, diploma_fr, diploma_en, show_in_timeline)
+         VALUES (:tfr, :ten, :ds, :de, :logo, :lpath, :dfr, :den, :status, :dipfr, :dipen, :timeline)"
     );
     $stmt->execute([
-        ':tfr'  => $data['title_fr']       ?? '',
-        ':ten'  => $data['title_en']       ?? '',
-        ':ds'   => $data['date_start']     ?? null,
-        ':de'   => $data['date_end']       ?? null,
-        ':logo' => !empty($data['logo_media_id']) ? (int)$data['logo_media_id'] : null,
-        ':dfr'  => $data['description_fr'] ?? null,
-        ':den'  => $data['description_en'] ?? null,
+        ':tfr'      => $data['title_fr']       ?? '',
+        ':ten'      => $data['title_en']       ?? '',
+        ':ds'       => $data['date_start']     ?? null,
+        ':de'       => $data['date_end']       ?? null,
+        ':logo'     => !empty($data['logo_media_id']) ? (int)$data['logo_media_id'] : null,
+        ':lpath'    => $data['logo_path']      ?? null,
+        ':dfr'      => $data['description_fr'] ?? null,
+        ':den'      => $data['description_en'] ?? null,
+        ':status'   => $data['status']         ?? null,
+        ':dipfr'    => $data['diploma_fr']     ?? null,
+        ':dipen'    => $data['diploma_en']     ?? null,
+        ':timeline' => (int)($data['show_in_timeline'] ?? 0),
     ]);
     $id = (int)$bdd->lastInsertId();
     _syncExperienceRelations($id, $data);
@@ -49,7 +55,7 @@ function createExperience(array $data): int|false
 function updateExperience(int $id, array $data): bool
 {
     global $bdd;
-    $allowed = ['title_fr','title_en','date_start','date_end','logo_media_id','description_fr','description_en'];
+    $allowed = ['title_fr','title_en','date_start','date_end','logo_media_id','logo_path','description_fr','description_en','status','diploma_fr','diploma_en','show_in_timeline'];
     $set = [];
     $params = [':id' => $id];
     foreach ($allowed as $col) {

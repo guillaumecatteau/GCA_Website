@@ -1,63 +1,43 @@
-// document.addEventListener("DOMContentLoaded", function () {
-//     const LANGUAGESELECTOR = document.querySelector("#lang");
+// Système de langue : lit lang="FR" data-en="..." sur chaque élément.
+// Stocke le texte FR initial sur dataset._langFr une seule fois au démarrage,
+// puis swape avec data-en selon la langue active. Persiste via localStorage.
 
-//     // Détecter la langue du navigateur
-//     const browserLang = navigator.language || navigator.userLanguage;
-//     let selectedLanguage = browserLang.startsWith("fr") ? "FR" : "EN";
+(function () {
+  const LANG_KEY = 'gcaSiteLang';
 
-//     // Mettre à jour l'attribut lang de la balise <html> en fonction de la langue détectée
-//     document.documentElement.setAttribute("lang", selectedLanguage.toLowerCase());
+  function applyLanguage(lang) {
+    document.documentElement.lang = lang;
 
-//     // Mettre à jour le sélecteur de langue
-//     LANGUAGESELECTOR.value = selectedLanguage.toLowerCase();
+    document.querySelectorAll('[data-en]').forEach(el => {
+      // Ignorer les éléments qui ont des enfants (ex: span avec badge imbriqué)
+      if (el.children.length > 0) return;
 
-//     // Fonction pour afficher/masquer les éléments en fonction de la langue
-//     function updateLanguageDisplay(lang) {
-//       // On s'assure de ne pas affecter les éléments qui n'ont pas de lang
-//       const elements = document.querySelectorAll("[lang]");
-//       elements.forEach(el => {
-//         const elementLang = el.getAttribute("lang").toUpperCase();
+      if (el.dataset._langFr === undefined) el.dataset._langFr = el.textContent;
 
-//         // Seules les listes avec lang="FR" ou lang="EN" doivent être masquées ou affichées
-//         if (elementLang === lang) {
-//           el.classList.remove("hidden");
-//         } else {
-//           el.classList.add("hidden");
-//         }
-//       });
-//     }
+      el.textContent = lang === 'en'
+        ? el.getAttribute('data-en')
+        : el.dataset._langFr;
+    });
 
-//     // Initialiser l'affichage avec la langue par défaut
-//     updateLanguageDisplay(selectedLanguage);
+    document.querySelectorAll('#lang, #langTablet').forEach(sel => { sel.value = lang; });
 
-//     // Mettre à jour la langue lorsque l'utilisateur change le sélecteur
-//     LANGUAGESELECTOR.addEventListener("change", function () {
-//       selectedLanguage = LANGUAGESELECTOR.value.toUpperCase();
-      
-//       // Mettre à jour l'attribut lang de la balise <html>
-//       document.documentElement.setAttribute("lang", selectedLanguage.toLowerCase());
-      
-//       // Mettre à jour l'affichage des éléments en fonction de la langue sélectionnée
-//       updateLanguageDisplay(selectedLanguage);
-//     });
-//   });
+    document.dispatchEvent(new CustomEvent('languagechange', { detail: { lang } }));
 
+    try { localStorage.setItem(LANG_KEY, lang); } catch (_) {}
+  }
 
+  function init() {
+    let saved = 'fr';
+    try { saved = localStorage.getItem(LANG_KEY) || 'fr'; } catch (_) {}
+    applyLanguage(saved);
+    document.querySelectorAll('#lang, #langTablet').forEach(sel => {
+      sel.addEventListener('change', e => applyLanguage(e.target.value));
+    });
+  }
 
-// const LANGUAGESELECTOR = document.getElementById("languageSelector");
-/*
-//on click language selector
-LANGUAGESELECTOR.addEventListener("click", () => {
-  console.log("click");
-});
-
-const languageSelectors = document.querySelectorAll(".languageSelector");
-languageSelectors.forEach((selector) => {
-  selector.addEventListener("click", (e) => {
-    const selectedLanguage = e.target.getAttribute("lang");
-    document.documentElement.setAttribute("lang", selectedLanguage);
-    console.log(selectedLanguage);
-  });
-});
-
-*/
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();

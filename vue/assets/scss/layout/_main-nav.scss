@@ -116,7 +116,8 @@
   transition: opacity $transition-fast;
 }
 
-.btnConnexion {
+.btnConnexion,
+.btnDirectAdmin {
   height: 36px;
   width: 36px;
   @include flex-center;
@@ -653,6 +654,8 @@
 
 .btnLarge  { width: 450px; }
 .btnSmall  { width: 100px; }
+// Bouton icône seule : padding égaux sur tous les côtés + largeur auto
+.btnIconOnly { width: fit-content; padding: 0.5rem; }
 .btnOff    { pointer-events: none !important; opacity: 0.25 !important; }
 
 .btnLabel {

@@ -6,8 +6,8 @@
   <div class="formContainer">
     <form action="" method="POST" class="form" id="formRegister">
       <div class="formGroup">
-        <label for="inputNameRegister">Nom :</label>
-        <input type="text" id="inputNameRegister" name="name" size="30" maxlength="100" placeholder="Entrez votre nom" autofocus />
+        <label class="formLabel" for="inputNameRegister">Nom</label>
+        <input class="formInput" type="text" id="inputNameRegister" name="name" maxlength="100" placeholder="Entrez votre nom" autofocus />
         <p class="errorMessage" id="nameErrorTextRegister" style="display: none">Doit contenir au moins 2 caractères.</p>
         <div class="validationIcons">
           <span class="icon iconValid" id="nameValidRegister" style="display: none"></span>
@@ -15,8 +15,8 @@
         </div>
       </div>
       <div class="formGroup">
-        <label for="inputFirstnameRegister">Prénom :</label>
-        <input type="text" id="inputFirstnameRegister" name="firstname" size="30" maxlength="100" placeholder="Entrez votre prénom" />
+        <label class="formLabel" for="inputFirstnameRegister">Prénom</label>
+        <input class="formInput" type="text" id="inputFirstnameRegister" name="firstname" maxlength="100" placeholder="Entrez votre prénom" />
         <p class="errorMessage" id="firstnameErrorTextRegister" style="display: none">Doit contenir au moins 2 caractères.</p>
         <div class="validationIcons">
           <span class="icon iconValid" id="firstnameValidRegister" style="display: none"></span>
@@ -24,8 +24,8 @@
         </div>
       </div>
       <div class="formGroup">
-        <label for="inputMailRegister">Adresse e-mail :</label>
-        <input type="text" id="inputMailRegister" name="mail" size="30" maxlength="100" placeholder="Entrez votre mail" />
+        <label class="formLabel" for="inputMailRegister">Adresse e-mail</label>
+        <input class="formInput" type="text" id="inputMailRegister" name="mail" maxlength="100" placeholder="Entrez votre mail" />
         <p class="errorMessage" id="mailErrorTextRegister" style="display: none">Adresse email non valide !</p>
         <div class="validationIcons">
           <span class="icon iconValid" id="mailValidRegister" style="display: none"></span>
@@ -33,8 +33,8 @@
         </div>
       </div>
       <div class="formGroup">
-        <label for="inputPasswordRegister">Mot de passe :</label>
-        <input type="password" id="inputPasswordRegister" name="password" maxlength="16" placeholder="Entrez votre mot de passe" required />
+        <label class="formLabel" for="inputPasswordRegister">Mot de passe</label>
+        <input class="formInput" type="password" id="inputPasswordRegister" name="password" maxlength="16" placeholder="Entrez votre mot de passe" required />
         <p class="errorMessage" id="passwordErrorTextRegister" style="display: none">8 caractères minimum, 1 majuscule, 1 chiffre !</p>
         <div class="validationIcons">
           <span class="icon iconValid" id="passwordValidRegister" style="display: none"></span>
@@ -46,8 +46,8 @@
         </button>
       </div>
       <div class="formGroup">
-        <label for="inputQuestionARegister">Couleur favorite ?</label>
-        <input type="text" id="inputQuestionARegister" name="questionA" size="100" maxlength="100" placeholder="Entrez votre réponse" />
+        <label class="formLabel" for="inputQuestionARegister">Couleur favorite</label>
+        <input class="formInput" type="text" id="inputQuestionARegister" name="questionA" maxlength="100" placeholder="Entrez votre réponse" />
         <p class="errorMessage" id="questionAErrorTextRegister" style="display: none">Doit contenir au moins 2 caractères.</p>
         <div class="validationIcons">
           <span class="icon iconValid" id="questionAValidRegister" style="display: none"></span>
@@ -55,18 +55,19 @@
         </div>
       </div>
       <div class="formGroup">
-        <label for="inputQuestionBRegister">Plat préféré ?</label>
-        <input type="text" id="inputQuestionBRegister" name="questionB" size="100" maxlength="100" placeholder="Entrez votre réponse" />
+        <label class="formLabel" for="inputQuestionBRegister">Plat préféré</label>
+        <input class="formInput" type="text" id="inputQuestionBRegister" name="questionB" maxlength="100" placeholder="Entrez votre réponse" />
         <p class="errorMessage" id="questionBErrorTextRegister" style="display: none">Doit contenir au moins 2 caractères.</p>
         <div class="validationIcons">
           <span class="icon iconValid" id="questionBValidRegister" style="display: none"></span>
           <span class="icon iconProhibed" id="questionBProhibedRegister" style="display: none"></span>
         </div>
       </div>
-      <div class="checkboxGroup">
+      <label class="formCheckboxLabel">
         <input type="checkbox" id="mailingRegister" name="remember" />
-        <label for="mailingRegister">Recevoir les newsletters</label>
-      </div>
+        <span class="formCheckbox"></span>
+        <span class="formCheckboxText">Recevoir les newsletters</span>
+      </label>
       <div class="btnMedium btnOff" id="btnRegisterRegister">
         <div class="btnLabel">
           <span class="icon iconInscription"></span>

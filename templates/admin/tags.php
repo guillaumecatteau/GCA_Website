@@ -10,19 +10,24 @@
     </div>
     <div class="sideBlock">
       <button class="btnBackToAdmin">
-        <span class="icon iconAdmin"></span>
-        <span lang="FR" data-en="Back to Admin">Retour Admin</span>
+        <span class="icon iconBack"></span>
       </button>
       <div class="basicBlock" id="tagEditorBlock">
         <span class="blockTitle" lang="FR" data-en="New tag">Nouveau tag</span>
         <form id="formCreateTag" class="adminForm">
-          <div class="formGroup">
-            <label class="formLabel" lang="FR" data-en="Title FR">Titre FR</label>
-            <input type="text" id="inputTagTitleFr" class="formInput" maxlength="150" placeholder="Titre en français" />
-          </div>
-          <div class="formGroup">
-            <label class="formLabel" lang="FR" data-en="Title EN">Titre EN</label>
-            <input type="text" id="inputTagTitleEn" class="formInput" maxlength="150" placeholder="Title in english" />
+          <!-- Titre FR / EN avec switch -->
+          <div class="formGroup langGroup">
+            <div class="langSwitch">
+              <label class="formLabel" lang="FR" data-en="Title">Titre</label>
+              <button type="button" class="langBtn langBtn--active" data-lang="fr">FR</button>
+              <button type="button" class="langBtn" data-lang="en">EN</button>
+            </div>
+            <div class="langField langField--visible" data-lang="fr">
+              <input type="text" id="inputTagTitleFr" class="formInput" maxlength="150" placeholder="Titre en français" />
+            </div>
+            <div class="langField" data-lang="en">
+              <input type="text" id="inputTagTitleEn" class="formInput" maxlength="150" placeholder="Title in english" />
+            </div>
           </div>
           <div class="formGroup">
             <label class="formLabel" lang="FR" data-en="Category">Catégorie</label>
@@ -51,16 +56,14 @@
           </div>
           <!-- Actions -->
           <div class="formGroup formGroupBtn tagFormActions">
-            <div class="btnMedium btnOff" id="btnCreateTag">
-              <div class="btnLabel">
-                <span class="icon iconAdd" id="iconCreateTag"></span>
-                <span class="btnText" id="lblCreateTag" lang="FR" data-en="Create">Créer</span>
-              </div>
-            </div>
-            <div class="btnMedium btnOff" id="btnResetTag">
+            <div class="btnMedium btnIconOnly btnOff" id="btnResetTag">
               <div class="btnLabel">
                 <span class="icon iconRetry"></span>
-                <span class="btnText" lang="FR" data-en="Reset">Réinit.</span>
+              </div>
+            </div>
+            <div class="btnMedium btnOff" id="btnCreateTag">
+              <div class="btnLabel">
+                <span class="btnText" id="lblCreateTag" lang="FR" data-en="Create">Créer</span>
               </div>
             </div>
           </div>

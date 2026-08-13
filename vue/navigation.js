@@ -161,7 +161,7 @@ function accessHome() {
     unloadPage();
     setTimeout(() => {
       displayHome();
-      page = "home";
+      _setPage("home");
     }, 500);
   }
 }
@@ -173,20 +173,71 @@ function displayHome() {
   // Init du scroll magnétique sur les sections de la home
   _homeScroller = new SectionScroller(CNT_HOME, CNT_SECTIONNAV);
   _homeScroller.init();
+
+  // Mise à jour du slug quand on scrolle entre sections
+  const _onSectionChange = (e) => window._updateHomeSection?.(e.detail.sectionId);
+  CNT_HOME.addEventListener('sectionChange', _onSectionChange);
+
+  // Callback utilisé par le routeur pour scroller vers une section par id
+  window._homeScrollTo = (sectionId) => {
+    const idx = _homeScroller?.sections.findIndex(s => s.dataset.section === sectionId) ?? -1;
+    if (idx > 0) _homeScroller.goTo(idx);
+  };
   // Icônes section puis icônes sociales desktop en stagger continu
   const _sectionItems = Array.from(CNT_SECTIONNAV.querySelectorAll('.sectionNavItem'));
   const _socialItems  = Array.from(document.querySelectorAll('#socialLinksDesktop .btnSocialLateral'));
   staggerReveal(_sectionItems, { delay: 60 });
   staggerReveal(_socialItems,  { delay: 60, startAt: _sectionItems.length });
+  // Afficher le label de la section active (section 0) après que les items soient apparus
+  setTimeout(() => {
+    const activeItem = CNT_SECTIONNAV.querySelector('.sectionNavItem--active');
+    if (activeItem) _navLabelReveal(activeItem.querySelectorAll('.sectionNavLabel > span'));
+  }, _sectionItems.length * 60 + 200);
+
+  // ── Zone hover : afficher/cacher les labels des sections inactives ──────────
+  let _labelHideTimer = null;
+
+  const _onNavEnter = () => {
+    if (_homeScroller) _homeScroller._labelHoverActive = true;
+    clearTimeout(_labelHideTimer);
+    // Révéler les labels des items non-actifs
+    CNT_SECTIONNAV.querySelectorAll('.sectionNavItem:not(.sectionNavItem--active)').forEach((item) => {
+      _navLabelReveal(item.querySelectorAll('.sectionNavLabel > span'));
+    });
+  };
+
+  const _onNavLeave = () => {
+    // Debounce : attendre avant de cacher (gère les sorties/entrées rapides)
+    _labelHideTimer = setTimeout(() => {
+      if (_homeScroller) _homeScroller._labelHoverActive = false;
+      CNT_SECTIONNAV.querySelectorAll('.sectionNavItem:not(.sectionNavItem--active)').forEach((item) => {
+        _navLabelHide(item.querySelectorAll('.sectionNavLabel > span'), true);
+      });
+    }, 500);
+  };
+
+  CNT_SECTIONNAV.addEventListener('mouseenter', _onNavEnter);
+  CNT_SECTIONNAV.addEventListener('mouseleave', _onNavLeave);
+
+  // Stocker les refs pour cleanup propre dans unloadPage
+  _homeScroller._cleanupLabels = () => {
+    clearTimeout(_labelHideTimer);
+    CNT_SECTIONNAV.removeEventListener('mouseenter', _onNavEnter);
+    CNT_SECTIONNAV.removeEventListener('mouseleave', _onNavLeave);
+    CNT_HOME.removeEventListener('sectionChange', _onSectionChange);
+    window._homeScrollTo = null;
+  };
+
   setTimeout(() => {
     BTN_HOME_PROFILE.style.opacity = "1";
     BTN_HOME_PROFILE.classList.add("moveInBottom");
-    // Retirer la classe après animation pour que le CSS hover (bounce) fonctionne
-    // L'animation forwards fill bloque le transform du :hover si la classe reste
     BTN_HOME_PROFILE.addEventListener('animationend', () => {
       BTN_HOME_PROFILE.classList.remove('moveInBottom');
     }, { once: true });
   }, 450);
+
+  // Enregistrer /home dans l'historique (notamment pour le chargement initial via startSequence)
+  window._setPage?.('home');
 }
 /////////////// PROFILE ///////////////
 function activateProfile() {
@@ -206,7 +257,7 @@ function accessProfile() {
     unloadPage();
     setTimeout(() => {
       displayProfile();
-      page = "profile";
+      _setPage("profile");
     }, 500);
   }
 }
@@ -229,7 +280,7 @@ function accessGames() {
     unloadPage();
     setTimeout(() => {
       displayGames();
-      page = "games";
+      _setPage("games");
     }, 500);
   }
 }
@@ -252,7 +303,7 @@ function accessUxUi() {
     unloadPage();
     setTimeout(() => {
       displayUxUi();
-      page = "uxui";
+      _setPage("uxui");
     }, 500);
   }
 }
@@ -275,7 +326,7 @@ function access3d() {
     unloadPage();
     setTimeout(() => {
       display3d();
-      page = "3d";
+      _setPage("3d");
     }, 500);
   }
 }
@@ -298,7 +349,7 @@ function access2d() {
     unloadPage();
     setTimeout(() => {
       display2d();
-      page = "2d";
+      _setPage("2d");
     }, 500);
   }
 }
@@ -321,7 +372,7 @@ function accessVideo() {
     unloadPage();
     setTimeout(() => {
       displayVideo();
-      page = "video";
+      _setPage("video");
     }, 500);
   }
 }
@@ -344,7 +395,7 @@ function accessWeb() {
     unloadPage();
     setTimeout(() => {
       displayWeb();
-      page = "web";
+      _setPage("web");
     }, 500);
   }
 }
@@ -367,7 +418,7 @@ function accessPixel() {
     unloadPage();
     setTimeout(() => {
       displayPixel();
-      page = "pixel";
+      _setPage("pixel");
     }, 500);
   }
 }
@@ -393,7 +444,7 @@ function accessPortfolio() {
     unloadPage();
     setTimeout(() => {
       displayPortfolio();
-      page = "portfolio";
+      _setPage("portfolio");
     }, 500);
   }
 }
@@ -416,7 +467,7 @@ function accessBlog() {
     unloadPage();
     setTimeout(() => {
       displayBlog();
-      page = "blog";
+      _setPage("blog");
     }, 500);
   }
 }
@@ -441,7 +492,7 @@ function accessBio() {
     unloadPage();
     setTimeout(() => {
       displayBio();
-      page = "bio";
+      _setPage("bio");
     }, 500);
   }
 }
@@ -464,7 +515,7 @@ function accessContact() {
     unloadPage();
     setTimeout(() => {
       displayContact();
-      page = "contact";
+      _setPage("contact");
     }, 500);
   }
 }
@@ -483,7 +534,7 @@ function accessConnexion() {
     unloadPage();
     setTimeout(() => {
       displayConnexion();
-      page = "connexion";
+      _setPage("connexion");
     }, 500);
   }
 }
@@ -510,7 +561,7 @@ function accessRegister() {
     unloadPage();
     setTimeout(() => {
       displayRegister();
-      page = "register";
+      _setPage("register");
     }, 500);
   }
 }
@@ -543,7 +594,7 @@ function accessUserProfile() {
     unloadPage();
     setTimeout(() => {
       displayUserProfile();
-      page = "userProfile";
+      _setPage("userProfile");
     }, 500);
   }
 }
@@ -574,7 +625,7 @@ function accessAdminTool() {
     unloadPage();
     setTimeout(() => {
       displayAdminTool();
-      page = "adminTool";
+      _setPage("adminTool");
     }, 501);
   }
 }
@@ -604,7 +655,7 @@ function accessSceneEditor() {
     unloadPage();
     setTimeout(() => {
       displaySceneEditor();
-      page = "sceneEditor";
+      _setPage("sceneEditor");
     }, 501);
   }
 }
@@ -626,7 +677,7 @@ function accessTagsManagement() {
   if (page !== 'tagsManagement') {
     displayBackBlurMask();
     unloadPage();
-    setTimeout(() => { displayTagsManagement(); page = 'tagsManagement'; }, 501);
+    setTimeout(() => { displayTagsManagement(); _setPage('tagsManagement'); }, 501);
   }
 }
 function displayTagsManagement() {
@@ -635,6 +686,7 @@ function displayTagsManagement() {
   CNT_TAGS.style.display = 'flex';
   titleDisplay(TL_TAGS);
   displayContent(CNT_TAGS, 50);
+  requestAnimationFrame(_alignBackBtn);
 }
 /////////////// MEDIAS ///////////////
 function activateMediasManagement() {
@@ -647,7 +699,7 @@ function accessMediasManagement() {
   if (page !== 'mediasManagement') {
     displayBackBlurMask();
     unloadPage();
-    setTimeout(() => { displayMediasManagement(); page = 'mediasManagement'; }, 501);
+    setTimeout(() => { displayMediasManagement(); _setPage('mediasManagement'); }, 501);
   }
 }
 function displayMediasManagement() {
@@ -656,6 +708,7 @@ function displayMediasManagement() {
   CNT_MEDIAS.style.display = 'flex';
   titleDisplay(TL_MEDIAS);
   displayContent(CNT_MEDIAS, 50);
+  requestAnimationFrame(_alignBackBtn);
 }
 /////////////// PAGES ///////////////
 function activatePagesManagement() {
@@ -668,7 +721,7 @@ function accessPagesManagement() {
   if (page !== 'pagesManagement') {
     displayBackBlurMask();
     unloadPage();
-    setTimeout(() => { displayPagesManagement(); page = 'pagesManagement'; }, 501);
+    setTimeout(() => { displayPagesManagement(); _setPage('pagesManagement'); }, 501);
   }
 }
 function displayPagesManagement() {
@@ -677,6 +730,7 @@ function displayPagesManagement() {
   CNT_PAGES.style.display = 'flex';
   titleDisplay(TL_PAGES);
   displayContent(CNT_PAGES, 50);
+  requestAnimationFrame(_alignBackBtn);
 }
 /////////////// EXPERIENCES ///////////////
 function activateExperiencesManagement() {
@@ -689,7 +743,7 @@ function accessExperiencesManagement() {
   if (page !== 'experiencesManagement') {
     displayBackBlurMask();
     unloadPage();
-    setTimeout(() => { displayExperiencesManagement(); page = 'experiencesManagement'; }, 501);
+    setTimeout(() => { displayExperiencesManagement(); _setPage('experiencesManagement'); }, 501);
   }
 }
 function displayExperiencesManagement() {
@@ -698,6 +752,7 @@ function displayExperiencesManagement() {
   CNT_EXPERIENCES.style.display = 'flex';
   titleDisplay(TL_EXPERIENCES);
   displayContent(CNT_EXPERIENCES, 50);
+  requestAnimationFrame(_alignBackBtn);
 }
 /////////////// COMMENTS ///////////////
 function activateCommentsManagement() {
@@ -710,7 +765,7 @@ function accessCommentsManagement() {
   if (page !== 'commentsManagement') {
     displayBackBlurMask();
     unloadPage();
-    setTimeout(() => { displayCommentsManagement(); page = 'commentsManagement'; }, 501);
+    setTimeout(() => { displayCommentsManagement(); _setPage('commentsManagement'); }, 501);
   }
 }
 function displayCommentsManagement() {
@@ -719,6 +774,7 @@ function displayCommentsManagement() {
   CNT_COMMENTS.style.display = 'flex';
   titleDisplay(TL_COMMENTS);
   displayContent(CNT_COMMENTS, 50);
+  requestAnimationFrame(_alignBackBtn);
 }
 /////////////// ANALYTICS ///////////////
 function activateAnalytics() {
@@ -731,7 +787,7 @@ function accessAnalytics() {
   if (page !== 'analytics') {
     displayBackBlurMask();
     unloadPage();
-    setTimeout(() => { displayAnalytics(); page = 'analytics'; }, 501);
+    setTimeout(() => { displayAnalytics(); _setPage('analytics'); }, 501);
   }
 }
 function displayAnalytics() {
@@ -739,6 +795,7 @@ function displayAnalytics() {
   CNT_ANALYTICS.style.display = 'flex';
   titleDisplay(TL_ANALYTICS);
   displayContent(CNT_ANALYTICS, 50);
+  requestAnimationFrame(_alignBackBtn);
 }
 /////////////// USERSMANAGEMENT ///////////////
 function activateUsersManagement() {
@@ -754,10 +811,7 @@ function accessUsersManagement() {
   if (page !== "usersManagement") {
     displayBackBlurMask();
     unloadPage();
-    setTimeout(() => {
-      displayUsersManagement();
-      page = "usersManagement";
-    }, 501);
+    setTimeout(() => { displayUsersManagement(); _setPage("usersManagement"); }, 501);
   }
 }
 function displayUsersManagement() {
@@ -766,7 +820,21 @@ function displayUsersManagement() {
   CNT_USERSMANAGEMENT.style.display = "flex";
   titleDisplay(TL_USERSMANAGEMENT);
   displayContent(CNT_USERSMANAGEMENT, 50);
+  requestAnimationFrame(_alignBackBtn);
 }
+
+// Positionne le bouton retour à droite du sideBlock visible (les panels cachés ont un rect à zéro)
+function _alignBackBtn() {
+  const sb = Array.from(document.querySelectorAll('.sideBlock'))
+    .find(el => el.getBoundingClientRect().width > 0);
+  if (!sb) return;
+  const btn = sb.querySelector('.btnBackToAdmin');
+  if (!btn) return;
+  const r = sb.getBoundingClientRect();
+  btn.style.top  = r.top  + 'px';
+  btn.style.left = (r.right + 16) + 'px';
+}
+window.addEventListener('resize', _alignBackBtn);
 
 /////////////// NAVIGATION ///////////////
 function activateNavigation() {
@@ -787,10 +855,28 @@ function activateNavigation() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Délégation globale pour les boutons "Retour à l'Admin tool" présents dans chaque sous-panel
+  // Délégation globale unifiée
   document.addEventListener('click', (e) => {
-    if (e.target.closest('.btnBackToAdmin')) accessAdminTool();
+    // Retour Admin tool
+    if (e.target.closest('.btnBackToAdmin')) { accessAdminTool(); return; }
+
+    // Switch FR/EN pour les champs bilingues
+    const langBtn = e.target.closest('.langBtn');
+    if (langBtn) {
+      const group = langBtn.closest('.langGroup');
+      if (group) {
+        const lang = langBtn.dataset.lang;
+        group.querySelectorAll('.langBtn').forEach(b => b.classList.toggle('langBtn--active', b === langBtn));
+        group.querySelectorAll('.langField').forEach(f => {
+          f.classList.toggle('langField--visible', f.dataset.lang === lang);
+        });
+      }
+    }
   });
+
+  // Dev — accès direct à l'admin tool sans authentification
+  const devAdminBtn = document.getElementById('btnDirectAdmin');
+  if (devAdminBtn) devAdminBtn.addEventListener('click', () => accessAdminTool());
 });
 
 function unloadPage() {
@@ -798,7 +884,8 @@ function unloadPage() {
   switch (page) {
     case "home":
       titleHide(TL_HOME);
-      // Détruire le scroller pour éviter les listeners orphelins
+      // Nettoyage listeners labels hover + scroller
+      if (_homeScroller?._cleanupLabels) _homeScroller._cleanupLabels();
       if (_homeScroller) { _homeScroller.destroy(); _homeScroller = null; }
       // Animer la disparition des icônes section, puis cacher la nav
       staggerHide(CNT_SECTIONNAV.querySelectorAll('.sectionNavItem'), {

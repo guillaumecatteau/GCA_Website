@@ -14,8 +14,12 @@
         <span class="btnUserLogText" id="userNameDesktop"><?php if (isset($_SESSION['user'])): ?><?= htmlspecialchars($_SESSION['user']['firstname']) . ' ' . htmlspecialchars($_SESSION['user']['name']) ?><?php endif; ?></span>
       </a>
       <a class="btnAdminLog" id="btnAdminLogDesktop" style="display: none">
-        <span class="icon iconAdmin"></span>
+        <span class="icon iconUser"></span>
         <span class="btnUserLogText" id="adminNameDesktop"><?php if (isset($_SESSION['user'])): ?><?= htmlspecialchars($_SESSION['user']['firstname']) . ' ' . htmlspecialchars($_SESSION['user']['name']) ?><?php endif; ?></span>
+      </a>
+      <!-- Accès direct admin tool — dev: toujours visible, supprimer display:none avant mise en prod -->
+      <a class="btnDirectAdmin" id="btnDirectAdmin" title="Admin tool">
+        <span class="icon iconAdmin"></span>
       </a>
       <a class="btnConnexion" id="btnConnexionDesktop">
         <span class="icon iconConnect" id="btnConnexionIconDesktop"></span>

@@ -9,10 +9,12 @@
 html {
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
+  overflow-x: hidden;
 }
 
 main {
@@ -358,7 +360,8 @@ h2 {
   transition: opacity 0.3s ease-in-out;
 }
 
-.btnConnexion {
+.btnConnexion,
+.btnDirectAdmin {
   height: 36px;
   width: 36px;
   display: flex;
@@ -370,20 +373,26 @@ h2 {
   transition: transform 0.4s cubic-bezier(0.34, 2, 0.64, 1), opacity 1s ease-in-out;
   cursor: pointer;
 }
-.btnConnexion > .icon {
+.btnConnexion > .icon,
+.btnDirectAdmin > .icon {
   width: 20px;
   height: 20px;
   transform-origin: center;
   transform: rotateZ(0deg) scale(1);
   transition: transform 0.4s cubic-bezier(0.34, 2, 0.64, 1), opacity 0.3s ease-in-out;
 }
-.btnConnexion:hover, .btnConnexion.active {
+.btnConnexion:hover, .btnConnexion.active,
+.btnDirectAdmin:hover,
+.btnDirectAdmin.active {
   transform: scale(1.15);
 }
-.btnConnexion:hover > .icon, .btnConnexion.active > .icon {
+.btnConnexion:hover > .icon, .btnConnexion.active > .icon,
+.btnDirectAdmin:hover > .icon,
+.btnDirectAdmin.active > .icon {
   transform: rotateZ(0deg) scale(1.15);
 }
-.btnConnexion.active > .icon::after {
+.btnConnexion.active > .icon::after,
+.btnDirectAdmin.active > .icon::after {
   opacity: 1;
 }
 
@@ -938,6 +947,11 @@ h2 {
   width: 100px;
 }
 
+.btnIconOnly {
+  width: fit-content;
+  padding: 0.5rem;
+}
+
 .btnOff {
   pointer-events: none !important;
   opacity: 0.25 !important;
@@ -1086,10 +1100,12 @@ h2 {
 }
 
 .sideBlock {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   grid-area: sideBloc;
+  overflow: visible;
 }
 
 .gridBlog {
@@ -1120,7 +1136,7 @@ h2 {
   justify-content: space-evenly;
   align-items: center;
   gap: 2rem;
-  padding: 2rem 0;
+  padding: 1.5rem 1.5rem;
 }
 
 .blockTitle {
@@ -1134,8 +1150,6 @@ h2 {
   text-transform: uppercase;
   letter-spacing: 10px;
   text-align: center;
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.1);
   margin-bottom: 0.75rem;
 }
 
@@ -1465,53 +1479,6 @@ form {
   flex-direction: column;
   gap: 0;
 }
-.formGroup:focus-within label {
-  color: #ffffff;
-  transition: color 0.3s ease-in-out;
-}
-.formGroup > label {
-  font-family: "Sarala", serif;
-  font-size: 9px;
-  font-weight: 200;
-  font-style: normal;
-  text-transform: uppercase;
-  opacity: 1;
-  color: #b4b4b5;
-  transition: color 0.3s ease-in-out;
-  pointer-events: none;
-}
-.formGroup > input {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 40px;
-  border-radius: 10px;
-  border: solid 1px #b4b4b5;
-  background-color: rgba(180, 180, 181, 0.1);
-  backdrop-filter: blur(0);
-  opacity: 1;
-  transition: opacity 0.3s ease-in-out, backdrop-filter 1s ease-in-out linear;
-  pointer-events: auto;
-  caret-color: #ffffff;
-  outline: none;
-  padding-left: 10px;
-  color: #ffffff;
-  font-family: "Sarala", serif;
-  font-size: 12px;
-  font-weight: 200;
-  font-style: normal;
-}
-.formGroup > input::placeholder {
-  color: rgba(180, 180, 181, 0.5);
-  font-family: "Sarala", serif;
-  font-size: 12px;
-  font-weight: 200;
-  font-style: normal;
-}
-.formGroup > input:focus {
-  border: #ffffff 1px solid;
-  transition: border 0.3s ease-in-out;
-}
 
 .validationIcons {
   position: absolute;
@@ -1540,43 +1507,6 @@ form {
   width: 24px;
   height: 24px;
   opacity: 1;
-}
-
-.checkboxGroup {
-  display: flex;
-  width: fit-content;
-  flex-direction: row;
-  align-items: center;
-  gap: 1rem;
-  opacity: 1;
-  position: relative;
-  margin: 0;
-}
-.checkboxGroup label {
-  display: flex;
-  align-items: center;
-  font-family: "Sarala", serif;
-  font-size: 16px;
-  color: #b4b4b5;
-  pointer-events: none;
-}
-.checkboxGroup input[type=checkbox] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  border: solid 1px #b4b4b5;
-}
-.checkboxGroup input[type=checkbox]:checked + label::after {
-  content: "";
-  width: 24px;
-  height: 24px;
-  background-image: url("../images/icons/icon_validation_grey.webp");
-  background-size: contain;
-  background-repeat: no-repeat;
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translate(0, -50%);
 }
 
 .linkClickGroup {
@@ -3446,33 +3376,62 @@ form {
   align-items: flex-start;
   gap: 0.25rem;
   z-index: 200;
+  pointer-events: auto;
 }
 
 .sectionNavItem {
   display: flex;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: flex-start;
   align-items: center;
-  width: 36px;
+  gap: 10px;
   height: 36px;
   cursor: pointer;
   opacity: 1;
-  transition: transform 0.3s ease-in-out;
+  transform: scale(1);
+  transform-origin: left center;
+  transition: transform 0.25s ease-out;
 }
 .sectionNavItem > .icon {
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
   transform-origin: center;
   transform: scale(1);
   transition: transform 0.4s cubic-bezier(0.34, 2, 0.64, 1);
 }
-.sectionNavItem:hover > .icon {
-  transform: scale(1.25);
-}
-.sectionNavItem.sectionNavItem--active > .icon {
-  transform: scale(1.25);
+.sectionNavItem:hover {
+  transition: transform 0.4s cubic-bezier(0.34, 2, 0.64, 1);
+  transform: scale(1.08);
 }
 .sectionNavItem.sectionNavItem--active > .icon::after {
   opacity: 1;
+}
+
+.sectionNavLabel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.sectionNavLabel > span {
+  display: inline-block;
+  color: #b4b4b5;
+  font-family: "Sarala", serif;
+  font-size: 14px;
+  font-weight: 200;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0;
+  transform: rotateY(90deg);
+  transform-origin: right center;
+  transition: color 0.3s ease-in-out;
+}
+
+.sectionNavItem--active .sectionNavLabel > span {
+  color: #ffffff;
 }
 
 .adminToolContent,
@@ -3492,7 +3451,7 @@ form {
   align-items: stretch;
   padding: 0;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: visible;
 }
 
 body.debug-visible .pageContainer {
@@ -3544,17 +3503,70 @@ body.debug-visible .sideBlock {
   padding: 2rem;
 }
 
+.formCheckboxLabel {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  user-select: none;
+}
+.formCheckboxLabel input[type=checkbox] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.formCheckboxLabel input[type=checkbox]:checked + .formCheckbox {
+  border-color: #ffffff;
+}
+.formCheckboxLabel input[type=checkbox]:checked + .formCheckbox::after {
+  opacity: 1;
+}
+.formCheckboxLabel input[type=checkbox]:checked ~ .formCheckboxText {
+  color: #ffffff;
+}
+
+.formCheckbox {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s ease-in-out;
+}
+.formCheckbox::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: #ffffff;
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.formCheckboxText {
+  font-family: "Sarala", serif;
+  font-size: 12px;
+  color: #b4b4b5;
+  transition: color 0.3s ease-in-out;
+}
+
 .adminForm {
-  width: calc(100% - 4rem);
+  width: 100%;
   height: fit-content;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .adminFormInline {
-  width: calc(100% - 4rem);
+  width: 100%;
   height: fit-content;
   display: flex;
   flex-direction: row;
@@ -3567,6 +3579,49 @@ body.debug-visible .sideBlock {
 .adminFormInline .formGroup {
   height: fit-content;
   min-width: 120px;
+}
+
+.langGroup {
+  gap: 0.2rem;
+}
+
+.langSwitch {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.3rem;
+}
+.langSwitch .formLabel {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.langBtn {
+  font-family: "Sarala", serif;
+  font-size: 9px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid rgba(128, 128, 128, 0.1);
+  border-radius: 5px;
+  cursor: pointer;
+  color: rgba(180, 180, 181, 0.5);
+  background: none;
+  transition: border-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+.langBtn.langBtn--active {
+  border-color: rgb(128, 128, 128);
+  color: #ffffff;
+}
+
+.langField {
+  display: none;
+  width: 100%;
+}
+.langField.langField--visible {
+  display: block;
 }
 
 .formLabel {
@@ -3594,20 +3649,25 @@ body.debug-visible .sideBlock {
   border-radius: 5px;
   border: solid 1px rgba(128, 128, 128, 0.5);
   background-color: rgba(180, 180, 181, 0.05);
-  color: #ffffff;
+  color: #b4b4b5;
+  color-scheme: dark;
   font-family: "Sarala", serif;
   font-size: 12px;
   font-weight: 200;
   padding: 0 10px;
   outline: none;
   caret-color: #ffffff;
-  transition: border 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  transition: border 0.3s ease-in-out, background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 .formInput::placeholder {
   color: rgba(180, 180, 181, 0.5);
   font-size: 12px;
 }
+.formInput::-webkit-datetime-edit, .formInput::-webkit-datetime-edit-fields-wrapper, .formInput::-webkit-datetime-edit-text, .formInput::-webkit-datetime-edit-month-field, .formInput::-webkit-datetime-edit-day-field, .formInput::-webkit-datetime-edit-year-field {
+  color: inherit;
+}
 .formInput:focus {
+  color: #ffffff;
   border-color: #ffffff;
   background-color: rgba(180, 180, 181, 0.08);
 }
@@ -3622,22 +3682,23 @@ body.debug-visible .sideBlock {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b4b4b5' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
-  color: #ffffff;
+  color: #b4b4b5;
   font-family: "Sarala", serif;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 200;
   padding: 0 32px 0 10px;
   outline: none;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  transition: border 0.3s ease-in-out;
+  transition: border 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 .formSelect option {
   background-color: #0a0a0f;
   color: #ffffff;
 }
 .formSelect:focus {
+  color: #ffffff;
   border-color: #ffffff;
 }
 
@@ -3648,21 +3709,22 @@ body.debug-visible .sideBlock {
   border-radius: 5px;
   border: solid 1px rgba(128, 128, 128, 0.5);
   background-color: rgba(180, 180, 181, 0.05);
-  color: #ffffff;
+  color: #b4b4b5;
   font-family: "Sarala", serif;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 200;
   padding: 8px 10px;
   outline: none;
   resize: vertical;
   caret-color: #ffffff;
-  transition: border 0.3s ease-in-out;
+  transition: border 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 .formTextarea::placeholder {
   color: rgba(180, 180, 181, 0.5);
   font-size: 12px;
 }
 .formTextarea:focus {
+  color: #ffffff;
   border-color: #ffffff;
 }
 
@@ -3671,6 +3733,7 @@ body.debug-visible .sideBlock {
   display: flex;
   align-items: flex-end;
   flex-shrink: 0;
+  justify-content: flex-end;
 }
 
 .formToggle {
@@ -3874,34 +3937,32 @@ body.debug-visible .sideBlock {
 }
 
 .btnBackToAdmin {
+  position: fixed;
   display: flex;
-  flex-direction: row;
+  justify-content: center;
   align-items: center;
-  gap: 0.5rem;
   background: none;
   border: 1px solid rgba(128, 128, 128, 0.1);
   border-radius: 5px;
-  color: rgba(180, 180, 181, 0.5);
-  font-family: "Sarala", serif;
-  font-size: 14px;
-  padding: 0.4rem 0.9rem;
+  padding: 0.5rem;
   cursor: pointer;
   transform: scale(1);
-  transform-origin: left center;
-  transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, transform 0.25s ease-out;
-  margin-bottom: 1.5rem;
-  width: fit-content;
-}
-.btnBackToAdmin:hover {
-  color: #ffffff;
-  border-color: rgb(128, 128, 128);
-  transform: scale(1.04);
-  transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, transform 0.4s cubic-bezier(0.34, 2, 0.64, 1);
+  transform-origin: center;
+  transition: border-color 0.3s ease-in-out, transform 0.25s ease-out;
+  z-index: 1;
 }
 .btnBackToAdmin .icon {
-  width: 1rem;
-  height: 1rem;
+  width: 20px;
+  height: 20px;
   opacity: 0.6;
+}
+.btnBackToAdmin:hover {
+  border-color: rgb(128, 128, 128);
+  transform: scale(1.1);
+  transition: border-color 0.3s ease-in-out, transform 0.4s cubic-bezier(0.34, 2, 0.64, 1);
+}
+.btnBackToAdmin:hover .icon {
+  opacity: 1;
 }
 
 .lateralMessageBox {
@@ -3981,12 +4042,12 @@ body.debug-visible .sideBlock {
 .tagItem {
   display: inline-flex;
   align-items: center;
-  padding: 0.2rem 0.6rem;
+  padding: 0.1rem 0.4rem;
   border: 1px solid rgba(128, 128, 128, 0.1);
   border-radius: 5px;
   font-family: "Sarala", serif;
-  font-size: 14px;
-  color: #b4b4b5;
+  font-size: 10px;
+  color: rgba(180, 180, 181, 0.5);
   cursor: pointer;
   transform: scale(1);
   transform-origin: center;
@@ -3994,13 +4055,13 @@ body.debug-visible .sideBlock {
   user-select: none;
 }
 .tagItem:hover {
-  color: #ffffff;
+  color: #b4b4b5;
   border-color: rgb(128, 128, 128);
   transform: scale(1.06);
   transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background 0.3s ease-in-out, transform 0.4s cubic-bezier(0.34, 2, 0.64, 1);
 }
 .tagItem.tagItem--active {
-  color: #ffffff;
+  color: #b4b4b5;
   border-color: rgb(128, 128, 128);
   background: rgba(255, 255, 255, 0.06);
 }
@@ -4163,6 +4224,403 @@ body.debug-visible .sideBlock {
   border-color: rgb(128, 128, 128);
   background: rgba(255, 255, 255, 0.05);
   transform: scale(1.1);
+}
+
+#expListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.expDateEndRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+.expDateEndRow .formInput {
+  flex: 1;
+}
+
+.expStatusRow {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.expTagDropdown {
+  width: 100%;
+  border-radius: 5px;
+  border: solid 1px rgba(128, 128, 128, 0.5);
+  background-color: rgba(180, 180, 181, 0.05);
+  position: relative;
+}
+
+.expTagDropdownSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  padding: 0 32px 0 10px;
+  cursor: pointer;
+  list-style: none;
+  font-family: "Sarala", serif;
+  font-size: 12px;
+  font-weight: 200;
+  color: #b4b4b5;
+  user-select: none;
+  position: relative;
+  transition: color 0.3s ease-in-out;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b4b4b5' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+.expTagDropdownSummary::-webkit-details-marker {
+  display: none;
+}
+
+.expTagDropdown[open] .expTagDropdownSummary {
+  border-bottom: solid 1px rgba(128, 128, 128, 0.5);
+}
+
+.expTagCount {
+  color: rgba(180, 180, 181, 0.5);
+  font-size: 12px;
+}
+
+.expTagDropdown .expTagSelector {
+  position: absolute;
+  top: 100%;
+  left: -1px;
+  right: -1px;
+  z-index: 10;
+  padding: 0.5rem;
+  max-height: 140px;
+  overflow-y: auto;
+  background-color: #040508;
+  border: solid 1px rgba(128, 128, 128, 0.5);
+  border-top: none;
+  border-radius: 0 0 5px 5px;
+}
+
+.expTagSelector {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  min-height: 32px;
+}
+
+.expFormActions {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.expCard {
+  background-color: rgba(8, 8, 11, 0.384);
+  border: solid 1px rgba(128, 128, 128, 0.1);
+  backdrop-filter: blur(12px);
+  border-radius: 10px;
+  transition: all 0.3s ease-in-out;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.expCard.expCard--active {
+  border-color: rgb(128, 128, 128);
+  background: rgba(128, 128, 128, 0.1);
+}
+
+.expCardHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.expCardActionBtns {
+  display: flex;
+  flex-direction: row;
+  gap: 0.2rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.expActionBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+.expActionBtn > .icon {
+  width: 16px;
+  height: 16px;
+  transform: scale(1);
+  transform-origin: center;
+  transition: transform 0.4s cubic-bezier(0.34, 2, 0.64, 1);
+}
+.expActionBtn:hover > .icon {
+  transform: scale(1.1);
+}
+
+.expCardDesc {
+  font-family: "Sarala", serif;
+  font-size: 12px;
+  color: rgba(180, 180, 181, 0.5);
+  line-height: 1.4;
+  margin-top: 0.3rem;
+}
+
+.expCardDiploma {
+  font-family: "Sarala", serif;
+  font-size: 12px;
+  color: rgba(180, 180, 181, 0.5);
+  margin-top: 0.15rem;
+}
+
+.expDiplomaLabel {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-right: 0.3rem;
+}
+
+.expCardLogo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 5px;
+}
+
+.expCardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1;
+}
+
+.expCardTitleRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.expCardTitle {
+  font-family: "Sarala", serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #ffffff;
+}
+
+.expCardTitleSub {
+  font-family: "Sarala", serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(180, 180, 181, 0.5);
+}
+
+.expCardDates {
+  font-family: "Sarala", serif;
+  font-size: 12px;
+  color: rgba(180, 180, 181, 0.5);
+}
+
+.expCardBadges {
+  display: flex;
+  flex-direction: row;
+  gap: 0.3rem;
+}
+
+.expBadge {
+  font-family: "Sarala", serif;
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.1rem 0.4rem;
+  border-radius: 5px;
+  color: rgba(180, 180, 181, 0.5);
+  border: 1px solid rgba(128, 128, 128, 0.1);
+  flex-shrink: 0;
+}
+
+.expBadgeFreelance {
+  border-color: rgb(128, 128, 128);
+  color: #b4b4b5;
+}
+
+.expCardTags {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.expCardTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid rgba(128, 128, 128, 0.1);
+  border-radius: 5px;
+  font-family: "Sarala", serif;
+  font-size: 10px;
+  color: rgba(180, 180, 181, 0.5);
+}
+
+.mediasTopBar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.mediasBreadcrumb {
+  font-family: "Sarala", serif;
+  font-size: 12px;
+  color: #b4b4b5;
+  flex-shrink: 0;
+}
+
+.mediasRootBtns {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mediasGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.5rem;
+  align-content: start;
+}
+
+.mediaThumb {
+  aspect-ratio: 1;
+  border: 2px solid rgba(128, 128, 128, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  background: rgba(8, 8, 11, 0.384);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s ease-in-out;
+}
+.mediaThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.mediaThumb.mediaThumb--selected {
+  border-color: rgb(128, 128, 128);
+}
+.mediaThumb.mediaThumb--selected::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background: rgb(128, 128, 128);
+  border-radius: 50%;
+}
+
+.mediaTypeBadge {
+  font-family: "Sarala", serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(180, 180, 181, 0.5);
+  text-transform: uppercase;
+}
+
+.mediaPreviewWrap {
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(128, 128, 128, 0.1);
+  background: rgba(8, 8, 11, 0.384);
+}
+.mediaPreviewWrap img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  display: block;
+}
+
+.mediaThumb--registered {
+  border-color: rgba(100, 200, 100, 0.35);
+}
+
+.mediaThumb--unregistered {
+  opacity: 0.55;
+}
+
+.mediaDirThumb {
+  background: rgba(8, 8, 11, 0.384);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px dashed rgba(128, 128, 128, 0.1);
+  border-radius: 10px;
+  aspect-ratio: 1;
+  transition: border-color 0.3s ease-in-out;
+}
+.mediaDirThumb:hover {
+  border-color: rgb(128, 128, 128);
+}
+
+.mediaFolderName {
+  font-family: "Sarala", serif;
+  font-size: 9px;
+  color: rgba(180, 180, 181, 0.5);
+  text-align: center;
+  padding: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.mediaAddOverlay {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  background: rgb(128, 128, 128);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+  color: #040508;
+  font-weight: 700;
+}
+
+.mediaSelInfo {
+  font-family: "Sarala", serif;
+  font-size: 12px;
+  color: rgba(180, 180, 181, 0.5);
 }
 
 .sceneEditorContent {

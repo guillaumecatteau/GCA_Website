@@ -24,16 +24,24 @@ switch ("$method:$sub") {
             echo json_encode(['success' => false, 'code' => 'MISSING_FIELD']);
             break;
         }
-        $data = _sanitizeExpData($body);
-        $id = createExperience($data);
-        echo json_encode($id ? ['success' => true, 'id' => $id] : ['success' => false, 'code' => 'DB_ERROR']);
+        try {
+            $data = _sanitizeExpData($body);
+            $id = createExperience($data);
+            echo json_encode($id ? ['success' => true, 'id' => $id] : ['success' => false, 'code' => 'DB_ERROR']);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'code' => 'DB_ERROR', 'message' => $e->getMessage()]);
+        }
         break;
 
     case 'POST:update':
         requireAdmin();
         $id = (int)($body['id'] ?? 0);
         if (!$id) { echo json_encode(['success' => false, 'code' => 'MISSING_ID']); break; }
-        echo json_encode(['success' => updateExperience($id, _sanitizeExpData($body))]);
+        try {
+            echo json_encode(['success' => updateExperience($id, _sanitizeExpData($body))]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'code' => 'DB_ERROR', 'message' => $e->getMessage()]);
+        }
         break;
 
     case 'POST:delete':
@@ -55,9 +63,14 @@ function _sanitizeExpData(array $body): array
         'title_en'       => $str($body['title_en']       ?? ''),
         'date_start'     => $body['date_start']           ?: null,
         'date_end'       => $body['date_end']             ?: null,
-        'logo_media_id'  => !empty($body['logo_media_id']) ? (int)$body['logo_media_id'] : null,
+        'logo_media_id'  => !empty($body['logo_media_id'])  ? (int)$body['logo_media_id']  : null,
+        'logo_path'      => $str($body['logo_path']      ?? ''),
         'description_fr' => $str($body['description_fr'] ?? ''),
         'description_en' => $str($body['description_en'] ?? ''),
+        'status'         => in_array($body['status'] ?? '', ['freelance', 'formation', 'school']) ? $body['status'] : null,
+        'diploma_fr'     => $str($body['diploma_fr']     ?? ''),
+        'diploma_en'     => $str($body['diploma_en']     ?? ''),
+        'show_in_timeline' => (int)(bool)($body['show_in_timeline'] ?? 0),
         'tags'           => (array)($body['tags']  ?? []),
         'pages'          => (array)($body['pages'] ?? []),
     ];

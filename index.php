@@ -6,7 +6,7 @@ if (isset($_GET['action'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
   <?php require 'templates/partials/head.php'; ?>
@@ -54,26 +54,37 @@ if (isset($_GET['action'])) {
 
   <!-- ── Navigation sections home — hors pageContainer pour éviter le contexte transform ── -->
   <nav class="sectionNav" id="sectionNav" style="display:none" aria-label="Navigation sections">
-    <div class="sectionNavItem sectionNavItem--active" data-target="0" title="Landing">
+    <div class="sectionNavItem sectionNavItem--active" data-target="0" title="Accueil">
       <span class="icon iconGC"></span>
+      <span class="sectionNavLabel"><span>A</span><span>C</span><span>C</span><span>U</span><span>E</span><span>I</span><span>L</span></span>
     </div>
     <div class="sectionNavItem" data-target="1" title="Présentation">
       <span class="icon iconBio"></span>
+      <span class="sectionNavLabel"><span>P</span><span>R</span><span>É</span><span>S</span><span>E</span><span>N</span><span>T</span><span>A</span><span>T</span><span>I</span><span>O</span><span>N</span></span>
     </div>
     <div class="sectionNavItem" data-target="2" title="Expertises">
       <span class="icon iconExpertise"></span>
+      <span class="sectionNavLabel"><span>E</span><span>X</span><span>P</span><span>E</span><span>R</span><span>T</span><span>I</span><span>S</span><span>E</span></span>
     </div>
     <div class="sectionNavItem" data-target="3" title="Portfolio">
       <span class="icon iconPortfolio"></span>
+      <span class="sectionNavLabel"><span>P</span><span>O</span><span>R</span><span>T</span><span>F</span><span>O</span><span>L</span><span>I</span><span>O</span></span>
     </div>
     <div class="sectionNavItem" data-target="4" title="Bio">
       <span class="icon iconProfil"></span>
+      <span class="sectionNavLabel"><span>B</span><span>I</span><span>O</span></span>
     </div>
     <div class="sectionNavItem" data-target="5" title="Blog">
       <span class="icon iconBlog"></span>
+      <span class="sectionNavLabel"><span>B</span><span>L</span><span>O</span><span>G</span></span>
     </div>
     <div class="sectionNavItem" data-target="6" title="Contact">
       <span class="icon iconContact"></span>
+      <span class="sectionNavLabel"><span>C</span><span>O</span><span>N</span><span>T</span><span>A</span><span>C</span><span>T</span></span>
+    </div>
+    <div class="sectionNavItem" data-target="7" title="Plan du site">
+      <span class="icon iconGalleries"></span>
+      <span class="sectionNavLabel"><span>P</span><span>L</span><span>A</span><span>N</span> <span>D</span><span>U</span> <span>S</span><span>I</span><span>T</span><span>E</span></span>
     </div>
   </nav>
 
@@ -106,6 +117,38 @@ if (isset($_GET['action'])) {
         <button type="button" class="iconFolderBtn" data-folder="vue/assets/images/icons/PNGs">PNG</button>
       </div>
       <div class="iconBrowserGrid" id="tagIconBrowserGrid">
+        <!-- Injecté par JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Expériences : popup confirmation suppression ── -->
+  <div class="confirmOverlay" id="expDeleteConfirm" style="display:none">
+    <div class="confirmBox">
+      <p class="confirmMsg" lang="FR" data-en="Delete this experience permanently?">Supprimer cette expérience définitivement ?</p>
+      <div class="confirmActions">
+        <div class="btnMedium btnDanger" id="btnConfirmDeleteExp">
+          <div class="btnLabel"><span class="btnText" lang="FR" data-en="Delete">Supprimer</span></div>
+        </div>
+        <div class="btnMedium" id="btnCancelDeleteExp">
+          <div class="btnLabel"><span class="btnText" lang="FR" data-en="Cancel">Annuler</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Expériences : browser de logo ── -->
+  <div class="confirmOverlay" id="expLogoBrowser" style="display:none">
+    <div class="iconBrowserBox">
+      <div class="iconBrowserHeader">
+        <span lang="FR" data-en="Choose a logo">Choisir un logo</span>
+        <button type="button" class="btnSmall" id="btnCloseExpLogoBrowser">✕</button>
+      </div>
+      <div class="iconBrowserFolders">
+        <button type="button" class="iconFolderBtn iconFolderBtn--active" data-folder="vue/assets/images/icons">Webp</button>
+        <button type="button" class="iconFolderBtn" data-folder="vue/assets/images/icons/PNGs">PNG</button>
+      </div>
+      <div class="iconBrowserGrid" id="expLogoBrowserGrid">
         <!-- Injecté par JS -->
       </div>
     </div>

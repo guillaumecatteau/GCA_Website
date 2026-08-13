@@ -27,6 +27,14 @@ function getAllMedias(int $page = 1, int $perPage = 40): array
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function getMediaByPath(string $path): array|false
+{
+    global $bdd;
+    $stmt = $bdd->prepare("SELECT * FROM medias WHERE file_path = :p");
+    $stmt->execute([':p' => $path]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 function getMediaById(int $id): array|false
 {
     global $bdd;
@@ -169,7 +177,7 @@ function uploadMedia(array $file, string $type, array $meta = []): array
     if (!move_uploaded_file($file['tmp_name'], $destPath)) {
         return ['success' => false, 'code' => 'MOVE_FAILED'];
     }
-    $relativePath = $subdir . $filename;
+    $relativePath = 'uploads/' . $subdir . $filename; // chemin complet depuis la racine du site
     $id = createMedia($type, $relativePath, $meta);
     if (!$id) return ['success' => false, 'code' => 'DB_ERROR'];
     return ['success' => true, 'id' => $id, 'file_path' => $relativePath];

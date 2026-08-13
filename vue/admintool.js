@@ -534,7 +534,7 @@ function initTagsManagement() {
   const inputIcon  = document.getElementById('inputTagIconPath');
   const btnAction  = document.getElementById('btnCreateTag');
   const lblAction  = document.getElementById('lblCreateTag');
-  const iconAction = document.getElementById('iconCreateTag');
+  // iconCreateTag supprimé du HTML (bouton créer sans icône)
   const msgBox     = document.getElementById('msgTagCreate');
   const listCnt    = document.getElementById('tagsListContainer');
   const btnDelete  = document.getElementById('btnDeleteTag');
@@ -601,7 +601,6 @@ function initTagsManagement() {
     deleteGrp.style.display = 'none';
     const isEn = document.documentElement.lang === 'en';
     lblAction.textContent = isEn ? 'Create' : 'Créer';
-    iconAction.className  = 'icon iconAdd';
     listCnt.querySelectorAll('.tagItem--active').forEach(el => el.classList.remove('tagItem--active'));
     _checkForm();
   }
@@ -624,7 +623,6 @@ function initTagsManagement() {
     deleteGrp.style.display = 'flex';
     const isEn = document.documentElement.lang === 'en';
     lblAction.textContent = isEn ? 'Edit' : 'Éditer';
-    iconAction.className  = 'icon iconEdit';
     listCnt.querySelectorAll('.tagItem--active').forEach(el => el.classList.remove('tagItem--active'));
     const activeItem = listCnt.querySelector(`[data-tag-id="${tag.id}"]`);
     if (activeItem) activeItem.classList.add('tagItem--active');
@@ -740,13 +738,16 @@ function initTagsManagement() {
   _loadTagList(listCnt);
 }
 
-async function _loadTagList(container) {
+async function _loadTagList(container, skipFetch = false) {
   if (!container) return;
   try {
-    const res  = await fetch('controller/controller.php?action=admin_tags&sub=list');
-    const json = await res.json();
-    if (!json.success) return;
-    _tagsData = json.tags;
+    if (!skipFetch) {
+      const res  = await fetch('controller/controller.php?action=admin_tags&sub=list');
+      const json = await res.json();
+      if (!json.success) return;
+      _tagsData = json.tags;
+    }
+    if (!_tagsData.length) return;
     const isEn = document.documentElement.lang === 'en';
     container.innerHTML = '';
     const groups = ['category', 'job', 'technology'];
@@ -789,7 +790,6 @@ async function _loadTagList(container) {
               const inputId   = document.getElementById('inputTagId');
               const inputIcon = document.getElementById('inputTagIconPath');
               const lblAction = document.getElementById('lblCreateTag');
-              const iconAction= document.getElementById('iconCreateTag');
               const deleteGrp = document.getElementById('tagDeleteGroup');
               const previewImg = document.getElementById('tagIconPreviewImg');
               const previewEmpty = document.getElementById('tagIconPreviewEmpty');
@@ -804,7 +804,6 @@ async function _loadTagList(container) {
               if (btnClearIco)  btnClearIco.style.display  = 'none';
               const isEn2 = document.documentElement.lang === 'en';
               if (lblAction)  lblAction.textContent = isEn2 ? 'Create' : 'Créer';
-              if (iconAction) iconAction.className  = 'icon iconAdd';
               document.getElementById('btnCreateTag')?.classList.replace('btnOn', 'btnOff');
             } else {
               window._selectTag(tag);
@@ -826,3 +825,747 @@ function _showTagMsg(box, text, isError) {
   box.style.display = 'flex';
   setTimeout(() => { box.style.display = 'none'; }, 3000);
 }
+
+// ================================================================================================
+// /////////////////////////////// EXPERIENCES MANAGEMENT /////////////////////////////////////////
+// ================================================================================================
+
+let _expData          = [];
+let _selectedExpId    = null;
+let _expInited        = false;
+let _selectedExpTags  = new Set(); // IDs des tags job sélectionnés
+let _expCurrentFolder = 'vue/assets/images/icons';
+
+function initExperiencesManagement() {
+  if (_expInited) {
+    _loadExpList();
+    _loadJobTags(document.getElementById('expTagSelector'));
+    return;
+  }
+  _expInited = true;
+
+  // ── Refs DOM ─────────────────────────────────────────────────────────────
+  const inputTitleFr  = document.getElementById('inputExpTitleFr');
+  const inputTitleEn  = document.getElementById('inputExpTitleEn');
+  const inputDateSt   = document.getElementById('inputExpDateStart');
+  const inputDateEnd  = document.getElementById('inputExpDateEnd');
+  const inputOngoing  = document.getElementById('inputExpOngoing');
+  const inputDescFr   = document.getElementById('inputExpDescFr');
+  const inputDescEn   = document.getElementById('inputExpDescEn');
+  const inputStatus   = document.getElementById('inputExpStatus');
+  const inputTimeline = document.getElementById('inputExpTimeline');
+  const inputLogo     = document.getElementById('inputExpLogoPath');
+  const inputId       = document.getElementById('inputExpId');
+  const inputDipFr    = document.getElementById('inputExpDiplomaFr');
+  const inputDipEn    = document.getElementById('inputExpDiplomaEn');
+  const diplomaGroup  = document.getElementById('expDiplomaGroup');
+  const btnCreate     = document.getElementById('btnCreateExp');
+  const btnReset      = document.getElementById('btnResetExp');
+  const lblCreate     = document.getElementById('lblCreateExp');
+  const msgBox        = document.getElementById('msgExpCreate');
+  const listCnt       = document.getElementById('expListContainer');
+  const tagSelector   = document.getElementById('expTagSelector');
+  // Logo preview
+  const previewImg    = document.getElementById('expLogoPreviewImg');
+  const previewEmpty  = document.getElementById('expLogoPreviewEmpty');
+  const btnPickLogo   = document.getElementById('btnPickExpLogo');
+  const btnClearLogo  = document.getElementById('btnClearExpLogo');
+  // Logo browser
+  const logoBrowser   = document.getElementById('expLogoBrowser');
+  const logoGrid      = document.getElementById('expLogoBrowserGrid');
+  const btnCloseLogo  = document.getElementById('btnCloseExpLogoBrowser');
+  // Confirm delete
+  const confirmDel    = document.getElementById('expDeleteConfirm');
+  const btnConfirmDel = document.getElementById('btnConfirmDeleteExp');
+  const btnCancelDel  = document.getElementById('btnCancelDeleteExp');
+
+  if (!inputTitleFr || !btnCreate) return;
+
+  // ── Logo preview helpers ─────────────────────────────────────────────────
+  function _setLogoPreview(path) {
+    if (path) {
+      previewImg.src = path; previewImg.style.display = 'block';
+      previewEmpty.style.display = 'none'; btnClearLogo.style.display = 'inline-flex';
+    } else {
+      previewImg.src = ''; previewImg.style.display = 'none';
+      previewEmpty.style.display = 'inline'; btnClearLogo.style.display = 'none';
+    }
+  }
+  btnClearLogo.addEventListener('click', () => { inputLogo.value = ''; _setLogoPreview(''); });
+
+  function _showDiploma() {
+    const hasDiploma = inputStatus.value === 'formation' || inputStatus.value === 'school';
+    if (diplomaGroup) diplomaGroup.style.display = hasDiploma ? '' : 'none';
+    if (!hasDiploma && inputDipFr) { inputDipFr.value = ''; inputDipEn.value = ''; }
+  }
+  inputStatus.addEventListener('change', _showDiploma);
+
+  // Case "En cours" : vide et désactive la date de fin
+  inputOngoing.addEventListener('change', () => {
+    if (inputOngoing.checked) {
+      inputDateEnd.value    = '';
+      inputDateEnd.disabled = true;
+    } else {
+      inputDateEnd.disabled = false;
+    }
+  });
+
+  // Fermer le dropdown tags quand on clique en dehors
+  document.addEventListener('click', (e) => {
+    const dd = document.getElementById('expTagDropdown');
+    if (dd?.open && !dd.contains(e.target)) dd.open = false;
+  }, { capture: true });
+  function _checkForm() {
+    const ok = inputTitleFr.value.trim().length > 0 && inputDateSt.value.length > 0;
+    btnCreate.classList.toggle('btnOn',  ok);
+    btnCreate.classList.toggle('btnOff', !ok);
+    btnReset.classList.toggle('btnOn',  inputTitleFr.value.trim().length > 0
+                                          || inputDateSt.value.length > 0);
+    btnReset.classList.toggle('btnOff', !(inputTitleFr.value.trim().length > 0
+                                          || inputDateSt.value.length > 0));
+  }
+  [inputTitleFr, inputTitleEn, inputDateSt].forEach(el => el.addEventListener('input', _checkForm));
+
+  // ── Reset ────────────────────────────────────────────────────────────────
+  let _outsideClickHandler = null;
+
+  function _detachOutside() {
+    if (_outsideClickHandler) {
+      document.removeEventListener('click', _outsideClickHandler);
+      _outsideClickHandler = null;
+    }
+  }
+
+  function _attachOutside() {
+    _detachOutside();
+    _outsideClickHandler = (e) => {
+      const sideBlock = document.querySelector('.experiencesContent .sideBlock');
+      const confirmDel = document.getElementById('expDeleteConfirm');
+      const logoBrowser = document.getElementById('expLogoBrowser');
+      if (!sideBlock) return;
+      if (sideBlock.contains(e.target)) return;
+      if (confirmDel?.contains(e.target)) return;
+      if (logoBrowser?.contains(e.target)) return;
+      _resetForm();
+    };
+    setTimeout(() => document.addEventListener('click', _outsideClickHandler), 50);
+  }
+
+  function _resetForm() {
+    _detachOutside();
+    inputTitleFr.value = ''; inputTitleEn.value = '';
+    inputDateSt.value  = ''; inputDateEnd.value = '';
+    inputDescFr.value  = ''; inputDescEn.value  = '';
+    inputStatus.value  = '';
+    inputOngoing.checked  = false;
+    inputDateEnd.disabled = false;
+    inputTimeline.checked = false;
+    inputLogo.value    = ''; inputId.value = '';
+    if (inputDipFr) inputDipFr.value = '';
+    if (inputDipEn) inputDipEn.value = '';
+    if (diplomaGroup) diplomaGroup.style.display = 'none';
+    _selectedExpId     = null;
+    _selectedExpTags   = new Set();
+    _setLogoPreview('');
+    const isEn = document.documentElement.lang === 'en';
+    lblCreate.textContent = isEn ? 'Create' : 'Créer';
+    _renderTagSelector(tagSelector, []);
+    listCnt.querySelectorAll('.expCard--active').forEach(el => el.classList.remove('expCard--active'));
+    _checkForm();
+  }
+  btnReset.addEventListener('click', () => { if (btnReset.classList.contains('btnOff')) return; _resetForm(); });
+
+  // ── Sélectionner une expérience ──────────────────────────────────────────
+  function _selectExp(exp) {
+    inputTitleFr.value = exp.title_fr || '';
+    inputTitleEn.value = exp.title_en || '';
+    inputDateSt.value  = exp.date_start || '';
+    inputDateEnd.value = exp.date_end   || '';
+    inputDescFr.value  = exp.description_fr || '';
+    inputDescEn.value  = exp.description_en || '';
+    inputStatus.value  = exp.status || '';
+    inputOngoing.checked  = !exp.date_end;
+    inputDateEnd.disabled = !exp.date_end;
+    inputTimeline.checked = !!+exp.show_in_timeline;
+    if (inputDipFr) inputDipFr.value = exp.diploma_fr || '';
+    if (inputDipEn) inputDipEn.value = exp.diploma_en || '';
+    if (diplomaGroup) diplomaGroup.style.display = (exp.status === 'formation' || exp.status === 'school') ? '' : 'none';
+    inputLogo.value    = exp.logo_path || '';
+    inputId.value      = exp.id;
+    _selectedExpId     = exp.id;
+    _selectedExpTags   = new Set((exp.tags || []).map(t => t.id));
+    _setLogoPreview(exp.logo_path || '');
+    const isEn = document.documentElement.lang === 'en';
+    lblCreate.textContent = isEn ? 'Save' : 'Sauvegarder';
+    listCnt.querySelectorAll('.expCard--active').forEach(el => el.classList.remove('expCard--active'));
+    const card = listCnt.querySelector(`[data-exp-id="${exp.id}"]`);
+    if (card) card.classList.add('expCard--active');
+    _renderTagSelector(tagSelector, exp.tags || []);
+    _checkForm();
+    _attachOutside();
+  }
+
+  // ── CRUD ─────────────────────────────────────────────────────────────────
+  btnCreate.addEventListener('click', async () => {
+    if (btnCreate.classList.contains('btnOff')) return;
+    const isEdit = !!inputId.value;
+    const payload = {
+      title_fr:       inputTitleFr.value.trim(),
+      title_en:       inputTitleEn.value.trim(),
+      date_start:     inputDateSt.value  || null,
+      date_end:       inputOngoing.checked ? null : (inputDateEnd.value || null),
+      description_fr: inputDescFr.value.trim(),
+      description_en: inputDescEn.value.trim(),
+      status:         inputStatus.value || null,
+      show_in_timeline: inputTimeline.checked ? 1 : 0,
+      diploma_fr:     (inputDipFr?.value.trim()) || null,
+      diploma_en:     (inputDipEn?.value.trim()) || null,
+      logo_path:      inputLogo.value.trim() || null,
+      tags:           [..._selectedExpTags],
+    };
+    if (isEdit) payload.id = parseInt(inputId.value);
+    const sub = isEdit ? 'update' : 'create';
+    try {
+      const res  = await fetch(`controller/controller.php?action=admin_experiences&sub=${sub}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (json.success) {
+        const isEn = document.documentElement.lang === 'en';
+        _showTagMsg(msgBox, isEdit ? (isEn ? 'Updated.' : 'Modifié.') : (isEn ? 'Created.' : 'Créé.'), false);
+        _resetForm();
+        await _loadExpList();
+      } else {
+        _showTagMsg(msgBox, 'Erreur : ' + (json.code ?? ''), true);
+      }
+    } catch (_) { _showTagMsg(msgBox, 'Erreur réseau.', true); }
+  });
+
+  // Suppression avec confirmation (déclenchée depuis les boutons des cards)
+  btnCancelDel.addEventListener('click', () => { confirmDel.style.display = 'none'; });
+  confirmDel.addEventListener('click', e => { if (e.target === confirmDel) confirmDel.style.display = 'none'; });
+  btnConfirmDel.addEventListener('click', async () => {
+    confirmDel.style.display = 'none';
+    const id = parseInt(inputId.value);
+    if (!id) return;
+    try {
+      const res  = await fetch('controller/controller.php?action=admin_experiences&sub=delete', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        _showTagMsg(msgBox, document.documentElement.lang === 'en' ? 'Deleted.' : 'Supprimé.', false);
+        _resetForm();
+        await _loadExpList();
+      }
+    } catch (_) {}
+  });
+
+  // ── Logo browser ─────────────────────────────────────────────────────────
+  async function _loadLogoBrowser(folder) {
+    _expCurrentFolder = folder;
+    logoGrid.innerHTML = '<p class="adminPlaceholder">Chargement…</p>';
+    document.querySelectorAll('#expLogoBrowser .iconFolderBtn').forEach(btn => {
+      btn.classList.toggle('iconFolderBtn--active', btn.dataset.folder === folder);
+    });
+    try {
+      const res  = await fetch(`controller/controller.php?action=admin_tags&sub=icons&folder=${encodeURIComponent(folder)}`);
+      const json = await res.json();
+      logoGrid.innerHTML = '';
+      if (!json.success || !json.files.length) { logoGrid.innerHTML = '<p class="adminPlaceholder">Aucune image.</p>'; return; }
+      json.files.forEach(file => {
+        const path = folder + '/' + file;
+        const item = document.createElement('div');
+        item.className = 'iconBrowserItem'; item.title = file;
+        const img = document.createElement('img'); img.src = path; img.alt = file; img.loading = 'lazy';
+        item.appendChild(img);
+        item.addEventListener('click', () => { inputLogo.value = path; _setLogoPreview(path); logoBrowser.style.display = 'none'; });
+        logoGrid.appendChild(item);
+      });
+    } catch (_) { logoGrid.innerHTML = '<p class="adminPlaceholder">Erreur.</p>'; }
+  }
+  btnPickLogo.addEventListener('click', () => { logoBrowser.style.display = 'flex'; _loadLogoBrowser(_expCurrentFolder); });
+  btnCloseLogo.addEventListener('click', () => { logoBrowser.style.display = 'none'; });
+  logoBrowser.addEventListener('click', e => { if (e.target === logoBrowser) logoBrowser.style.display = 'none'; });
+  document.querySelectorAll('#expLogoBrowser .iconFolderBtn').forEach(btn => {
+    btn.addEventListener('click', () => _loadLogoBrowser(btn.dataset.folder));
+  });
+
+  // ── Chargement initial ───────────────────────────────────────────────────
+  _expSelectHandler = _selectExp; // relier le handler aux cards
+  _resetForm();
+  _loadExpList();
+
+  _loadJobTags(document.getElementById('expTagSelector'));
+}
+
+// ── Helpers date ────────────────────────────────────────────────────────────
+const _MONTHS_FR = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const _MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function _fmtDate(iso, isEn) {
+  if (!iso) return null;
+  const [y, m] = iso.split('-');
+  if (!y) return null;
+  if (!m) return y;
+  const idx = parseInt(m, 10) - 1;
+  return isEn ? `${_MONTHS_EN[idx]} ${y}` : `${_MONTHS_FR[idx]} ${y}`;
+}
+
+function _fmtDateRange(start, end, isEn) {
+  const s = _fmtDate(start, isEn);
+  if (!s) return '';
+  if (!end) return isEn ? `since ${s}` : `depuis ${s}`;
+  const e = _fmtDate(end, isEn);
+  return isEn ? `${s} → ${e}` : `de ${s} à ${e}`;
+}
+
+// ── Rendu liste expériences ───────────────────────────────────────────────────
+async function _loadExpList(skipFetch = false) {
+  const listCnt = document.getElementById('expListContainer');
+  if (!listCnt) return;
+  try {
+    if (!skipFetch) {
+      const res  = await fetch('controller/controller.php?action=admin_experiences&sub=list');
+      const json = await res.json();
+      if (!json.success) return;
+
+      // Charger les détails (tags) pour chaque expérience
+      const full = await Promise.all(json.experiences.map(async e => {
+        const r2 = await fetch(`controller/controller.php?action=admin_experiences&sub=get&id=${e.id}`);
+        const j2 = await r2.json();
+        return j2.success ? j2.experience : e;
+      }));
+      _expData = full;
+    }
+    if (!_expData.length && skipFetch) { listCnt.innerHTML = ''; return; }
+
+    const isEn      = document.documentElement.lang === 'en';
+    const regular   = _expData.filter(e => !e.status || e.status === 'freelance');
+    const formation = _expData.filter(e =>  e.status === 'formation');
+    const etude     = _expData.filter(e =>  e.status === 'school');
+
+    // En cours en premier, puis par date_start décroissante
+    const _sort = arr => [...arr].sort((a, b) => {
+      const aOn = !a.date_end, bOn = !b.date_end;
+      if (aOn !== bOn) return aOn ? -1 : 1;
+      return (b.date_start || '').localeCompare(a.date_start || '');
+    });
+
+    listCnt.innerHTML = '';
+
+    function _renderGroup(items, label) {
+      if (!items.length) return;
+      const grp = document.createElement('div');
+      grp.className = 'basicBlock tagGroup';
+      grp.innerHTML = `<span class="blockTitle tagGroupTitle">${label}</span>`;
+      items.forEach(exp => grp.appendChild(_buildExpCard(exp, isEn)));
+      listCnt.appendChild(grp);
+    }
+
+    _renderGroup(_sort(regular),   isEn ? 'Experiences' : 'Expériences');
+    _renderGroup(_sort(formation), isEn ? 'Training'    : 'Formations');
+    _renderGroup(_sort(etude),     isEn ? 'Studies'     : 'Études');
+
+    if (!_expData.length) listCnt.innerHTML = '<p class="adminPlaceholder">Aucune expérience.</p>';
+  } catch (_) {}
+}
+
+function _buildExpCard(exp, isEn) {
+  const card = document.createElement('div');
+  card.className     = 'expCard';
+  card.dataset.expId = exp.id;
+  if (exp.id === _selectedExpId) card.classList.add('expCard--active');
+
+  const dates  = _fmtDateRange(exp.date_start, exp.date_end, isEn);
+  const rawTitle = isEn ? (exp.title_en || exp.title_fr) : (exp.title_fr || exp.title_en);
+  const dip      = (exp.status === 'formation' || exp.status === 'school')
+    ? (isEn ? (exp.diploma_en || exp.diploma_fr) : (exp.diploma_fr || exp.diploma_en))
+    : null;
+  // Formation/étude : diplôme en couleur titre, " – établissement" en couleur description
+  const titleHtml = dip
+    ? `<span class="expCardTitle">${dip}</span><span class="expCardTitleSub"> – ${rawTitle}</span>`
+    : `<span class="expCardTitle">${rawTitle}</span>`;
+  const desc     = isEn ? (exp.description_en || exp.description_fr) : (exp.description_fr || exp.description_en);
+
+  const logoHtml  = exp.logo_path ? `<img class="expCardLogo" src="${exp.logo_path}" alt="" />` : '';
+  // Seul le statut freelance affiche un badge, inline avec le titre
+  const badgeHtml = exp.status === 'freelance'
+    ? `<span class="expBadge expBadgeFreelance">Freelance</span>` : '';
+  const descHtml  = desc ? `<p class="expCardDesc">${desc}</p>` : '';
+  const tagsHtml   = (exp.tags || []).map(t => {
+    const tl = isEn ? (t.title_en || t.title_fr) : (t.title_fr || t.title_en);
+    return `<span class="expCardTag">${tl}</span>`;
+  }).join('');
+
+  card.innerHTML = `
+    <div class="expCardHeader">
+      ${logoHtml}
+      <div class="expCardInfo">
+        <div class="expCardTitleRow">
+          ${titleHtml}
+          ${badgeHtml}
+        </div>
+        <span class="expCardDates">${dates}</span>
+      </div>
+      <div class="expCardActionBtns">
+        <button type="button" class="expActionBtn" data-action="edit" title="${isEn ? 'Edit' : 'Modifier'}">
+          <span class="icon iconSettings"></span>
+        </button>
+        <button type="button" class="expActionBtn expActionBtnDanger" data-action="delete" title="${isEn ? 'Delete' : 'Supprimer'}">
+          <span class="icon iconDelete"></span>
+        </button>
+      </div>
+    </div>
+    ${descHtml}
+    ${tagsHtml ? `<div class="expCardTags">${tagsHtml}</div>` : ''}`;
+  // Bouton éditer
+  card.querySelector('[data-action="edit"]').addEventListener('click', e => {
+    e.stopPropagation();
+    const full = _expData.find(ex => ex.id === exp.id) || exp;
+    if (typeof _expSelectHandler === 'function') _expSelectHandler(full);
+  });
+
+  // Bouton supprimer : set l'id et ouvre la confirmation directement
+  card.querySelector('[data-action="delete"]').addEventListener('click', e => {
+    e.stopPropagation();
+    const inputId = document.getElementById('inputExpId');
+    if (inputId) inputId.value = exp.id;
+    const confirmDel = document.getElementById('expDeleteConfirm');
+    if (confirmDel) confirmDel.style.display = 'flex';
+  });
+
+  return card;
+}
+
+// Stocker la ref _selectExp pour les cards
+let _expSelectHandler = null;
+
+// ── Chargement et rendu du sélecteur de tags job ──────────────────────────────
+async function _loadJobTags(container) {
+  if (!container) return;
+  try {
+    const res  = await fetch('controller/controller.php?action=admin_tags&sub=list&category=job');
+    const json = await res.json();
+    if (!json.success) return;
+    container.dataset.allTags = JSON.stringify(json.tags);
+    _renderTagSelector(container, []);
+  } catch (_) {}
+}
+
+function _renderTagSelector(container, selectedTags) {
+  if (!container) return;
+  const allTags = JSON.parse(container.dataset.allTags || '[]');
+  const isEn    = document.documentElement.lang === 'en';
+  container.innerHTML = '';
+
+  allTags.forEach(tag => {
+    const isSelected = _selectedExpTags.has(tag.id) || selectedTags.some(t => t.id === tag.id);
+    if (isSelected) _selectedExpTags.add(tag.id);
+    const item = document.createElement('div');
+    item.className = 'tagItem' + (isSelected ? ' tagItem--active' : '');
+    item.dataset.tagId = tag.id;
+    item.textContent   = isEn ? (tag.title_en || tag.title_fr) : (tag.title_fr || tag.title_en);
+    item.addEventListener('click', () => {
+      if (_selectedExpTags.has(tag.id)) {
+        _selectedExpTags.delete(tag.id);
+        item.classList.remove('tagItem--active');
+      } else {
+        _selectedExpTags.add(tag.id);
+        item.classList.add('tagItem--active');
+      }
+      _updateTagCount();
+    });
+    container.appendChild(item);
+  });
+  _updateTagCount();
+}
+
+function _updateTagCount() {
+  const counter = document.getElementById('expTagCount');
+  if (counter) counter.textContent = _selectedExpTags.size > 0 ? `(${_selectedExpTags.size})` : '';
+}
+
+// ================================================================================================
+// /////////////////////////////// MEDIAS MANAGEMENT /////////////////////////////////////////////
+// ================================================================================================
+
+let _mediasData          = [];
+let _mediasInited        = false;
+let _selectedMediaIds    = new Set();
+let _mediaPanelUpdate    = null;
+let _currentBrowseFolder = null;
+
+function initMediasManagement() {
+  if (_mediasInited) {
+    _loadRegistered().then(() => {
+      if (_currentBrowseFolder) _browseFolder(_currentBrowseFolder);
+    });
+    return;
+  }
+  _mediasInited = true;
+
+  const grid        = document.getElementById('mediasGrid');
+  const editorTitle = document.getElementById('mediaEditorTitle');
+  const editorForm  = document.getElementById('formEditMedia');
+  const previewWrap = document.getElementById('mediaPreview');
+  const previewImg  = document.getElementById('mediaPreviewImg');
+  const inputDescFr = document.getElementById('inputMediaDescFr');
+  const inputDescEn = document.getElementById('inputMediaDescEn');
+  const inputAlt    = document.getElementById('inputMediaAlt');
+  const altGroup    = document.getElementById('mediaAltGroup');
+  const btnSave     = document.getElementById('btnSaveMedia');
+  const msgBox      = document.getElementById('msgMediaSave');
+  const deleteGrp   = document.getElementById('mediaDeleteGroup');
+  const btnDelete   = document.getElementById('btnDeleteMedia');
+  const confirmDel  = document.getElementById('mediaDeleteConfirm');
+  const btnConfirmDel = document.getElementById('btnConfirmDeleteMedia');
+  const btnCancelDel  = document.getElementById('btnCancelDeleteMedia');
+  const selInfo       = document.getElementById('mediaSelInfo');
+  const rootBtns      = document.getElementById('mediasRootBtns');
+  const btnUp         = document.getElementById('btnMediasUp');
+
+  if (!grid || !btnSave) return;
+
+  // ── Navigateur de dossiers ────────────────────────────────────────────────
+  rootBtns.addEventListener('click', e => {
+    const btn = e.target.closest('[data-folder]');
+    if (btn) _browseFolder(btn.dataset.folder);
+  });
+
+  btnUp.addEventListener('click', () => {
+    if (!_currentBrowseFolder) return;
+    const parts = _currentBrowseFolder.split('/');
+    parts.pop();
+    const parent = parts.join('/');
+    if (parent.includes('/')) {
+      _browseFolder(parent);
+    } else {
+      // retour à la racine
+      _currentBrowseFolder = null;
+      document.getElementById('mediasBreadcrumb').textContent =
+        document.documentElement.lang === 'en' ? 'Choose a folder' : 'Choisir un dossier';
+      btnUp.style.display      = 'none';
+      rootBtns.style.display   = '';
+      grid.innerHTML = '<p class="adminPlaceholder" lang="FR" data-en="Select a folder to browse its images">Sélectionnez un dossier pour parcourir ses images</p>';
+    }
+  });
+
+  // ── Sélection ─────────────────────────────────────────────────────────────
+  function _selectMedia(id, ctrlKey) {
+    const nid = +id;
+    if (ctrlKey) {
+      _selectedMediaIds.has(nid) ? _selectedMediaIds.delete(nid) : _selectedMediaIds.add(nid);
+    } else {
+      _selectedMediaIds = new Set([nid]);
+    }
+    grid.querySelectorAll('[data-media-id]').forEach(el => {
+      el.classList.toggle('mediaThumb--selected', _selectedMediaIds.has(+el.dataset.mediaId));
+    });
+    _updateRightPanel();
+  }
+
+  function _checkMediaForm() {
+    const ok = inputDescFr.value.trim().length > 0
+            || inputDescEn.value.trim().length > 0
+            || inputAlt.value.trim().length > 0;
+    btnSave.classList.toggle('btnOn',  ok);
+    btnSave.classList.toggle('btnOff', !ok);
+  }
+  [inputDescFr, inputDescEn, inputAlt].forEach(el => el.addEventListener('input', _checkMediaForm));
+
+  // ── Right panel ───────────────────────────────────────────────────────────
+  function _updateRightPanel() {
+    const count = _selectedMediaIds.size;
+    const isEn  = document.documentElement.lang === 'en';
+
+    selInfo.textContent = count === 0 ? ''
+      : count === 1 ? (isEn ? '1 selected' : '1 sélectionné')
+      : (isEn ? `${count} selected` : `${count} sélectionnés`);
+
+    if (count === 0) {
+      editorTitle.textContent   = isEn ? 'Select a media' : 'Sélectionner un média';
+      editorForm.style.display  = 'none';
+      deleteGrp.style.display   = 'none';
+      previewWrap.style.display = 'none';
+      return;
+    }
+
+    editorForm.style.display = 'flex';
+
+    if (count === 1) {
+      const media = _mediasData.find(m => +m.id === [..._selectedMediaIds][0]);
+      editorTitle.textContent = isEn ? 'Edit media' : 'Modifier le média';
+      if (media?.type === 'image') {
+        previewImg.src = media.file_path; // chemin complet depuis la racine
+        previewWrap.style.display = 'block';
+      } else {
+        previewWrap.style.display = 'none';
+      }
+      inputDescFr.value = media?.description_fr || '';
+      inputDescEn.value = media?.description_en || '';
+      inputAlt.value    = media?.alt_text        || '';
+      altGroup.style.display  = '';
+      deleteGrp.style.display = 'flex';
+    } else {
+      editorTitle.textContent   = isEn ? `${count} medias selected` : `${count} médias sélectionnés`;
+      inputDescFr.value = ''; inputDescEn.value = ''; inputAlt.value = '';
+      altGroup.style.display    = 'none';
+      deleteGrp.style.display   = 'none';
+      previewWrap.style.display = 'none';
+    }
+    _checkMediaForm();
+  }
+  _mediaPanelUpdate = _updateRightPanel;
+  window._mediaSelectHandler = _selectMedia;
+
+  // ── Sauvegarder ───────────────────────────────────────────────────────────
+  btnSave.addEventListener('click', async () => {
+    if (btnSave.classList.contains('btnOff')) return;
+    const isMulti = _selectedMediaIds.size > 1;
+    const isEn    = document.documentElement.lang === 'en';
+    try {
+      await Promise.all([..._selectedMediaIds].map(id => {
+        const payload = { id };
+        if (isMulti) {
+          if (inputDescFr.value.trim()) payload.description_fr = inputDescFr.value.trim();
+          if (inputDescEn.value.trim()) payload.description_en = inputDescEn.value.trim();
+        } else {
+          payload.description_fr = inputDescFr.value.trim();
+          payload.description_en = inputDescEn.value.trim();
+          payload.alt_text       = inputAlt.value.trim();
+        }
+        return fetch('controller/controller.php?action=admin_medias&sub=update', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+        });
+      }));
+      _showTagMsg(msgBox, isEn ? 'Saved.' : 'Sauvegardé.', false);
+      await _loadRegistered();
+    } catch (_) { _showTagMsg(msgBox, 'Erreur réseau.', true); }
+  });
+
+  // ── Supprimer ─────────────────────────────────────────────────────────────
+  btnDelete.addEventListener('click', () => { confirmDel.style.display = 'flex'; });
+  btnCancelDel.addEventListener('click', () => { confirmDel.style.display = 'none'; });
+  confirmDel.addEventListener('click', e => { if (e.target === confirmDel) confirmDel.style.display = 'none'; });
+  btnConfirmDel.addEventListener('click', async () => {
+    confirmDel.style.display = 'none';
+    const id = [..._selectedMediaIds][0];
+    if (!id) return;
+    try {
+      const res  = await fetch('controller/controller.php?action=admin_medias&sub=delete', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        _selectedMediaIds.clear();
+        _showTagMsg(msgBox, document.documentElement.lang === 'en' ? 'Deleted.' : 'Supprimé.', false);
+        await _loadRegistered();
+        _updateRightPanel();
+        if (_currentBrowseFolder) _browseFolder(_currentBrowseFolder);
+      }
+    } catch (_) {}
+  });
+
+  _loadRegistered();
+}
+
+async function _loadRegistered() {
+  try {
+    const res  = await fetch('controller/controller.php?action=admin_medias&sub=list&per_page=1000');
+    const json = await res.json();
+    if (json.success) {
+      _mediasData = json.medias;
+      _mediaPanelUpdate?.();
+    }
+  } catch (_) {}
+}
+
+async function _browseFolder(folder) {
+  _currentBrowseFolder = folder;
+  const grid       = document.getElementById('mediasGrid');
+  const breadcrumb = document.getElementById('mediasBreadcrumb');
+  const btnUp      = document.getElementById('btnMediasUp');
+  const rootBtns   = document.getElementById('mediasRootBtns');
+  if (!grid) return;
+
+  breadcrumb.textContent  = folder.split('/').pop();
+  btnUp.style.display     = 'inline-flex';
+  rootBtns.style.display  = 'none';
+  grid.innerHTML = '<p class="adminPlaceholder">Chargement…</p>';
+
+  try {
+    const res  = await fetch(`controller/controller.php?action=admin_medias&sub=browse&folder=${encodeURIComponent(folder)}`);
+    const json = await res.json();
+    if (!json.success) { grid.innerHTML = '<p class="adminPlaceholder">Erreur.</p>'; return; }
+
+    const registeredPaths = new Map(_mediasData.map(m => [m.file_path, +m.id]));
+    grid.innerHTML = '';
+
+    // Sous-dossiers
+    json.dirs.forEach(dir => {
+      const item = document.createElement('div');
+      item.className = 'mediaThumb mediaDirThumb';
+      const name = document.createElement('span');
+      name.className = 'mediaFolderName'; name.textContent = dir.name;
+      item.appendChild(name);
+      item.addEventListener('click', () => _browseFolder(dir.path));
+      grid.appendChild(item);
+    });
+
+    // Fichiers image
+    json.files.forEach(filePath => {
+      const isReg  = registeredPaths.has(filePath);
+      const thumb  = document.createElement('div');
+      thumb.className = 'mediaThumb' + (isReg ? ' mediaThumb--registered' : ' mediaThumb--unregistered');
+      if (isReg) {
+        thumb.dataset.mediaId = registeredPaths.get(filePath);
+        if (_selectedMediaIds.has(registeredPaths.get(filePath))) thumb.classList.add('mediaThumb--selected');
+      }
+
+      const img = document.createElement('img');
+      img.src = filePath; img.alt = ''; img.loading = 'lazy';
+      thumb.appendChild(img);
+
+      if (!isReg) {
+        const addBadge = document.createElement('div');
+        addBadge.className = 'mediaAddOverlay'; addBadge.textContent = '+';
+        thumb.appendChild(addBadge);
+      }
+
+      thumb.addEventListener('click', async e => {
+        if (!isReg) {
+          try {
+            const res  = await fetch('controller/controller.php?action=admin_medias&sub=register', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ file_path: filePath }),
+            });
+            const json = await res.json();
+            if (json.success) {
+              await _loadRegistered();
+              window._mediaSelectHandler?.(json.id, e.ctrlKey || e.metaKey);
+              _browseFolder(_currentBrowseFolder);
+            }
+          } catch (_) {}
+        } else {
+          window._mediaSelectHandler?.(registeredPaths.get(filePath), e.ctrlKey || e.metaKey);
+        }
+      });
+      grid.appendChild(thumb);
+    });
+
+    if (!json.dirs.length && !json.files.length) {
+      grid.innerHTML = '<p class="adminPlaceholder">Dossier vide.</p>';
+    }
+  } catch (_) { grid.innerHTML = '<p class="adminPlaceholder">Erreur de navigation.</p>'; }
+}
+
+
+// Re-rendre les listes sans refetch quand la langue change
+document.addEventListener('languagechange', () => {
+  if (_tagsInited) {
+    const c = document.getElementById('tagsListContainer');
+    if (c) _loadTagList(c, true);
+  }
+  if (_expInited) _loadExpList(true);
+});

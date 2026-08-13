@@ -47,8 +47,7 @@
     </div>
     <div class="sideBlock">
       <button class="btnBackToAdmin">
-        <span class="icon iconAdmin"></span>
-        <span lang="FR" data-en="Back to Admin">Retour Admin</span>
+        <span class="icon iconBack"></span>
       </button>
     </div>
   </div>

@@ -1,4 +1,43 @@
 // =============================================================================
+// SECTION NAV LABEL ANIMATIONS
+// Transitions CSS directes sur les spans de label (rotateY + opacity)
+// Évite les conflits avec staggerReveal qui ne gère pas le transform CSS restant
+// =============================================================================
+
+/**
+ * Révèle les spans d'un label lettre par lettre (rotateY 90°→0°, opacity 0→1).
+ * @param {NodeList|Element[]} spans
+ * @param {number} delay  ms entre chaque lettre
+ */
+function _navLabelReveal(spans, delay = 28) {
+  Array.from(spans).forEach((span, i) => {
+    setTimeout(() => {
+      span.style.transition = `opacity 0.3s ease, transform 0.35s cubic-bezier(0.34,2,0.64,1)`;
+      span.style.opacity    = '1';
+      span.style.transform  = 'rotateY(0deg)';
+    }, delay * i);
+  });
+}
+
+/**
+ * Cache les spans d'un label lettre par lettre (rotateY 0°→90°, opacity 1→0).
+ * @param {NodeList|Element[]} spans
+ * @param {boolean} reverse  true = masquer de droite à gauche
+ * @param {number}  delay    ms entre chaque lettre
+ */
+function _navLabelHide(spans, reverse = false, delay = 20) {
+  const arr = Array.from(spans);
+  if (reverse) arr.reverse();
+  arr.forEach((span, i) => {
+    setTimeout(() => {
+      span.style.transition = `opacity 0.2s ease, transform 0.2s ease-in`;
+      span.style.opacity    = '0';
+      span.style.transform  = 'rotateY(90deg)';
+    }, delay * i);
+  });
+}
+
+// =============================================================================
 // SECTION SCROLLER — Moteur de scroll magnétique pour la home
 // =============================================================================
 // Usage :
@@ -15,7 +54,11 @@ class SectionScroller {
     this.navItems   = [];
     this.current    = 0;
     this.animating  = false;
-    this.duration   = 700; // ms — doit correspondre à $scroll-duration en SCSS
+    this.duration   = 700;
+
+    // Label hover zone state — géré par navigation.js
+    this._labelHoverActive = false;
+    this._prevActiveIndex  = undefined;
 
     this._onWheel      = this._onWheel.bind(this);
     this._onTouchStart = this._onTouchStart.bind(this);
@@ -93,12 +136,31 @@ class SectionScroller {
     }, this.duration);
   }
 
-  // ── Nav icônes ─────────────────────────────────────────────────────────────
+  // ── Nav icônes + labels ─────────────────────────────────────────────────────
 
   _updateNav(activeIndex) {
+    const prev = this._prevActiveIndex;
+
     this.navItems.forEach((item, i) => {
       item.classList.toggle('sectionNavItem--active', i === activeIndex);
     });
+
+    // Animer les labels via transitions CSS directes (pas de staggerReveal)
+    // pour éviter les conflits avec le transform rotateY des spans
+    const activeItem = this.navItems[activeIndex];
+    if (activeItem) {
+      _navLabelReveal(activeItem.querySelectorAll('.sectionNavLabel > span'));
+    }
+
+    // Cacher le label de l'ancien actif si on n'est pas en zone hover
+    if (prev !== undefined && prev !== activeIndex && !this._labelHoverActive) {
+      const prevItem = this.navItems[prev];
+      if (prevItem) {
+        _navLabelHide(prevItem.querySelectorAll('.sectionNavLabel > span'), true);
+      }
+    }
+
+    this._prevActiveIndex = activeIndex;
   }
 
   _bindNavClicks() {

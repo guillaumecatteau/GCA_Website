@@ -45,6 +45,20 @@ window.getAnimationDevice = getAnimationDevice;
 
 function startSequence() {
   startBackground();
+
+  // Deep link : sauter l'intro et aller directement à la page cible
+  const deepPage = window._routerInit?.();
+  if (deepPage) {
+    setTimeout(() => {
+      displayConnexionBoxDesktop();
+      displayLanguageSelectorDesktop();
+      activateNavigation();
+      window._routerNavigate(deepPage);
+    }, 400);
+    return;
+  }
+
+  // Intro normale
   setTimeout(() => {
     displayMainLogo();
   }, 2000);

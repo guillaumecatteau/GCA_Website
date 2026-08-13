@@ -44,8 +44,7 @@
     </div>
     <div class="sideBlock" id="pageEditorSide">
       <button class="btnBackToAdmin">
-        <span class="icon iconAdmin"></span>
-        <span lang="FR" data-en="Back to Admin">Retour Admin</span>
+        <span class="icon iconBack"></span>
       </button>
       <div class="basicBlock" id="pageEditorBlock" style="display:none">
         <span class="blockTitle" id="pageEditorTitle" lang="FR" data-en="New page">Nouvelle page</span>

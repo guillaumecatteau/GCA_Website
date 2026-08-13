@@ -1,0 +1,10 @@
+Options -MultiViews
+RewriteEngine On
+RewriteBase /
+
+# Laisser passer les vrais fichiers et dossiers (CSS, JS, images, PHP, JSON…)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Tout le reste → index.php (SPA router)
+RewriteRule ^ index.php [QSA,L]
