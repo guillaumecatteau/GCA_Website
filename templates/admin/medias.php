@@ -4,27 +4,20 @@
   </h2>
   <div class="basicGrid">
 
-    <!-- ── Left panel : navigateur de fichiers + grille ── -->
+    <!-- ── Left panel : grille des médias ── -->
     <div class="mainBlock">
       <div class="mediasTopBar">
-        <!-- Fil d'Ariane du dossier courant -->
-        <div class="btnSmall btnOn" id="btnMediasUp" style="display:none">
-          <div class="btnLabel"><span class="icon iconBack"></span></div>
-        </div>
-        <span class="mediasBreadcrumb" id="mediasBreadcrumb" lang="FR" data-en="Choose a folder">Choisir un dossier</span>
-        <div class="mediasRootBtns" id="mediasRootBtns">
-          <div class="btnSmall btnOn" data-folder="vue/assets/images/Galleries">Galleries</div>
-          <div class="btnSmall btnOn" data-folder="vue/assets/images/GalleriesMini">Minis</div>
-          <div class="btnSmall btnOn" data-folder="vue/assets/images/Banners">Banners</div>
-          <div class="btnSmall btnOn" data-folder="vue/assets/images/Thumbnails">Thumbnails</div>
-          <div class="btnSmall btnOn" data-folder="vue/assets/images/Backgrounds">Backgrounds</div>
-          <div class="btnSmall btnOn" data-folder="vue/assets/images/icons">Icons</div>
+        <div class="btnSmall btnOn" id="btnSyncMedias">
+          <div class="btnLabel">
+            <span class="icon iconAdd"></span>
+            <span lang="FR" data-en="Sync">Synchroniser</span>
+          </div>
         </div>
         <span class="mediaSelInfo" id="mediaSelInfo"></span>
         <span class="formMessage" id="msgUploadMedia" style="display:none"></span>
       </div>
       <div class="mediasGrid" id="mediasGrid">
-        <p class="adminPlaceholder" lang="FR" data-en="Select a folder to browse its images">Sélectionnez un dossier pour parcourir ses images</p>
+        <p class="adminPlaceholder">Chargement…</p>
       </div>
     </div>
 
@@ -35,6 +28,15 @@
       </button>
       <div class="basicBlock" id="mediaEditorBlock">
         <span class="blockTitle" id="mediaEditorTitle" lang="FR" data-en="Select a media">Sélectionner un média</span>
+
+        <!-- Actions disponibles quand aucun média n'est sélectionné -->
+        <div id="mediaEmptyActions">
+          <div class="btnMedium btnOn" id="btnOpenYoutube">
+            <div class="btnLabel">
+              <span class="btnText">YouTube</span>
+            </div>
+          </div>
+        </div>
 
         <!-- Prévisualisation (sélection unique) -->
         <div class="mediaPreviewWrap" id="mediaPreview" style="display:none">
@@ -65,6 +67,44 @@
             <input type="text" id="inputMediaAlt" class="formInput" maxlength="255" />
           </div>
 
+          <!-- Année -->
+          <div class="formGroup">
+            <label class="formLabel" for="inputMediaYear" lang="FR" data-en="Year">Année</label>
+            <input type="number" id="inputMediaYear" class="formInput" min="1990" max="2100" placeholder="2024" />
+          </div>
+
+          <!-- Afficher en galerie -->
+          <div class="formGroup">
+            <label class="formLabel" lang="FR" data-en="Options">Options</label>
+            <label class="formCheckboxLabel">
+              <input type="checkbox" id="inputMediaGallery" />
+              <span class="formCheckbox"></span>
+              <span class="formCheckboxText" lang="FR" data-en="Show in gallery">Afficher en galerie</span>
+            </label>
+          </div>
+
+          <!-- Tags catégorie -->
+          <div class="formGroup" id="mediaCatTagGroup">
+            <label class="formLabel" lang="FR" data-en="Category tags">Tags catégorie</label>
+            <details class="expTagDropdown" id="mediaCatTagDropdown">
+              <summary class="expTagDropdownSummary">
+                <span lang="FR" data-en="Select">Sélectionner <span id="mediaCatTagCount"></span></span>
+              </summary>
+              <div class="expTagSelector" id="mediaCatTagSelector"></div>
+            </details>
+          </div>
+
+          <!-- Tags technologie -->
+          <div class="formGroup" id="mediaTechTagGroup">
+            <label class="formLabel" lang="FR" data-en="Technology tags">Tags technologie</label>
+            <details class="expTagDropdown" id="mediaTechTagDropdown">
+              <summary class="expTagDropdownSummary">
+                <span lang="FR" data-en="Select">Sélectionner <span id="mediaTechTagCount"></span></span>
+              </summary>
+              <div class="expTagSelector" id="mediaTechTagSelector"></div>
+            </details>
+          </div>
+
           <!-- Actions -->
           <div class="formGroup formGroupBtn">
             <div class="btnMedium btnOff" id="btnSaveMedia">
@@ -77,12 +117,11 @@
           <div class="formMessage" id="msgMediaSave" style="display:none"></div>
         </form>
 
-        <!-- Supprimer (sélection unique) -->
+        <!-- Supprimer (icône seule, visible en sélection simple ou multiple) -->
         <div style="display:none" id="mediaDeleteGroup">
-          <div class="btnMedium btnDanger" id="btnDeleteMedia">
+          <div class="btnMedium btnIconOnly btnDanger" id="btnDeleteMedia">
             <div class="btnLabel">
               <span class="icon iconDelete"></span>
-              <span lang="FR" data-en="Delete">Supprimer</span>
             </div>
           </div>
         </div>
@@ -104,6 +143,26 @@
           <div class="btnLabel"><span lang="FR" data-en="Cancel">Annuler</span></div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Popup YouTube — uniquement l'URL, les métadonnées se gèrent comme tout autre média -->
+  <div class="confirmOverlay" id="youtubePopup" style="display:none">
+    <div class="basicBlock" style="width:400px;max-width:90vw">
+      <span class="blockTitle" lang="FR" data-en="Add a YouTube video">Ajouter une vidéo YouTube</span>
+      <div class="formGroup">
+        <label class="formLabel" for="inputYoutubeUrl">URL</label>
+        <input type="url" id="inputYoutubeUrl" class="formInput" placeholder="https://www.youtube.com/watch?v=..." />
+      </div>
+      <div class="formGroup formGroupBtn">
+        <div class="btnMedium btnOff" id="btnAddYoutube">
+          <div class="btnLabel"><span class="btnText" lang="FR" data-en="Add">Ajouter</span></div>
+        </div>
+        <div class="btnMedium" id="btnCancelYoutube">
+          <div class="btnLabel"><span class="btnText" lang="FR" data-en="Cancel">Annuler</span></div>
+        </div>
+      </div>
+      <div class="formMessage" id="msgYoutube" style="display:none"></div>
     </div>
   </div>
 

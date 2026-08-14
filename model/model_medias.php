@@ -18,7 +18,8 @@ function getAllMedias(int $page = 1, int $perPage = 40): array
     global $bdd;
     $offset = ($page - 1) * $perPage;
     $stmt = $bdd->prepare(
-        "SELECT id, type, file_path, description_fr, description_en, alt_text, uploaded_at
+        "SELECT id, type, file_path, description_fr, description_en, alt_text, uploaded_at,
+                year, project_id, show_in_gallery
          FROM medias ORDER BY uploaded_at DESC LIMIT :limit OFFSET :offset"
     );
     $stmt->bindValue(':limit',  $perPage, PDO::PARAM_INT);
@@ -56,7 +57,7 @@ function createMedia(string $type, string $file_path, array $meta = []): int|fal
         ':path' => $file_path,
         ':dfr'  => $meta['description_fr'] ?? '',
         ':den'  => $meta['description_en'] ?? '',
-        ':alt'  => $meta['alt_text']       ?? '',,
+        ':alt'  => $meta['alt_text']       ?? '',
     ]);
     $id = (int)$bdd->lastInsertId();
     if (!empty($meta['tags']) && is_array($meta['tags'])) {
@@ -68,7 +69,7 @@ function createMedia(string $type, string $file_path, array $meta = []): int|fal
 function updateMedia(int $id, array $fields): bool
 {
     global $bdd;
-    $allowed = ['description_fr','description_en','alt_text'];
+    $allowed = ['description_fr','description_en','alt_text','year','project_id','show_in_gallery'];
     $set = [];
     $params = [':id' => $id];
     foreach ($fields as $col => $val) {

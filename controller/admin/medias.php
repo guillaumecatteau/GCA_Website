@@ -68,11 +68,14 @@ switch ("$method:$sub") {
     case 'POST:update':
         $id = (int)($body['id'] ?? 0);
         if (!$id) { echo json_encode(['success' => false, 'code' => 'MISSING_ID']); break; }
+        $str = fn($v) => htmlspecialchars(trim($v ?? ''), ENT_QUOTES, 'UTF-8');
         $fields = [
-            'description_fr' => htmlspecialchars($body['description_fr'] ?? '', ENT_QUOTES, 'UTF-8'),
-            'description_en' => htmlspecialchars($body['description_en'] ?? '', ENT_QUOTES, 'UTF-8'),
-            'alt_text'       => htmlspecialchars($body['alt_text'] ?? '',       ENT_QUOTES, 'UTF-8'),
-            'tags'           => (array)($body['tags'] ?? []),
+            'description_fr'  => $str($body['description_fr']  ?? ''),
+            'description_en'  => $str($body['description_en']  ?? ''),
+            'alt_text'        => $str($body['alt_text']         ?? ''),
+            'year'            => isset($body['year']) && $body['year'] !== '' ? (int)$body['year'] : null,
+            'show_in_gallery' => (int)(bool)($body['show_in_gallery'] ?? 0),
+            'tags'            => (array)($body['tags'] ?? []),
         ];
         echo json_encode(['success' => updateMedia($id, $fields)]);
         break;
@@ -81,6 +84,30 @@ switch ("$method:$sub") {
         requireAdmin();
         $id = (int)($body['id'] ?? 0);
         echo json_encode(['success' => $id ? deleteMedia($id) : false]);
+        break;
+
+    case 'POST:import_all':
+        requireAdmin();
+        $basePath = realpath(__DIR__ . '/../../vue/assets/images/Galleries');
+        if (!$basePath || !is_dir($basePath)) {
+            echo json_encode(['success' => false, 'code' => 'DIR_NOT_FOUND']); break;
+        }
+        $imgExts  = ['jpg','jpeg','png','gif','webp'];
+        $imported = 0;
+        $rit = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($basePath, RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+        foreach ($rit as $f) {
+            if (!$f->isFile()) continue;
+            $ext  = strtolower($f->getExtension());
+            if (!in_array($ext, $imgExts)) continue;
+            $name = $f->getBasename('.' . $ext);
+            if (str_ends_with($name, '_Thumb')) continue; // ignorer les miniatures
+            $rel = 'vue/assets/images/Galleries/' .
+                   str_replace('\\', '/', ltrim(str_replace($basePath, '', $f->getPathname()), DIRECTORY_SEPARATOR . '/'));
+            if (!getMediaByPath($rel)) { createMedia('image', $rel, []); $imported++; }
+        }
+        echo json_encode(['success' => true, 'imported' => $imported]);
         break;
 
     case 'GET:browse':

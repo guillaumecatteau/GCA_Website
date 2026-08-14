@@ -1290,68 +1290,93 @@ function _updateTagCount() {
 // /////////////////////////////// MEDIAS MANAGEMENT /////////////////////////////////////////////
 // ================================================================================================
 
-let _mediasData          = [];
-let _mediasInited        = false;
-let _selectedMediaIds    = new Set();
-let _mediaPanelUpdate    = null;
-let _currentBrowseFolder = null;
+let _mediasData       = [];
+let _mediasInited     = false;
+let _selectedMediaIds = new Set();
+let _mediaPanelUpdate = null;
+
+// Calcule le chemin de la miniature _Thumb correspondant à une image
+function _getThumbPath(filePath) {
+  const lastDot = filePath.lastIndexOf('.');
+  if (lastDot === -1) return filePath;
+  return filePath.slice(0, lastDot) + '_Thumb' + filePath.slice(lastDot);
+}
 
 function initMediasManagement() {
-  if (_mediasInited) {
-    _loadRegistered().then(() => {
-      if (_currentBrowseFolder) _browseFolder(_currentBrowseFolder);
-    });
-    return;
-  }
+  if (_mediasInited) { _syncAndLoad(); return; }
   _mediasInited = true;
 
-  const grid        = document.getElementById('mediasGrid');
-  const editorTitle = document.getElementById('mediaEditorTitle');
-  const editorForm  = document.getElementById('formEditMedia');
-  const previewWrap = document.getElementById('mediaPreview');
-  const previewImg  = document.getElementById('mediaPreviewImg');
-  const inputDescFr = document.getElementById('inputMediaDescFr');
-  const inputDescEn = document.getElementById('inputMediaDescEn');
-  const inputAlt    = document.getElementById('inputMediaAlt');
-  const altGroup    = document.getElementById('mediaAltGroup');
-  const btnSave     = document.getElementById('btnSaveMedia');
-  const msgBox      = document.getElementById('msgMediaSave');
-  const deleteGrp   = document.getElementById('mediaDeleteGroup');
-  const btnDelete   = document.getElementById('btnDeleteMedia');
-  const confirmDel  = document.getElementById('mediaDeleteConfirm');
+  const grid          = document.getElementById('mediasGrid');
+  const editorTitle   = document.getElementById('mediaEditorTitle');
+  const editorForm    = document.getElementById('formEditMedia');
+  const previewWrap   = document.getElementById('mediaPreview');
+  const previewImg    = document.getElementById('mediaPreviewImg');
+  const inputDescFr   = document.getElementById('inputMediaDescFr');
+  const inputDescEn   = document.getElementById('inputMediaDescEn');
+  const inputAlt      = document.getElementById('inputMediaAlt');
+  const altGroup      = document.getElementById('mediaAltGroup');
+  const inputYear     = document.getElementById('inputMediaYear');
+  const inputGallery  = document.getElementById('inputMediaGallery');
+  const catTagGrp     = document.getElementById('mediaCatTagGroup');
+  const techTagGrp    = document.getElementById('mediaTechTagGroup');
+  const catTagSel     = document.getElementById('mediaCatTagSelector');
+  const techTagSel    = document.getElementById('mediaTechTagSelector');
+  const catTagCount   = document.getElementById('mediaCatTagCount');
+  const techTagCount  = document.getElementById('mediaTechTagCount');
+  const emptyActions  = document.getElementById('mediaEmptyActions');
+  const btnSave       = document.getElementById('btnSaveMedia');
+  const msgBox        = document.getElementById('msgMediaSave');
+  const deleteGrp     = document.getElementById('mediaDeleteGroup');
+  const btnDelete     = document.getElementById('btnDeleteMedia');
+  const confirmDel    = document.getElementById('mediaDeleteConfirm');
   const btnConfirmDel = document.getElementById('btnConfirmDeleteMedia');
   const btnCancelDel  = document.getElementById('btnCancelDeleteMedia');
   const selInfo       = document.getElementById('mediaSelInfo');
-  const rootBtns      = document.getElementById('mediasRootBtns');
-  const btnUp         = document.getElementById('btnMediasUp');
+  const btnSync       = document.getElementById('btnSyncMedias');
+  const msgSync       = document.getElementById('msgUploadMedia');
+  const btnYoutube    = document.getElementById('btnOpenYoutube');
+  const youtubePop    = document.getElementById('youtubePopup');
+  const inputYtUrl    = document.getElementById('inputYoutubeUrl');
+  const btnAddYt      = document.getElementById('btnAddYoutube');
+  const btnCancelYt   = document.getElementById('btnCancelYoutube');
+  const msgYt         = document.getElementById('msgYoutube');
 
   if (!grid || !btnSave) return;
 
-  // ── Navigateur de dossiers ────────────────────────────────────────────────
-  rootBtns.addEventListener('click', e => {
-    const btn = e.target.closest('[data-folder]');
-    if (btn) _browseFolder(btn.dataset.folder);
+  // Tags sélectionnés pour le média en cours d'édition
+  let _mediaCatTags  = new Set();
+  let _mediaTechTags = new Set();
+  let _allCatTags    = [];
+  let _allTechTags   = [];
+
+  // Charger les tags catégorie et technologie une seule fois
+  (async () => {
+    try {
+      const res  = await fetch('controller/controller.php?action=admin_tags&sub=list');
+      const json = await res.json();
+      if (json.success) {
+        _allCatTags  = json.tags.filter(t => t.category === 'category');
+        _allTechTags = json.tags.filter(t => t.category === 'technology');
+      }
+    } catch (_) {}
+  })();
+
+  // ── Synchroniser ──────────────────────────────────────────────────────────
+  btnSync.addEventListener('click', async () => {
+    const isEn = document.documentElement.lang === 'en';
+    btnSync.classList.replace('btnOn', 'btnOff');
+    try {
+      const res  = await fetch('controller/controller.php?action=admin_medias&sub=import_all', { method: 'POST' });
+      const json = await res.json();
+      if (json.success && json.imported > 0) {
+        _showTagMsg(msgSync, isEn ? `${json.imported} new image(s).` : `${json.imported} nouvelle(s) image(s).`, false);
+      }
+      await _syncAndLoad(true);
+    } catch (_) { _showTagMsg(msgSync, 'Erreur réseau.', true); }
+    finally { btnSync.classList.replace('btnOff', 'btnOn'); }
   });
 
-  btnUp.addEventListener('click', () => {
-    if (!_currentBrowseFolder) return;
-    const parts = _currentBrowseFolder.split('/');
-    parts.pop();
-    const parent = parts.join('/');
-    if (parent.includes('/')) {
-      _browseFolder(parent);
-    } else {
-      // retour à la racine
-      _currentBrowseFolder = null;
-      document.getElementById('mediasBreadcrumb').textContent =
-        document.documentElement.lang === 'en' ? 'Choose a folder' : 'Choisir un dossier';
-      btnUp.style.display      = 'none';
-      rootBtns.style.display   = '';
-      grid.innerHTML = '<p class="adminPlaceholder" lang="FR" data-en="Select a folder to browse its images">Sélectionnez un dossier pour parcourir ses images</p>';
-    }
-  });
-
-  // ── Sélection ─────────────────────────────────────────────────────────────
+  // ── Sélection (click = seul, Ctrl+click = multi) ─────────────────────────
   function _selectMedia(id, ctrlKey) {
     const nid = +id;
     if (ctrlKey) {
@@ -1366,13 +1391,13 @@ function initMediasManagement() {
   }
 
   function _checkMediaForm() {
-    const ok = inputDescFr.value.trim().length > 0
-            || inputDescEn.value.trim().length > 0
-            || inputAlt.value.trim().length > 0;
+    // Le bouton est toujours actif dès qu'un média est sélectionné
+    const ok = _selectedMediaIds.size > 0;
     btnSave.classList.toggle('btnOn',  ok);
     btnSave.classList.toggle('btnOff', !ok);
   }
-  [inputDescFr, inputDescEn, inputAlt].forEach(el => el.addEventListener('input', _checkMediaForm));
+  [inputDescFr, inputDescEn, inputAlt, inputYear].forEach(el => el.addEventListener('input', _checkMediaForm));
+  inputGallery.addEventListener('change', _checkMediaForm);
 
   // ── Right panel ───────────────────────────────────────────────────────────
   function _updateRightPanel() {
@@ -1388,31 +1413,57 @@ function initMediasManagement() {
       editorForm.style.display  = 'none';
       deleteGrp.style.display   = 'none';
       previewWrap.style.display = 'none';
+      if (emptyActions) emptyActions.style.display = '';
       return;
     }
 
+    if (emptyActions) emptyActions.style.display = 'none';
     editorForm.style.display = 'flex';
 
     if (count === 1) {
       const media = _mediasData.find(m => +m.id === [..._selectedMediaIds][0]);
       editorTitle.textContent = isEn ? 'Edit media' : 'Modifier le média';
       if (media?.type === 'image') {
-        previewImg.src = media.file_path; // chemin complet depuis la racine
+        const thumb = _getThumbPath(media.file_path);
+        previewImg.src     = thumb;
+        previewImg.onerror = () => { previewImg.src = media.file_path; };
         previewWrap.style.display = 'block';
       } else {
         previewWrap.style.display = 'none';
       }
-      inputDescFr.value = media?.description_fr || '';
-      inputDescEn.value = media?.description_en || '';
-      inputAlt.value    = media?.alt_text        || '';
-      altGroup.style.display  = '';
-      deleteGrp.style.display = 'flex';
+      inputDescFr.value    = media?.description_fr || '';
+      inputDescEn.value    = media?.description_en || '';
+      inputAlt.value       = media?.alt_text        || '';
+      inputYear.value      = media?.year            || '';
+      inputGallery.checked = !!+media?.show_in_gallery;
+      altGroup.style.display   = '';
+      catTagGrp.style.display  = '';
+      techTagGrp.style.display = '';
+      deleteGrp.style.display  = 'flex';
+      // Charger les tags du média et rendre les sélecteurs
+      fetch(`controller/controller.php?action=admin_medias&sub=get&id=${media.id}`)
+        .then(r => r.json())
+        .then(j => {
+          const tags = j.success ? (j.media.tags || []) : [];
+          _mediaCatTags  = new Set(tags.filter(t => t.category === 'category').map(t => +t.id));
+          _mediaTechTags = new Set(tags.filter(t => t.category === 'technology').map(t => +t.id));
+          _renderMediaTagSelector(catTagSel,  catTagCount,  _allCatTags,  _mediaCatTags,  isEn);
+          _renderMediaTagSelector(techTagSel, techTagCount, _allTechTags, _mediaTechTags, isEn);
+        })
+        .catch(() => { _renderMediaTagSelector(catTagSel, catTagCount, _allCatTags, _mediaCatTags, isEn); });
     } else {
       editorTitle.textContent   = isEn ? `${count} medias selected` : `${count} médias sélectionnés`;
       inputDescFr.value = ''; inputDescEn.value = ''; inputAlt.value = '';
+      inputYear.value = ''; inputGallery.checked = false;
       altGroup.style.display    = 'none';
-      deleteGrp.style.display   = 'none';
+      deleteGrp.style.display   = 'flex'; // delete visible aussi en multi-sélection
+      catTagGrp.style.display   = '';
+      techTagGrp.style.display  = '';
       previewWrap.style.display = 'none';
+      // Dropdowns vides en multi : les tags sélectionnés remplaceront ceux de tous les médias
+      _mediaCatTags = new Set(); _mediaTechTags = new Set();
+      _renderMediaTagSelector(catTagSel,  catTagCount,  _allCatTags,  _mediaCatTags,  isEn);
+      _renderMediaTagSelector(techTagSel, techTagCount, _allTechTags, _mediaTechTags, isEn);
     }
     _checkMediaForm();
   }
@@ -1430,17 +1481,25 @@ function initMediasManagement() {
         if (isMulti) {
           if (inputDescFr.value.trim()) payload.description_fr = inputDescFr.value.trim();
           if (inputDescEn.value.trim()) payload.description_en = inputDescEn.value.trim();
+          if (inputYear.value)          payload.year = +inputYear.value;
+          payload.show_in_gallery = inputGallery.checked ? 1 : 0;
+          // En multi : les tags sélectionnés remplacent ceux de chaque média
+          const combined = [..._mediaCatTags, ..._mediaTechTags];
+          if (combined.length > 0) payload.tags = combined;
         } else {
-          payload.description_fr = inputDescFr.value.trim();
-          payload.description_en = inputDescEn.value.trim();
-          payload.alt_text       = inputAlt.value.trim();
+          payload.description_fr  = inputDescFr.value.trim();
+          payload.description_en  = inputDescEn.value.trim();
+          payload.alt_text        = inputAlt.value.trim();
+          payload.year            = inputYear.value ? +inputYear.value : null;
+          payload.show_in_gallery = inputGallery.checked ? 1 : 0;
+          payload.tags            = [..._mediaCatTags, ..._mediaTechTags];
         }
         return fetch('controller/controller.php?action=admin_medias&sub=update', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
         });
       }));
       _showTagMsg(msgBox, isEn ? 'Saved.' : 'Sauvegardé.', false);
-      await _loadRegistered();
+      await _syncAndLoad(true);
     } catch (_) { _showTagMsg(msgBox, 'Erreur réseau.', true); }
   });
 
@@ -1450,115 +1509,140 @@ function initMediasManagement() {
   confirmDel.addEventListener('click', e => { if (e.target === confirmDel) confirmDel.style.display = 'none'; });
   btnConfirmDel.addEventListener('click', async () => {
     confirmDel.style.display = 'none';
-    const id = [..._selectedMediaIds][0];
-    if (!id) return;
+    const ids = [..._selectedMediaIds];
+    if (!ids.length) return;
     try {
-      const res  = await fetch('controller/controller.php?action=admin_medias&sub=delete', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }),
-      });
-      const json = await res.json();
-      if (json.success) {
-        _selectedMediaIds.clear();
-        _showTagMsg(msgBox, document.documentElement.lang === 'en' ? 'Deleted.' : 'Supprimé.', false);
-        await _loadRegistered();
-        _updateRightPanel();
-        if (_currentBrowseFolder) _browseFolder(_currentBrowseFolder);
-      }
+      await Promise.all(ids.map(id =>
+        fetch('controller/controller.php?action=admin_medias&sub=delete', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }),
+        })
+      ));
+      _selectedMediaIds.clear();
+      _showTagMsg(msgBox, document.documentElement.lang === 'en' ? 'Deleted.' : 'Supprimé(s).', false);
+      await _syncAndLoad(true);
+      _updateRightPanel();
     } catch (_) {}
   });
 
-  _loadRegistered();
+  // ── Popup YouTube ─────────────────────────────────────────────────────────────
+  btnYoutube.addEventListener('click', () => {
+    inputYtUrl.value = '';
+    btnAddYt.classList.replace('btnOn','btnOff');
+    youtubePop.style.display = 'flex';
+  });
+  btnCancelYt.addEventListener('click', () => { youtubePop.style.display = 'none'; });
+  youtubePop.addEventListener('click', e => { if (e.target === youtubePop) youtubePop.style.display = 'none'; });
+  inputYtUrl.addEventListener('input', () => {
+    btnAddYt.classList.toggle('btnOn',  inputYtUrl.value.trim().length > 0);
+    btnAddYt.classList.toggle('btnOff', inputYtUrl.value.trim().length === 0);
+  });
+  btnAddYt.addEventListener('click', async () => {
+    if (btnAddYt.classList.contains('btnOff')) return;
+    const isEn = document.documentElement.lang === 'en';
+    const payload = {
+      type: 'youtube',
+      url:  inputYtUrl.value.trim(),
+    };
+    try {
+      const res  = await fetch('controller/controller.php?action=admin_medias&sub=add_link', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (json.success) {
+        _showTagMsg(msgYt, isEn ? 'Added.' : 'Ajouté.', false);
+        setTimeout(() => { youtubePop.style.display = 'none'; }, 1200);
+        await _syncAndLoad(true);
+      } else {
+        _showTagMsg(msgYt, 'Erreur : ' + (json.code ?? ''), true);
+      }
+    } catch (_) { _showTagMsg(msgYt, 'Erreur réseau.', true); }
+  });
+
+  // ── Helper : sélecteur de tags (expTagSelector) + compteur ───────────────────────
+  function _renderMediaTagSelector(container, countEl, allTags, selectedSet, isEn) {
+    if (!container) return;
+    container.innerHTML = '';
+    if (!allTags.length) return;
+    allTags.forEach(tag => {
+      const item = document.createElement('div');
+      item.className   = 'tagItem' + (selectedSet.has(+tag.id) ? ' tagItem--active' : '');
+      item.dataset.tagId = tag.id;
+      item.textContent = isEn ? (tag.title_en || tag.title_fr) : (tag.title_fr || tag.title_en);
+      item.addEventListener('click', () => {
+        if (selectedSet.has(+tag.id)) { selectedSet.delete(+tag.id); item.classList.remove('tagItem--active'); }
+        else { selectedSet.add(+tag.id); item.classList.add('tagItem--active'); }
+        if (countEl) countEl.textContent = selectedSet.size > 0 ? `(${selectedSet.size})` : '';
+      });
+      container.appendChild(item);
+    });
+    if (countEl) countEl.textContent = selectedSet.size > 0 ? `(${selectedSet.size})` : '';
+  }
+
+  // ── Désélectionner en cliquant en dehors de la grille et du right panel ─────────
+  document.addEventListener('click', e => {
+    const g  = document.getElementById('mediasGrid');
+    const sb = document.querySelector('.mediasContent .sideBlock');
+    if (!g || !sb) return;
+    if (g.contains(e.target) || sb.contains(e.target)) return;
+    if (_selectedMediaIds.size > 0) {
+      _selectedMediaIds.clear();
+      const grid = document.getElementById('mediasGrid');
+      if (grid) _renderMediasGrid(grid, _mediasData);
+      _updateRightPanel();
+    }
+  });
+
+  _syncAndLoad();
 }
 
-async function _loadRegistered() {
+// Synchronise depuis Galleries puis charge la liste
+async function _syncAndLoad(skipImport = false) {
+  if (!skipImport) {
+    try {
+      await fetch('controller/controller.php?action=admin_medias&sub=import_all', { method: 'POST' });
+    } catch (_) {}
+  }
   try {
     const res  = await fetch('controller/controller.php?action=admin_medias&sub=list&per_page=1000');
     const json = await res.json();
     if (json.success) {
       _mediasData = json.medias;
+      const grid = document.getElementById('mediasGrid');
+      if (grid) _renderMediasGrid(grid, _mediasData);
       _mediaPanelUpdate?.();
     }
   } catch (_) {}
 }
 
-async function _browseFolder(folder) {
-  _currentBrowseFolder = folder;
-  const grid       = document.getElementById('mediasGrid');
-  const breadcrumb = document.getElementById('mediasBreadcrumb');
-  const btnUp      = document.getElementById('btnMediasUp');
-  const rootBtns   = document.getElementById('mediasRootBtns');
-  if (!grid) return;
+function _renderMediasGrid(grid, medias) {
+  grid.innerHTML = '';
+  if (!medias.length) {
+    grid.innerHTML = '<p class="adminPlaceholder">Aucun média.</p>';
+    return;
+  }
+  medias.forEach(media => {
+    const thumb = document.createElement('div');
+    thumb.className       = 'mediaThumb';
+    thumb.dataset.mediaId = media.id;
+    if (_selectedMediaIds.has(+media.id)) thumb.classList.add('mediaThumb--selected');
 
-  breadcrumb.textContent  = folder.split('/').pop();
-  btnUp.style.display     = 'inline-flex';
-  rootBtns.style.display  = 'none';
-  grid.innerHTML = '<p class="adminPlaceholder">Chargement…</p>';
-
-  try {
-    const res  = await fetch(`controller/controller.php?action=admin_medias&sub=browse&folder=${encodeURIComponent(folder)}`);
-    const json = await res.json();
-    if (!json.success) { grid.innerHTML = '<p class="adminPlaceholder">Erreur.</p>'; return; }
-
-    const registeredPaths = new Map(_mediasData.map(m => [m.file_path, +m.id]));
-    grid.innerHTML = '';
-
-    // Sous-dossiers
-    json.dirs.forEach(dir => {
-      const item = document.createElement('div');
-      item.className = 'mediaThumb mediaDirThumb';
-      const name = document.createElement('span');
-      name.className = 'mediaFolderName'; name.textContent = dir.name;
-      item.appendChild(name);
-      item.addEventListener('click', () => _browseFolder(dir.path));
-      grid.appendChild(item);
-    });
-
-    // Fichiers image
-    json.files.forEach(filePath => {
-      const isReg  = registeredPaths.has(filePath);
-      const thumb  = document.createElement('div');
-      thumb.className = 'mediaThumb' + (isReg ? ' mediaThumb--registered' : ' mediaThumb--unregistered');
-      if (isReg) {
-        thumb.dataset.mediaId = registeredPaths.get(filePath);
-        if (_selectedMediaIds.has(registeredPaths.get(filePath))) thumb.classList.add('mediaThumb--selected');
-      }
-
+    if (media.type === 'image') {
       const img = document.createElement('img');
-      img.src = filePath; img.alt = ''; img.loading = 'lazy';
+      img.src     = _getThumbPath(media.file_path);
+      img.onerror = () => { img.src = media.file_path; };
+      img.alt = media.alt_text || ''; img.loading = 'lazy';
       thumb.appendChild(img);
-
-      if (!isReg) {
-        const addBadge = document.createElement('div');
-        addBadge.className = 'mediaAddOverlay'; addBadge.textContent = '+';
-        thumb.appendChild(addBadge);
-      }
-
-      thumb.addEventListener('click', async e => {
-        if (!isReg) {
-          try {
-            const res  = await fetch('controller/controller.php?action=admin_medias&sub=register', {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ file_path: filePath }),
-            });
-            const json = await res.json();
-            if (json.success) {
-              await _loadRegistered();
-              window._mediaSelectHandler?.(json.id, e.ctrlKey || e.metaKey);
-              _browseFolder(_currentBrowseFolder);
-            }
-          } catch (_) {}
-        } else {
-          window._mediaSelectHandler?.(registeredPaths.get(filePath), e.ctrlKey || e.metaKey);
-        }
-      });
-      grid.appendChild(thumb);
-    });
-
-    if (!json.dirs.length && !json.files.length) {
-      grid.innerHTML = '<p class="adminPlaceholder">Dossier vide.</p>';
+    } else {
+      const badge = document.createElement('span');
+      badge.className = 'mediaTypeBadge'; badge.textContent = media.type.toUpperCase();
+      thumb.appendChild(badge);
     }
-  } catch (_) { grid.innerHTML = '<p class="adminPlaceholder">Erreur de navigation.</p>'; }
+
+    thumb.addEventListener('click', e => window._mediaSelectHandler?.(media.id, e.ctrlKey || e.metaKey));
+    grid.appendChild(thumb);
+  });
 }
+
 
 
 // Re-rendre les listes sans refetch quand la langue change
