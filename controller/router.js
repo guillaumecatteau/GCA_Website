@@ -84,6 +84,16 @@
     }
   };
 
+  // Empile l'URL /p/{slug} pour une page projet/expertise/blog (détail public)
+  window._pushPageViewSlug = function (slug) {
+    page = 'pageView';
+    if (_suppressPush) return;
+    const url = '/p/' + slug;
+    if (window.location.pathname !== url) {
+      history.pushState({ page: 'pageView', slug }, '', url);
+    }
+  };
+
   // Navigation programmatique (popstate + deep link init)
   function _navigate(key) {
     _suppressPush = true;
@@ -125,6 +135,14 @@
   window.addEventListener('popstate', () => {
     const path = window.location.pathname.replace(/^\/+/, '').replace(/\/+$/, '');
 
+    // Page projet/expertise/blog (détail public)
+    if (path.startsWith('p/')) {
+      _suppressPush = true;
+      window.accessPageView?.(path.slice(2));
+      setTimeout(() => { _suppressPush = false; }, 700);
+      return;
+    }
+
     // Sous-section home (ex: home/expertise)
     if (path.startsWith('home/')) {
       const section = path.slice(5);
@@ -148,6 +166,7 @@
     const path = window.location.pathname.replace(/^\/+/, '').replace(/\/+$/, '');
     if (!path || path === 'home') return false;
     if (path.startsWith('home/')) return { page: 'home', section: path.slice(5) };
+    if (path.startsWith('p/')) return { page: 'pageView', slug: path.slice(2) };
     return _ROUTES[path] ?? false;
   };
 
@@ -162,6 +181,13 @@
       if (target && target !== 'landing') {
         setTimeout(() => window._homeScrollTo?.(target), 100);
       }
+      setTimeout(() => { _suppressPush = false; }, 700);
+      return;
+    }
+    if (keyOrObj && typeof keyOrObj === 'object' && keyOrObj.page === 'pageView') {
+      // Deep link direct vers une page projet/expertise/blog
+      _suppressPush = true;
+      window.accessPageView?.(keyOrObj.slug);
       setTimeout(() => { _suppressPush = false; }, 700);
       return;
     }

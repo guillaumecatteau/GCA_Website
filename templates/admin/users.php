@@ -83,9 +83,6 @@
       </div>
     </div>
     <div class="sideBlock">
-      <button class="btnBackToAdmin">
-        <span class="icon iconBack"></span>
-      </button>
       <div class="basicBlock" id="userSearchBlock">
         <span class="blockTitle" lang="FR" data-en="Search">Recherche<br>utilisateurs</span>
         <form class="formContainerLateral" action="" method="POST" id="formSearchUser">
@@ -133,5 +130,6 @@
         <p class="blockSubTxt">Utilisez un doc formaté CSV</p>
       </div>
     </div>
+    <button class="btnBackToAdmin"><span class="icon iconBack"></span></button>
   </div>
 </div>

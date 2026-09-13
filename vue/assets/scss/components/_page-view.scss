@@ -1,0 +1,147 @@
+// =============================================================================
+// PAGE VIEW — Affichage public d'une page projet / expertise / blog
+// =============================================================================
+@use '../abstracts' as *;
+
+// Bloc gauche — cover flush (pas de spacing, pas de radius bas) + contenu
+.pageViewMain {
+  @include glass-block($radius-lg);
+  width: 100%;
+  height: fit-content;
+  overflow: hidden; // clippe la cover aux coins hauts du bloc, aucun radius en bas
+  @include flex-column;
+  align-items: stretch;
+}
+
+.pageViewCover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2.5 / 1;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: $color-block-bg;
+
+  img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+}
+
+.pageViewBody {
+  @include flex-column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.pageViewTextBlock {
+  font-family: $font-body;
+  font-size: $font-size-md;
+  color: $color-text-muted;
+  line-height: 1.6;
+
+  &.pageViewTextBlock--intro {
+    font-weight: 600;
+    color: $color-text-primary;
+  }
+}
+
+// ── Galerie — carrousel avec miniatures ─────────────────────────────────────
+.pageViewGallery {
+  @include flex-column;
+  gap: 0.75rem;
+}
+
+.pageViewCarousel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pageViewCarouselMain {
+  position: relative;
+  flex: 1;
+  aspect-ratio: 16 / 9;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: $color-block-bg;
+
+  img { width: 100%; height: 100%; object-fit: contain; display: block; }
+}
+
+.pageViewCarouselNav {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  color: $color-text-muted;
+  cursor: pointer;
+  transform: scale(1);
+  transform-origin: center;
+  transition: border-color $transition-fast, color $transition-fast, transform 0.25s ease-out;
+
+  &:hover {
+    border-color: $color-border-active;
+    color: $color-text-primary;
+    transform: scale(1.08);
+    transition: border-color $transition-fast, color $transition-fast, transform $transition-icon-bounce;
+  }
+}
+
+.pageViewCarouselThumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 0.5rem;
+}
+
+.pageViewCarouselThumb {
+  aspect-ratio: 1;
+  border: 2px solid $color-border;
+  border-radius: $radius-md;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color $transition-fast;
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  &:hover { border-color: $color-text-muted; }
+  &.pageViewCarouselThumb--active { border-color: $color-text-primary; }
+}
+
+// Bloc droit — détails (titre, client, dates, crédits, catégorie)
+.pageViewSide {
+  @include glass-block($radius-lg);
+  width: 100%;
+  height: fit-content;
+  padding: 1.5rem;
+  @include flex-column;
+  align-items: stretch;
+  gap: 1.25rem;
+}
+
+.pageViewTitle {
+  font-family: $font-heading;
+  font-size: $font-size-lg;
+  color: $color-text-primary;
+}
+
+.pageViewDetailRow {
+  @include flex-column;
+  gap: 0.3rem;
+}
+
+.pageViewDetailLabel {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: $color-text-faint;
+}
+
+.pageViewDetailValue {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+}
+

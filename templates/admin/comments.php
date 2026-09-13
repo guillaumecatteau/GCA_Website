@@ -46,9 +46,7 @@
       </div>
     </div>
     <div class="sideBlock">
-      <button class="btnBackToAdmin">
-        <span class="icon iconBack"></span>
-      </button>
     </div>
+    <button class="btnBackToAdmin"><span class="icon iconBack"></span></button>
   </div>
 </div>

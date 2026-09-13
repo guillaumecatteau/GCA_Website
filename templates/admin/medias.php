@@ -7,30 +7,35 @@
     <!-- ── Left panel : grille des médias ── -->
     <div class="mainBlock">
       <div class="mediasTopBar">
-        <div class="btnSmall btnOn" id="btnSyncMedias">
-          <div class="btnLabel">
-            <span class="icon iconAdd"></span>
-            <span lang="FR" data-en="Sync">Synchroniser</span>
-          </div>
-        </div>
-        <span class="mediaSelInfo" id="mediaSelInfo"></span>
         <span class="formMessage" id="msgUploadMedia" style="display:none"></span>
       </div>
       <div class="mediasGrid" id="mediasGrid">
         <p class="adminPlaceholder">Chargement…</p>
       </div>
+      <!-- Pagination centrée sous la grille -->
+      <div class="mediasPagination" id="mediasPagination" style="display:none">
+        <div class="expActionBtn btnOff" id="btnMediasFirst"><span class="icon iconFirst"></span></div>
+        <div class="expActionBtn btnOff" id="btnMediasPrev"><span class="icon iconPrevious"></span></div>
+        <span class="mediasPageInfo" id="mediasPageInfo"></span>
+        <div class="expActionBtn btnOff" id="btnMediasNext"><span class="icon iconNext"></span></div>
+        <div class="expActionBtn btnOff" id="btnMediasLast"><span class="icon iconLast"></span></div>
+      </div>
     </div>
 
     <!-- ── Right panel : formulaire d'édition ── -->
     <div class="sideBlock">
-      <button class="btnBackToAdmin">
-        <span class="icon iconBack"></span>
-      </button>
       <div class="basicBlock" id="mediaEditorBlock">
         <span class="blockTitle" id="mediaEditorTitle" lang="FR" data-en="Select a media">Sélectionner un média</span>
 
         <!-- Actions disponibles quand aucun média n'est sélectionné -->
         <div id="mediaEmptyActions">
+          <div class="btnMedium btnOn" id="btnOpenUpload">
+            <div class="btnLabel">
+              <span class="icon iconUploadList"></span>
+              <span class="btnText" lang="FR" data-en="Upload">Uploader</span>
+            </div>
+          </div>
+          <input type="file" id="inputUploadMedia" accept="image/*,video/*,audio/*" multiple style="display:none" />
           <div class="btnMedium btnOn" id="btnOpenYoutube">
             <div class="btnLabel">
               <span class="btnText">YouTube</span>
@@ -81,6 +86,17 @@
               <span class="formCheckbox"></span>
               <span class="formCheckboxText" lang="FR" data-en="Show in gallery">Afficher en galerie</span>
             </label>
+            <label class="formCheckboxLabel">
+              <input type="checkbox" id="inputMediaCard" />
+              <span class="formCheckbox"></span>
+              <span class="formCheckboxText" lang="FR" data-en="Card media">M&eacute;dia card</span>
+            </label>
+          </div>
+
+          <!-- URL / chemin (visible uniquement pour les médias vidéo) -->
+          <div class="formGroup" id="mediaUrlGroup" style="display:none">
+            <label class="formLabel" for="inputMediaUrl" lang="FR" data-en="Link address">Adresse du lien</label>
+            <input type="text" id="inputMediaUrl" class="formInput" />
           </div>
 
           <!-- Tags catégorie -->
@@ -105,8 +121,21 @@
             </details>
           </div>
 
-          <!-- Actions -->
-          <div class="formGroup formGroupBtn">
+          <!-- Lier à une page -->
+          <div class="formGroup">
+            <label class="formLabel" for="inputMediaPage" lang="FR" data-en="Linked page">Page liée</label>
+            <select class="formSelect" id="inputMediaPage">
+              <option value="" lang="FR" data-en="None">(Aucune)</option>
+            </select>
+          </div>
+
+          <!-- Actions : delete à gauche, save à droite (même disposition qu'expériences) -->
+          <div class="formGroup formGroupBtn expFormActions">
+            <div id="mediaDeleteGroup" style="display:none">
+              <div class="btnMedium btnIconOnly btnDanger" id="btnDeleteMedia">
+                <div class="btnLabel"><span class="icon iconDelete"></span></div>
+              </div>
+            </div>
             <div class="btnMedium btnOff" id="btnSaveMedia">
               <div class="btnLabel">
                 <span class="btnText" lang="FR" data-en="Save">Sauvegarder</span>
@@ -117,17 +146,9 @@
           <div class="formMessage" id="msgMediaSave" style="display:none"></div>
         </form>
 
-        <!-- Supprimer (icône seule, visible en sélection simple ou multiple) -->
-        <div style="display:none" id="mediaDeleteGroup">
-          <div class="btnMedium btnIconOnly btnDanger" id="btnDeleteMedia">
-            <div class="btnLabel">
-              <span class="icon iconDelete"></span>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
+    <button class="btnBackToAdmin"><span class="icon iconBack"></span></button>
 
   </div>
 
@@ -146,21 +167,19 @@
     </div>
   </div>
 
-  <!-- Popup YouTube — uniquement l'URL, les métadonnées se gèrent comme tout autre média -->
+  <!-- Popup YouTube -->
   <div class="confirmOverlay" id="youtubePopup" style="display:none">
     <div class="basicBlock" style="width:400px;max-width:90vw">
-      <span class="blockTitle" lang="FR" data-en="Add a YouTube video">Ajouter une vidéo YouTube</span>
+      <span class="blockTitle" lang="FR" data-en="Add a YouTube video">Ajouter une vid&eacute;o YouTube</span>
       <div class="formGroup">
         <label class="formLabel" for="inputYoutubeUrl">URL</label>
         <input type="url" id="inputYoutubeUrl" class="formInput" placeholder="https://www.youtube.com/watch?v=..." />
       </div>
-      <div class="formGroup formGroupBtn">
+      <div style="display:flex;flex-direction:row;align-items:center;gap:1rem;justify-content:center">
         <div class="btnMedium btnOff" id="btnAddYoutube">
           <div class="btnLabel"><span class="btnText" lang="FR" data-en="Add">Ajouter</span></div>
         </div>
-        <div class="btnMedium" id="btnCancelYoutube">
-          <div class="btnLabel"><span class="btnText" lang="FR" data-en="Cancel">Annuler</span></div>
-        </div>
+        <div class="expActionBtn" id="btnCancelYoutube"><span class="icon iconDeny"></span></div>
       </div>
       <div class="formMessage" id="msgYoutube" style="display:none"></div>
     </div>

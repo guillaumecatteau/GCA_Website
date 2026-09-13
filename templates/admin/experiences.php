@@ -14,9 +14,6 @@
 
     <!-- ── Right panel : formulaire création/édition ── -->
     <div class="sideBlock">
-      <button class="btnBackToAdmin">
-        <span class="icon iconBack"></span>
-      </button>
       <div class="basicBlock" id="expEditorBlock">
         <span class="blockTitle" id="expEditorTitle" lang="FR" data-en="New experience">Nouvelle expérience</span>
         <form id="formCreateExp" class="adminForm">
@@ -151,6 +148,7 @@
         </form>
       </div>
     </div>
+    <button class="btnBackToAdmin"><span class="icon iconBack"></span></button>
 
   </div>
 </div>

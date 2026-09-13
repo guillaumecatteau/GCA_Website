@@ -33,8 +33,8 @@ switch ("$method:$sub") {
             break;
         }
         $ok = registerUser(
-            htmlspecialchars(trim($body['name']), ENT_QUOTES, 'UTF-8'),
-            htmlspecialchars(trim($body['firstname']), ENT_QUOTES, 'UTF-8'),
+            trim($body['name']),
+            trim($body['firstname']),
             trim($body['mail']),
             password_hash($body['password'], PASSWORD_DEFAULT),
             $body['questionA'] ?? '',

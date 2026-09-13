@@ -29,10 +29,10 @@ switch ("$method:$sub") {
 
     case 'POST:create':
         requireAdmin();
-        $fr   = htmlspecialchars(trim($body['title_fr'] ?? ''), ENT_QUOTES, 'UTF-8');
-        $en   = htmlspecialchars(trim($body['title_en'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $fr   = trim($body['title_fr'] ?? '');
+        $en   = trim($body['title_en'] ?? '');
         $cat  = $body['category'] ?? '';
-        $icon = $body['icon_path'] ? htmlspecialchars(trim($body['icon_path']), ENT_QUOTES, 'UTF-8') : null;
+        $icon = $body['icon_path'] ? trim($body['icon_path']) : null;
         if (!$fr || !$cat) {
             echo json_encode(['success' => false, 'code' => 'MISSING_FIELD']);
             break;
@@ -44,10 +44,10 @@ switch ("$method:$sub") {
     case 'POST:update':
         requireAdmin();
         $id   = (int)($body['id'] ?? 0);
-        $fr   = htmlspecialchars(trim($body['title_fr'] ?? ''), ENT_QUOTES, 'UTF-8');
-        $en   = htmlspecialchars(trim($body['title_en'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $fr   = trim($body['title_fr'] ?? '');
+        $en   = trim($body['title_en'] ?? '');
         $cat  = $body['category'] ?? '';
-        $icon = isset($body['icon_path']) ? (htmlspecialchars(trim($body['icon_path']), ENT_QUOTES, 'UTF-8') ?: null) : null;
+        $icon = isset($body['icon_path']) ? (trim($body['icon_path']) ?: null) : null;
         if (!$id || !$fr || !$cat) {
             echo json_encode(['success' => false, 'code' => 'MISSING_FIELD']);
             break;

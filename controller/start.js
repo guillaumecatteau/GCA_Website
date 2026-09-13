@@ -50,6 +50,7 @@ function startSequence() {
   const deepPage = window._routerInit?.();
   if (deepPage) {
     setTimeout(() => {
+      displayMainLogo();
       displayConnexionBoxDesktop();
       displayLanguageSelectorDesktop();
       activateNavigation();

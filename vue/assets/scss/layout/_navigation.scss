@@ -34,7 +34,11 @@
 // ---------------------------------------------------------------------------
 // Grilles
 // ---------------------------------------------------------------------------
+// .basicGrid ne contient que le left/right panel (2 colonnes). Le bouton
+// retour n'est PAS un item de grille : position:absolute, ignoré par le
+// calcul des colonnes, il ne doit jamais réduire l'espace de mainBlock/sideBlock.
 .basicGrid {
+  position: relative;
   width: 100%;
   height: calc(100% - 180px);
   display: grid;
@@ -48,6 +52,7 @@
   @include flex-column;
   gap: 1rem;
   grid-area: mainBloc;
+  overflow-y: auto;
 }
 
 .sideBlock {

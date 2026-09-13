@@ -9,13 +9,22 @@ $sub    = $_GET['sub'] ?? '';
 switch ("$method:$sub") {
 
     case 'GET:list':
-        $type = $_GET['type'] ?? '';
-        echo json_encode(['success' => true, 'pages' => getAllPages($type)]);
+        $type        = $_GET['type'] ?? '';
+        $visibleOnly = ($_GET['visible_only'] ?? '') === '1';
+        echo json_encode(['success' => true, 'pages' => getAllPages($type, $visibleOnly)]);
         break;
 
     case 'GET:get':
         $id = (int)($_GET['id'] ?? 0);
         $p  = $id ? getPageById($id) : false;
+        echo json_encode($p ? ['success' => true, 'page' => $p] : ['success' => false, 'code' => 'NOT_FOUND']);
+        break;
+
+    // ── Public : récupération d'une page publiée par son slug ────────────
+    case 'GET:get_by_slug':
+        $slug = trim($_GET['slug'] ?? '');
+        $p    = $slug ? getPageBySlug($slug) : false;
+        if ($p && !$p['is_visible'] && !ADMIN_DEV_MODE) $p = false;
         echo json_encode($p ? ['success' => true, 'page' => $p] : ['success' => false, 'code' => 'NOT_FOUND']);
         break;
 
@@ -52,8 +61,13 @@ switch ("$method:$sub") {
         $id     = (int)($body['page_id'] ?? 0);
         $blocks = (array)($body['blocks'] ?? []);
         if (!$id) { echo json_encode(['success' => false, 'code' => 'MISSING_ID']); break; }
-        savePageBlocks($id, $blocks);
-        echo json_encode(['success' => true]);
+        try {
+            savePageBlocks($id, $blocks);
+            echo json_encode(['success' => true]);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'code' => 'DB_ERROR']);
+        }
         break;
 
     case 'POST:toggle_visible':
@@ -76,7 +90,10 @@ switch ("$method:$sub") {
 
 function _sanitizePageData(array $body): array
 {
-    $str = fn($v) => htmlspecialchars(trim($v ?? ''), ENT_QUOTES, 'UTF-8');
+    // Pas de htmlspecialchars ici : l'affichage se fait via textContent/.value
+    // (jamais innerHTML) côté client, donc encoder au stockage double-encode
+    // les caractères spéciaux (ex: une apostrophe devient "&#039;" affiché tel quel).
+    $str = fn($v) => trim($v ?? '');
     return [
         'type'             => $body['type']       ?? '',
         'title_fr'         => $str($body['title_fr']   ?? ''),
@@ -87,9 +104,13 @@ function _sanitizePageData(array $body): array
         'thumbnail_id'     => !empty($body['thumbnail_id'])    ? (int)$body['thumbnail_id']    : null,
         'is_visible'       => (int)(bool)($body['is_visible']       ?? 0),
         'comments_enabled' => (int)(bool)($body['comments_enabled'] ?? 0),
-        'date_start'       => $body['date_start']       ?: null,
-        'date_end'         => $body['date_end']         ?: null,
-        'date_publication' => $body['date_publication'] ?: null,
+        'date_start'       => ($body['date_start']       ?? '') ?: null,
+        'date_end'         => ($body['date_end']         ?? '') ?: null,
+        'date_publication' => ($body['date_publication'] ?? '') ?: null,
+        'cover_pos_x'       => max(0, min(1, (float)($body['cover_pos_x'] ?? 0.5))),
+        'cover_pos_y'       => max(0, min(1, (float)($body['cover_pos_y'] ?? 0.5))),
+        'cover_scale'       => max(1, min(4, (float)($body['cover_scale'] ?? 1))),
+        'cover_video_url'   => ($body['cover_video_url'] ?? '') !== '' ? $str($body['cover_video_url']) : null,
         'tags'             => (array)($body['tags']        ?? []),
         'related'          => (array)($body['related']     ?? []),
         'experiences'      => (array)($body['experiences'] ?? []),

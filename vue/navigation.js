@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   TL_EXPERIENCES = document.querySelector(".experiencesTitle");
   TL_COMMENTS = document.querySelector(".commentsTitle");
   TL_ANALYTICS = document.querySelector(".analyticsTitle");
+  TL_PAGEVIEW = document.querySelector(".pageViewCategoryTitle");
   // CONTENTS
   CNT_HOME = document.getElementById("cntHOME");
   CNT_PROFILE = document.getElementById("cntPROFILE");
@@ -51,10 +52,12 @@ document.addEventListener("DOMContentLoaded", () => {
   CNT_EXPERIENCES = document.getElementById("cntEXPERIENCES");
   CNT_COMMENTS = document.getElementById("cntCOMMENTS");
   CNT_ANALYTICS = document.getElementById("cntANALYTICS");
+  CNT_PAGEVIEW = document.getElementById("cntPAGEVIEW");
   CNT_SECTIONNAV = document.getElementById("sectionNav");
   // BUTTONS & BACKGROUND
   BTN_HOME_PROFILE = document.getElementById("btnProfileHome");
   BG_HOME = document.getElementById("backgroundHome");
+  document.getElementById("btnPageViewBack")?.addEventListener("click", () => history.back());
 });
 
 function titleDisplay(title) {
@@ -90,7 +93,7 @@ function displayContent(content, delay) {
   );
   const elements = elementContainer.flatMap((container) =>
     [...container.children].filter(
-      (child) => child.tagName === "DIV" || child.tagName === "FORM"
+      (child) => child.tagName === "DIV" || child.tagName === "FORM" || child.matches('.btnBackToAdmin, .btnPageBack')
     )
   );
   const animationDelay = delay;
@@ -119,7 +122,7 @@ function hideContent(content, delay) {
   );
   const elements = elementContainer.flatMap((container) =>
     [...container.children].filter(
-      (child) => child.tagName === "DIV" || child.tagName === "FORM"
+      (child) => child.tagName === "DIV" || child.tagName === "FORM" || child.matches('.btnBackToAdmin, .btnPageBack')
     )
   );
 
@@ -165,17 +168,44 @@ function accessHome() {
     }, 500);
   }
 }
+// Titre custom d'une section home (landing exclue — géré via TL_HOME)
+function _homeSectionTitleEl(sectionId) {
+  if (!sectionId || sectionId === 'landing') return null;
+  return CNT_HOME.querySelector(`.section[data-section="${sectionId}"] > h2.title`);
+}
 function displayHome() {
   window.GCABackground?.setPage('home');
   CNT_HOME.style.display = "flex";
   CNT_SECTIONNAV.style.display = "flex";
-  titleDisplay(TL_HOME);
-  // Init du scroll magnétique sur les sections de la home
+  displayContent(CNT_HOME, 50);
+  // Cards dynamiques des sections Expertises / Portfolio / Blog
+  window._loadHomeCards?.();
+  // Init du scroll magnétique sur les sections de la home — repositionné
+  // directement sur la section ciblée par l'URL (ex: /home/portfolio) pour
+  // éviter un flash de la section "landing" avant la transition animée.
+  const _pathMatch = window.location.pathname.replace(/^\/+|\/+$/g, '').match(/^home\/(.+)$/);
+  const _targetSection = _pathMatch ? _pathMatch[1] : null;
+  const _targetIdx = _targetSection
+    ? Math.max(0, Array.from(CNT_HOME.querySelectorAll('.section')).findIndex(s => s.dataset.section === _targetSection))
+    : 0;
   _homeScroller = new SectionScroller(CNT_HOME, CNT_SECTIONNAV);
+  _homeScroller.current = _targetIdx;
   _homeScroller.init();
+  if (_targetIdx === 0) titleDisplay(TL_HOME);
+  else titleDisplay(_homeSectionTitleEl(_targetSection));
 
-  // Mise à jour du slug quand on scrolle entre sections
-  const _onSectionChange = (e) => window._updateHomeSection?.(e.detail.sectionId);
+  // Mise à jour du slug + titre de section quand on scrolle entre sections
+  let _prevSectionId = _targetIdx === 0 ? 'landing' : _targetSection;
+  const _onSectionChange = (e) => {
+    window._updateHomeSection?.(e.detail.sectionId);
+    if (e.detail.sectionId !== _prevSectionId) {
+      const prevTitle = _prevSectionId === 'landing' ? TL_HOME : _homeSectionTitleEl(_prevSectionId);
+      const nextTitle = e.detail.sectionId === 'landing' ? TL_HOME : _homeSectionTitleEl(e.detail.sectionId);
+      if (prevTitle && prevTitle !== nextTitle) titleHide(prevTitle);
+      if (nextTitle) titleDisplay(nextTitle);
+      _prevSectionId = e.detail.sectionId;
+    }
+  };
   CNT_HOME.addEventListener('sectionChange', _onSectionChange);
 
   // Callback utilisé par le routeur pour scroller vers une section par id
@@ -188,7 +218,7 @@ function displayHome() {
   const _socialItems  = Array.from(document.querySelectorAll('#socialLinksDesktop .btnSocialLateral'));
   staggerReveal(_sectionItems, { delay: 60 });
   staggerReveal(_socialItems,  { delay: 60, startAt: _sectionItems.length });
-  // Afficher le label de la section active (section 0) après que les items soient apparus
+  // Afficher le label de la section active après que les items soient apparus
   setTimeout(() => {
     const activeItem = CNT_SECTIONNAV.querySelector('.sectionNavItem--active');
     if (activeItem) _navLabelReveal(activeItem.querySelectorAll('.sectionNavLabel > span'));
@@ -478,6 +508,32 @@ function displayBlog() {
   displayContent(CNT_BLOG, 50);
 }
 
+/////////////// PAGE VIEW (détail public projet/expertise/blog) ///////////////
+function accessPageView(slug) {
+  if (page === "pageView" && _currentPageViewSlug === slug) return;
+  if (page !== "pageView") {
+    displayBackBlurMask();
+    unloadPage();
+    setTimeout(() => { displayPageView(slug); }, 500);
+  } else {
+    // Changement de page en restant en pageView : même effet de déchargement/chargement
+    titleHide(TL_PAGEVIEW);
+    hideContent(CNT_PAGEVIEW, 25);
+    window._unloadPageView?.();
+    setTimeout(() => { displayPageView(slug); }, 500);
+  }
+}
+function displayPageView(slug) {
+  window.GCABackground?.setPage('pageView');
+  CNT_PAGEVIEW.style.display = "flex";
+  displayContent(CNT_PAGEVIEW, 50);
+  _currentPageViewSlug = slug;
+  page = "pageView";
+  window._pushPageViewSlug?.(slug);
+  window._loadPageView?.(slug);
+}
+window.accessPageView = accessPageView;
+
 /////////////// BIO ///////////////
 function activateBio() {
   const buttons = [BTN_BIO_TABLET, BTN_BIO_MOBILE];
@@ -641,6 +697,9 @@ function displayAdminTool() {
   activateExperiencesManagement();
   activateCommentsManagement();
   activateSceneEditor();
+  // Masquer le bouton d'accès à l'admin pendant qu'on y est
+  const adminBtn = document.getElementById('btnDirectAdmin');
+  if (adminBtn) adminBtn.style.visibility = 'hidden';
 }
 /////////////// SCENEEDITOR ///////////////
 function activateSceneEditor() {
@@ -686,7 +745,6 @@ function displayTagsManagement() {
   CNT_TAGS.style.display = 'flex';
   titleDisplay(TL_TAGS);
   displayContent(CNT_TAGS, 50);
-  requestAnimationFrame(_alignBackBtn);
 }
 /////////////// MEDIAS ///////////////
 function activateMediasManagement() {
@@ -708,7 +766,6 @@ function displayMediasManagement() {
   CNT_MEDIAS.style.display = 'flex';
   titleDisplay(TL_MEDIAS);
   displayContent(CNT_MEDIAS, 50);
-  requestAnimationFrame(_alignBackBtn);
 }
 /////////////// PAGES ///////////////
 function activatePagesManagement() {
@@ -730,7 +787,6 @@ function displayPagesManagement() {
   CNT_PAGES.style.display = 'flex';
   titleDisplay(TL_PAGES);
   displayContent(CNT_PAGES, 50);
-  requestAnimationFrame(_alignBackBtn);
 }
 /////////////// EXPERIENCES ///////////////
 function activateExperiencesManagement() {
@@ -752,7 +808,6 @@ function displayExperiencesManagement() {
   CNT_EXPERIENCES.style.display = 'flex';
   titleDisplay(TL_EXPERIENCES);
   displayContent(CNT_EXPERIENCES, 50);
-  requestAnimationFrame(_alignBackBtn);
 }
 /////////////// COMMENTS ///////////////
 function activateCommentsManagement() {
@@ -774,7 +829,6 @@ function displayCommentsManagement() {
   CNT_COMMENTS.style.display = 'flex';
   titleDisplay(TL_COMMENTS);
   displayContent(CNT_COMMENTS, 50);
-  requestAnimationFrame(_alignBackBtn);
 }
 /////////////// ANALYTICS ///////////////
 function activateAnalytics() {
@@ -795,7 +849,6 @@ function displayAnalytics() {
   CNT_ANALYTICS.style.display = 'flex';
   titleDisplay(TL_ANALYTICS);
   displayContent(CNT_ANALYTICS, 50);
-  requestAnimationFrame(_alignBackBtn);
 }
 /////////////// USERSMANAGEMENT ///////////////
 function activateUsersManagement() {
@@ -820,21 +873,7 @@ function displayUsersManagement() {
   CNT_USERSMANAGEMENT.style.display = "flex";
   titleDisplay(TL_USERSMANAGEMENT);
   displayContent(CNT_USERSMANAGEMENT, 50);
-  requestAnimationFrame(_alignBackBtn);
 }
-
-// Positionne le bouton retour à droite du sideBlock visible (les panels cachés ont un rect à zéro)
-function _alignBackBtn() {
-  const sb = Array.from(document.querySelectorAll('.sideBlock'))
-    .find(el => el.getBoundingClientRect().width > 0);
-  if (!sb) return;
-  const btn = sb.querySelector('.btnBackToAdmin');
-  if (!btn) return;
-  const r = sb.getBoundingClientRect();
-  btn.style.top  = r.top  + 'px';
-  btn.style.left = (r.right + 16) + 'px';
-}
-window.addEventListener('resize', _alignBackBtn);
 
 /////////////// NAVIGATION ///////////////
 function activateNavigation() {
@@ -858,6 +897,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Délégation globale unifiée
   document.addEventListener('click', (e) => {
     // Retour Admin tool
+    if (e.target.closest('#btnExitEditMode'))  { /* géré par son propre listener */ return; }
+    if (e.target.closest('#btnAdminBackHome'))  { accessHome();      return; }
     if (e.target.closest('.btnBackToAdmin')) { accessAdminTool(); return; }
 
     // Switch FR/EN pour les champs bilingues
@@ -882,14 +923,20 @@ document.addEventListener("DOMContentLoaded", () => {
 function unloadPage() {
   console.log("→ unloadPage : current page =", page);
   switch (page) {
-    case "home":
+    case "home": {
       titleHide(TL_HOME);
+      // Titre de la section active (hors landing, déjà géré ci-dessus)
+      const _activeSection = CNT_HOME.querySelector('.section--active')?.dataset?.section;
+      if (_activeSection && _activeSection !== 'landing') titleHide(_homeSectionTitleEl(_activeSection));
+      hideContent(CNT_HOME, 25);
       // Nettoyage listeners labels hover + scroller
       if (_homeScroller?._cleanupLabels) _homeScroller._cleanupLabels();
       if (_homeScroller) { _homeScroller.destroy(); _homeScroller = null; }
-      // Animer la disparition des icônes section, puis cacher la nav
+      // Icônes sociales puis icônes section disparaissent en stagger (ordre inverse de l'apparition), puis on cache la nav
+      const _socialItemsOut = Array.from(document.querySelectorAll('#socialLinksDesktop .btnSocialLateral'));
+      staggerHide(_socialItemsOut, { delay: 40, reverse: true });
       staggerHide(CNT_SECTIONNAV.querySelectorAll('.sectionNavItem'), {
-        delay: 40, reverse: true, onDone: () => { CNT_SECTIONNAV.style.display = 'none'; }
+        delay: 40, reverse: true, startAt: _socialItemsOut.length, onDone: () => { CNT_SECTIONNAV.style.display = 'none'; }
       });
       BTN_HOME_PROFILE.classList.remove("moveInBottom", "moveOutBottom");
       void BTN_HOME_PROFILE.offsetWidth;
@@ -900,6 +947,7 @@ function unloadPage() {
         BTN_HOME_PROFILE.classList.remove("moveOutBottom");
       }, 500);
       break;
+    }
     case "profile":
       titleHide(TL_PROFILE);
       setTimeout(() => {
@@ -961,6 +1009,14 @@ function unloadPage() {
         CNT_BLOG.style.display = "none";
       }, 501);
       break;
+    case "pageView":
+      titleHide(TL_PAGEVIEW);
+      hideContent(CNT_PAGEVIEW, 25);
+      window._unloadPageView?.();
+      setTimeout(() => {
+        CNT_PAGEVIEW.style.display = "none";
+      }, 501);
+      break;
     case "bio":
       titleHide(TL_BIO);
       setTimeout(() => {
@@ -1004,6 +1060,9 @@ function unloadPage() {
       hideContent(CNT_ADMINTOOL, 25);
       setTimeout(() => {
         CNT_ADMINTOOL.style.display = "none";
+        // Réafficher le bouton d'accès admin
+        const adminBtn = document.getElementById('btnDirectAdmin');
+        if (adminBtn) adminBtn.style.visibility = '';
       }, 501);
       break;
     case "usersManagement":

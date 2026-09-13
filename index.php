@@ -36,6 +36,7 @@ if (isset($_GET['action'])) {
     require 'templates/pages/blog.php';
     require 'templates/pages/bio.php';
     require 'templates/pages/contact.php';
+    require 'templates/pages/page-view.php';
     // â”€â”€ Compte utilisateur â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     require 'templates/pages/connexion.php';
     require 'templates/pages/register.php';

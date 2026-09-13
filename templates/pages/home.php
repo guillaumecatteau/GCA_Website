@@ -17,6 +17,10 @@
 
   <!-- ── Section 1 : Présentation ─────────────────────────────────────── -->
   <div class="section" data-section="presentation" id="sectionPresentation">
+    <h2 class="title titleTop sectionPresentationTitle">
+      <span>p</span><span>r</span><span>é</span><span>s</span><span>e</span><span>n</span>
+      <span>t</span><span>a</span><span>t</span><span>i</span><span>o</span><span>n</span>
+    </h2>
     <!-- Contenu custom à définir -->
   </div>
 

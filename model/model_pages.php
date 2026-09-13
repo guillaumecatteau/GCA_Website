@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/model_medias.php';
 
 // ─── Pages (projet / expertise / blog) ───────────────────────────────────────
 
@@ -22,8 +23,12 @@ function getAllPages(string $type = '', bool $visibleOnly = false): array
         "SELECT p.id, p.type, p.slug, p.title_fr, p.title_en,
                 p.is_visible, p.comments_enabled,
                 p.date_start, p.date_end, p.date_publication,
-                p.thumbnail_id, p.created_at, p.updated_at
-         FROM pages p $where ORDER BY p.updated_at DESC"
+                p.thumbnail_id, p.main_visual_id, p.created_at, p.updated_at,
+                m.file_path AS cover_path, mc.file_path AS card_path
+         FROM pages p
+         LEFT JOIN medias m  ON m.id  = p.main_visual_id
+         LEFT JOIN medias mc ON mc.id = p.thumbnail_id
+         $where ORDER BY p.updated_at DESC"
     );
     $stmt->execute($params);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -40,6 +45,31 @@ function getPageById(int $id): array|false
     $page['related']     = getRelatedPages($id);
     $page['experiences'] = getPageExperiences($id);
     $page['blocks']      = getPageBlocks($id);
+    // Résout les chemins médias (cover/card/blocs) pour un rendu direct côté client
+    $page['cover_path'] = null;
+    $page['card_path']  = null;
+    if (!empty($page['main_visual_id'])) {
+        $m = getMediaById((int)$page['main_visual_id']);
+        $page['cover_path'] = $m ? $m['file_path'] : null;
+    }
+    if (!empty($page['thumbnail_id'])) {
+        $m = getMediaById((int)$page['thumbnail_id']);
+        $page['card_path'] = $m ? $m['file_path'] : null;
+    }
+    foreach ($page['blocks'] as &$b) {
+        if ($b['block_type'] === 'media' && !empty($b['media_id'])) {
+            $m = getMediaById((int)$b['media_id']);
+            $b['media_path'] = $m ? $m['file_path'] : null;
+        }
+        if ($b['block_type'] === 'gallery' && !empty($b['gallery'])) {
+            foreach ($b['gallery'] as &$g) {
+                $m = getMediaById((int)$g['media_id']);
+                $g['file_path'] = $m ? $m['file_path'] : null;
+            }
+            unset($g);
+        }
+    }
+    unset($b);
     return $page;
 }
 
@@ -62,11 +92,11 @@ function createPage(array $data): int|false
         "INSERT INTO pages
            (type, slug, title_fr, title_en, subtitle_fr, subtitle_en,
             main_visual_id, thumbnail_id, is_visible, comments_enabled,
-            date_start, date_end, date_publication)
+            date_start, date_end, date_publication, cover_pos_x, cover_pos_y, cover_scale)
          VALUES
            (:type, :slug, :tfr, :ten, :sfr, :sen,
             :mvi, :thi, :vis, :com,
-            :ds, :de, :dp)"
+            :ds, :de, :dp, :cpx, :cpy, :csc)"
     );
     $stmt->execute([
         ':type' => $data['type'],
@@ -82,6 +112,9 @@ function createPage(array $data): int|false
         ':ds'   => $data['date_start']       ?? null,
         ':de'   => $data['date_end']         ?? null,
         ':dp'   => $data['date_publication'] ?? null,
+        ':cpx'  => $data['cover_pos_x'] ?? 0.5,
+        ':cpy'  => $data['cover_pos_y'] ?? 0.5,
+        ':csc'  => $data['cover_scale'] ?? 1,
     ]);
     $id = (int)$bdd->lastInsertId();
     _syncPageRelations($id, $data);
@@ -95,6 +128,7 @@ function updatePage(int $id, array $data): bool
         'title_fr','title_en','subtitle_fr','subtitle_en',
         'main_visual_id','thumbnail_id','is_visible','comments_enabled',
         'date_start','date_end','date_publication',
+        'cover_pos_x','cover_pos_y','cover_scale','cover_video_url',
     ];
     $set = [];
     $params = [':id' => $id];
@@ -155,7 +189,7 @@ function getPageBlocks(int $pageId): array
 {
     global $bdd;
     $stmt = $bdd->prepare(
-        "SELECT id, sort_order, block_type, content_fr, content_en, media_id
+        "SELECT id, sort_order, block_type, content_fr, content_en, media_id, is_intro
          FROM page_blocks WHERE page_id = :pid ORDER BY sort_order"
     );
     $stmt->execute([':pid' => $pageId]);
@@ -173,8 +207,8 @@ function savePageBlocks(int $pageId, array $blocks): void
     global $bdd;
     $bdd->prepare("DELETE FROM page_blocks WHERE page_id = :pid")->execute([':pid' => $pageId]);
     $ins = $bdd->prepare(
-        "INSERT INTO page_blocks (page_id, sort_order, block_type, content_fr, content_en, media_id)
-         VALUES (:pid, :ord, :type, :fr, :en, :mid)"
+        "INSERT INTO page_blocks (page_id, sort_order, block_type, content_fr, content_en, media_id, is_intro)
+         VALUES (:pid, :ord, :type, :fr, :en, :mid, :intro)"
     );
     foreach ($blocks as $i => $b) {
         $ins->execute([
@@ -184,6 +218,7 @@ function savePageBlocks(int $pageId, array $blocks): void
             ':fr'   => $b['content_fr'] ?? null,
             ':en'   => $b['content_en'] ?? null,
             ':mid'  => !empty($b['media_id']) ? (int)$b['media_id'] : null,
+            ':intro'=> (int)($b['is_intro'] ?? 0),
         ]);
         $blockId = (int)$bdd->lastInsertId();
         if (($b['block_type'] ?? '') === 'gallery' && !empty($b['gallery'])) {
@@ -210,7 +245,10 @@ function saveBlockGallery(int $blockId, array $mediaIds): void
         "INSERT INTO page_block_gallery (block_id, media_id, sort_order) VALUES (:bid, :mid, :ord)"
     );
     foreach ($mediaIds as $i => $mid) {
-        $ins->execute([':bid' => $blockId, ':mid' => (int)$mid, ':ord' => $i]);
+        // Accepte un id brut ou un objet {media_id} (format envoyé par l'éditeur)
+        $id = is_array($mid) ? (int)($mid['media_id'] ?? 0) : (int)$mid;
+        if (!$id) continue;
+        $ins->execute([':bid' => $blockId, ':mid' => $id, ':ord' => $i]);
     }
 }
 

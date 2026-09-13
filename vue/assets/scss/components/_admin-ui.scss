@@ -8,6 +8,9 @@
 
 // ---------------------------------------------------------------------------
 // Layout de panel — base commune à tous les contenus admin
+// Pas de overflow ici (aucun clipping) : le scroll interne se fait sur
+// .mainBlock, pour laisser le bouton retour (position:absolute sur .basicGrid)
+// déborder librement sans être rogné par un ancêtre en overflow non-visible.
 // ---------------------------------------------------------------------------
 .adminToolContent,
 .usersManagementContent,
@@ -24,8 +27,7 @@
   justify-content: flex-start;
   align-items: stretch;
   padding: 0;
-  overflow-y: auto;
-  overflow-x: visible;
+  overflow: visible;
 }
 
 // ── Strokes de débug ─────────────────────────────────────────────────────
@@ -312,6 +314,64 @@ body.debug-visible {
     color: $color-text-primary;
     border-color: $color-text-primary;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Rich text — toolbar gras/italique au-dessus d'un contenteditable
+// ---------------------------------------------------------------------------
+.richTextToolbar {
+  display: flex;
+  flex-direction: row;
+  gap: 0.3rem;
+  margin-bottom: 4px;
+}
+
+.richTextBtn {
+  font-family: $font-body;
+  font-size: 11px;
+  line-height: 1;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  color: $color-text-faint;
+  background: none;
+  transition: border-color $transition-fast, color $transition-fast;
+
+  &.richTextBtn--active {
+    border-color: $color-border-active;
+    color: $color-text-primary;
+  }
+}
+
+.formRichText {
+  display: block;
+  width: 100%;
+  min-height: 80px;
+  border-radius: $radius-sm;
+  border: solid 1px rgba(128, 128, 128, 0.5);
+  background-color: rgba(180, 180, 181, 0.05);
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-size: 12px;
+  font-weight: 200;
+  padding: 8px 10px;
+  outline: none;
+  caret-color: $color-text-primary;
+  transition: border $transition-fast, color $transition-fast;
+
+  &:empty::before {
+    content: attr(data-placeholder);
+    color: $color-text-faint;
+  }
+
+  &:focus {
+    color: $color-text-primary;
+    border-color: $color-text-primary;
+  }
+
+  b, strong { font-weight: 700; }
+  i, em     { font-style: italic; }
 }
 
 // ---------------------------------------------------------------------------

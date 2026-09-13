@@ -139,6 +139,61 @@
   padding: 0 0 2rem;
 }
 
+// ---------------------------------------------------------------------------
+// Cards de la home — une variante indépendante par type de page
+// ---------------------------------------------------------------------------
+.pageCard {
+  @include glass-block($radius-md);
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  transform: scale(1);
+  transform-origin: center;
+  transition: border-color $transition-fast, transform 0.25s ease-out;
+  @include flex-column;
+
+  &:hover {
+    border-color: $color-border-active;
+    transform: scale(1.02);
+    transition: border-color $transition-fast, transform $transition-icon-bounce;
+  }
+}
+
+.pageCardMedia {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: $color-block-bg;
+
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+
+.pageCardInfo {
+  @include flex-column;
+  gap: 0.3rem;
+  padding: 0.75rem 1rem;
+}
+
+.pageCardTitle {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: 400;
+  color: $color-text-primary;
+}
+
+.pageCardDate {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  color: $color-text-faint;
+}
+
+// Variantes par type — indépendantes, prêtes pour un style dédié futur
+.pageCard--expertise {}
+.pageCard--projet    {}
+.pageCard--blog       {}
+
+
 // Bio — timeline + infos côte à côte
 .sectionBioLayout {
   width: 100%;

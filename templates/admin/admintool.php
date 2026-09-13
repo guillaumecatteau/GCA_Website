@@ -11,7 +11,6 @@
       <div class="basicBlock">
         <span class="blockTitle" lang="FR" data-en="Traffic">Fréquentation</span>
         <div id="analyticsContainer">
-          <!-- Google Analytics embed — à configurer -->
           <p class="adminPlaceholder" lang="FR" data-en="Google Analytics integration — coming soon">
             Intégration Google Analytics — à venir
           </p>
@@ -19,7 +18,7 @@
       </div>
     </div>
 
-    <!-- ── Colonne latérale (1/4) : boutons de navigation ── -->
+    <!-- ── Colonne latérale (1/4) : boutons de navigation + retour home ── -->
     <div class="adminToolSidebar">
       <div class="userMenuContainer">
         <div class="btnMedium btnLarge" id="btnUsersManagement">
@@ -66,6 +65,10 @@
         </div>
       </div>
     </div>
+    <!-- Bouton retour home — même apparence que btnBackToAdmin des sous-panels -->
+    <button class="btnBackToAdmin" id="btnAdminBackHome">
+      <span class="icon iconBack"></span>
+    </button>
 
   </div>
 </div>

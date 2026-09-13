@@ -5,7 +5,9 @@
 <script src="vue/backgrounds.js" defer></script>
 <script src="vue/form_validation.js" defer></script>
 <script src="vue/scroll.js" defer></script>
-<script src="vue/navigation.js" defer></script>
-<script src="controller/router.js" defer></script>
-<script src="vue/admintool.js?v=202608121328" defer></script>
+<script src="vue/navigation.js?v=<?= filemtime(__DIR__.'/../../vue/navigation.js') ?>" defer></script>
+<script src="controller/router.js?v=<?= filemtime(__DIR__.'/../../controller/router.js') ?>" defer></script>
+<script src="vue/admintool.js?v=<?= filemtime(__DIR__.'/../../vue/admintool.js') ?>" defer></script>
+<script src="vue/home-cards.js?v=<?= filemtime(__DIR__.'/../../vue/home-cards.js') ?>" defer></script>
+<script src="vue/page-view.js?v=<?= filemtime(__DIR__.'/../../vue/page-view.js') ?>" defer></script>
 <script src="vue/scene-editor.js" defer></script>

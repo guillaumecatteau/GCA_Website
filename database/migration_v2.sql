@@ -59,6 +59,15 @@ CREATE TABLE IF NOT EXISTS medias (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Colonnes ajoutées ultérieurement (année, projet lié, galerie, cover youtube manuelle)
+-- ALTER TABLE medias ADD COLUMN year SMALLINT;
+-- ALTER TABLE medias ADD COLUMN project_id INT;
+-- ALTER TABLE medias ADD COLUMN show_in_gallery TINYINT(1) NOT NULL DEFAULT 0;
+-- ALTER TABLE medias ADD COLUMN cover_media_id INT;
+
+-- Média utilisable comme visuel de card (pages projet/expertise/blog) — sinon fallback sur le cover
+ALTER TABLE medias ADD COLUMN is_card_media TINYINT(1) NOT NULL DEFAULT 0 AFTER cover_media_id;
+
 CREATE TABLE IF NOT EXISTS medias_tags (
   media_id INT NOT NULL,
   tag_id   INT NOT NULL,
@@ -101,6 +110,17 @@ CREATE TABLE IF NOT EXISTS pages (
   FOREIGN KEY (main_visual_id) REFERENCES medias(id) ON DELETE SET NULL,
   FOREIGN KEY (thumbnail_id)   REFERENCES medias(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Positionnement/échelle du média cover à l'intérieur de sa box (pan & zoom,
+-- l'image occupe toujours 100% de l'espace, jamais de zone vide)
+-- cover_pos_x/y : 0 à 1 (0 = bord gauche/haut visible, 1 = bord droit/bas visible, 0.5 = centré)
+-- cover_scale   : >= 1, multiplicateur appliqué par-dessus l'échelle minimale de couverture
+ALTER TABLE pages ADD COLUMN cover_pos_x FLOAT NOT NULL DEFAULT 0.5 AFTER main_visual_id;
+ALTER TABLE pages ADD COLUMN cover_pos_y FLOAT NOT NULL DEFAULT 0.5 AFTER cover_pos_x;
+ALTER TABLE pages ADD COLUMN cover_scale FLOAT NOT NULL DEFAULT 1 AFTER cover_pos_y;
+
+-- URL YouTube optionnelle affichée à la place/en complément du média cover
+ALTER TABLE pages ADD COLUMN cover_video_url VARCHAR(500) NULL AFTER cover_scale;
 
 -- Tags liés à une page
 CREATE TABLE IF NOT EXISTS pages_tags (

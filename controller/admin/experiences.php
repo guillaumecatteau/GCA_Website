@@ -57,7 +57,8 @@ switch ("$method:$sub") {
 
 function _sanitizeExpData(array $body): array
 {
-    $str = fn($v) => htmlspecialchars(trim($v ?? ''), ENT_QUOTES, 'UTF-8');
+    // Pas de htmlspecialchars : affichage via textContent/.value côté client.
+    $str = fn($v) => trim($v ?? '');
     return [
         'title_fr'       => $str($body['title_fr']       ?? ''),
         'title_en'       => $str($body['title_en']       ?? ''),

@@ -10,7 +10,7 @@ switch ("$method:$sub") {
 
     case 'GET:list':
         $page    = max(1, (int)($_GET['page'] ?? 1));
-        $perPage = min(100, max(1, (int)($_GET['per_page'] ?? 40)));
+        $perPage = max(1, (int)($_GET['per_page'] ?? 40)); // pas de plafond pour l'admin
         echo json_encode(['success' => true, 'medias' => getAllMedias($page, $perPage)]);
         break;
 
@@ -34,9 +34,9 @@ switch ("$method:$sub") {
         // Fichier uploadé (multipart/form-data)
         $type = $_POST['type'] ?? 'image';
         $meta = [
-            'description_fr' => htmlspecialchars($_POST['description_fr'] ?? '', ENT_QUOTES, 'UTF-8'),
-            'description_en' => htmlspecialchars($_POST['description_en'] ?? '', ENT_QUOTES, 'UTF-8'),
-            'alt_text'       => htmlspecialchars($_POST['alt_text'] ?? '',       ENT_QUOTES, 'UTF-8'),
+            'description_fr' => trim($_POST['description_fr'] ?? ''),
+            'description_en' => trim($_POST['description_en'] ?? ''),
+            'alt_text'       => trim($_POST['alt_text'] ?? ''),
             'tags'           => json_decode($_POST['tags'] ?? '[]', true) ?: [],
         ];
         if (empty($_FILES['file'])) {
@@ -56,9 +56,9 @@ switch ("$method:$sub") {
         $url = trim($body['url'] ?? '');
         if (!$url) { echo json_encode(['success' => false, 'code' => 'MISSING_URL']); break; }
         $meta = [
-            'description_fr' => htmlspecialchars($body['description_fr'] ?? '', ENT_QUOTES, 'UTF-8'),
-            'description_en' => htmlspecialchars($body['description_en'] ?? '', ENT_QUOTES, 'UTF-8'),
-            'alt_text'       => htmlspecialchars($body['alt_text'] ?? '',       ENT_QUOTES, 'UTF-8'),
+            'description_fr' => trim($body['description_fr'] ?? ''),
+            'description_en' => trim($body['description_en'] ?? ''),
+            'alt_text'       => trim($body['alt_text'] ?? ''),
             'tags'           => (array)($body['tags'] ?? []),
         ];
         $id = createMedia($type, $url, $meta);
@@ -68,15 +68,20 @@ switch ("$method:$sub") {
     case 'POST:update':
         $id = (int)($body['id'] ?? 0);
         if (!$id) { echo json_encode(['success' => false, 'code' => 'MISSING_ID']); break; }
-        $str = fn($v) => htmlspecialchars(trim($v ?? ''), ENT_QUOTES, 'UTF-8');
+        $str = fn($v) => trim($v ?? '');
         $fields = [
             'description_fr'  => $str($body['description_fr']  ?? ''),
             'description_en'  => $str($body['description_en']  ?? ''),
             'alt_text'        => $str($body['alt_text']         ?? ''),
             'year'            => isset($body['year']) && $body['year'] !== '' ? (int)$body['year'] : null,
+            'project_id'      => isset($body['project_id']) && $body['project_id'] !== '' ? (int)$body['project_id'] : null,
             'show_in_gallery' => (int)(bool)($body['show_in_gallery'] ?? 0),
+            'is_card_media'   => (int)(bool)($body['is_card_media'] ?? 0),
             'tags'            => (array)($body['tags'] ?? []),
         ];
+        if (!empty($body['file_path'])) {
+            $fields['file_path'] = $str($body['file_path']);
+        }
         echo json_encode(['success' => updateMedia($id, $fields)]);
         break;
 

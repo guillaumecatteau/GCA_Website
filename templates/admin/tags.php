@@ -9,9 +9,6 @@
       </div>
     </div>
     <div class="sideBlock">
-      <button class="btnBackToAdmin">
-        <span class="icon iconBack"></span>
-      </button>
       <div class="basicBlock" id="tagEditorBlock">
         <span class="blockTitle" lang="FR" data-en="New tag">Nouveau tag</span>
         <form id="formCreateTag" class="adminForm">
@@ -81,5 +78,6 @@
         </form>
       </div>
     </div>
+    <button class="btnBackToAdmin"><span class="icon iconBack"></span></button>
   </div>
 </div>

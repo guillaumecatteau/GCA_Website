@@ -14,9 +14,11 @@
 
 body {
   height: 100vh;
-  width: 100vw;                 // plus besoin de la compensation scrollbar
-  overflow: hidden;             // le scroll est géré par SectionScroller
+  width: 100vw;
+  overflow: hidden;
   background-color: $color-bg;
+  color: $color-text-muted; // couleur de base pour tous les éléments qui héritent
+  font-family: $font-body;
   z-index: 0;
   display: flex;
   justify-content: center;
