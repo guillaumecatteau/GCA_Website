@@ -11,7 +11,12 @@ function getAllExperiences(): array
                 status, diploma_fr, diploma_en, show_in_timeline
          FROM experiences ORDER BY date_start DESC"
     );
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($rows as &$r) {
+        $r['tags'] = getExperienceTags((int)$r['id']);
+    }
+    unset($r);
+    return $rows;
 }
 
 function getExperienceById(int $id): array|false

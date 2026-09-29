@@ -102,6 +102,7 @@ function _sanitizePageData(array $body): array
         'subtitle_en'      => $str($body['subtitle_en'] ?? ''),
         'main_visual_id'   => !empty($body['main_visual_id'])  ? (int)$body['main_visual_id']  : null,
         'thumbnail_id'     => !empty($body['thumbnail_id'])    ? (int)$body['thumbnail_id']    : null,
+        'expertise_icon_path' => _sanitizeExpertiseIconPath($body['expertise_icon_path'] ?? ''),
         'is_visible'       => (int)(bool)($body['is_visible']       ?? 0),
         'comments_enabled' => (int)(bool)($body['comments_enabled'] ?? 0),
         'date_start'       => ($body['date_start']       ?? '') ?: null,
@@ -111,9 +112,21 @@ function _sanitizePageData(array $body): array
         'cover_pos_y'       => max(0, min(1, (float)($body['cover_pos_y'] ?? 0.5))),
         'cover_scale'       => max(1, min(4, (float)($body['cover_scale'] ?? 1))),
         'cover_video_url'   => ($body['cover_video_url'] ?? '') !== '' ? $str($body['cover_video_url']) : null,
-        'tags'             => (array)($body['tags']        ?? []),
-        'related'          => (array)($body['related']     ?? []),
-        'experiences'      => (array)($body['experiences'] ?? []),
+        'tags'             => (array)($body['tags']         ?? []),
+        'related'          => (array)($body['related']      ?? []),
+        'experiences'      => (array)($body['experiences']  ?? []),
+        'related_tags'     => (array)($body['related_tags'] ?? []),
         'blocks'           => $body['blocks'] ?? null,
     ];
+}
+
+// N'autorise qu'un chemin vers un icône "_grey" du dossier icons (pas de path traversal / URL externe)
+function _sanitizeExpertiseIconPath(string $path): ?string
+{
+    $path = trim($path);
+    if ($path === '') return null;
+    if (strpos($path, '..') !== false) return null;
+    if (!preg_match('#^vue/assets/images/icons/[A-Za-z0-9_\-]+\.(webp|png|jpg|jpeg|svg|gif)$#i', $path)) return null;
+    if (stripos($path, '_grey') === false) return null;
+    return $path;
 }

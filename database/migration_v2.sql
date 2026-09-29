@@ -122,6 +122,9 @@ ALTER TABLE pages ADD COLUMN cover_scale FLOAT NOT NULL DEFAULT 1 AFTER cover_po
 -- URL YouTube optionnelle affichée à la place/en complément du média cover
 ALTER TABLE pages ADD COLUMN cover_video_url VARCHAR(500) NULL AFTER cover_scale;
 
+-- Icône représentant une page de type "expertise" (chemin vers vue/assets/images/icons/*_grey.webp)
+ALTER TABLE pages ADD COLUMN expertise_icon_path VARCHAR(255) NULL AFTER thumbnail_id;
+
 -- Tags liés à une page
 CREATE TABLE IF NOT EXISTS pages_tags (
   page_id INT NOT NULL,
@@ -148,6 +151,18 @@ CREATE TABLE IF NOT EXISTS pages_related (
   KEY idx_related (related_page_id),
   FOREIGN KEY (page_id)         REFERENCES pages(id) ON DELETE CASCADE,
   FOREIGN KEY (related_page_id) REFERENCES pages(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tags "catégorie" servant à sélectionner dynamiquement des articles de blog à
+-- afficher dans le right panel (ex: "Related posts" d'une page expertise) —
+-- ajoutée via migrate_right_panel.php (appliquée à la base locale)
+CREATE TABLE IF NOT EXISTS pages_related_tags (
+  page_id INT NOT NULL,
+  tag_id  INT NOT NULL,
+  PRIMARY KEY (page_id, tag_id),
+  KEY idx_tag (tag_id),
+  FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE,
+  FOREIGN KEY (tag_id)  REFERENCES tags(id)  ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ── 5. TABLE BLOCS DE CONTENU ────────────────────────────────────────────────

@@ -11,7 +11,16 @@
   width: 100%;
   height: 100%;
   @include flex-column;
-  z-index: $z-nav;
+  // Au-dessus de .pageContainer (même $z-nav) : sans ça, un descendant fixed de .navContainer
+  // (ex: le burger repositionné en bas à droite) reste confiné sous le contenu de page qui le
+  // suit dans le DOM, quel que soit SON PROPRE z-index (un ancêtre positionné avec z-index crée
+  // un contexte d'empilement dont les enfants ne peuvent jamais s'échapper).
+  z-index: $z-nav + 10;
+  // Couvre tout l'écran en permanence : sans ça, il intercepte tous les clics/scroll de la page
+  // (même piège que .navTablet/.navMobile) même quand aucun menu n'est visuellement ouvert.
+  // Les enfants réellement interactifs (topbar, sidebar desktop, panneaux tablette/mobile)
+  // réactivent pointer-events individuellement.
+  pointer-events: none;
 }
 
 // ---------------------------------------------------------------------------
@@ -24,6 +33,7 @@
   @include flex-row;
   justify-content: space-between;
   align-items: center;
+  pointer-events: auto;
 }
 
 .topBarContent {
@@ -51,6 +61,7 @@
 .mainLogo {
   height: fit-content;
   width: fit-content;
+  flex-shrink: 0;
   @include flex-column;
   align-items: left;
   cursor: pointer;
@@ -68,6 +79,7 @@
     font-style: normal;
     color: $color-text-muted;
     font-size: 22px;
+    white-space: nowrap;
     transition: color $transition-fast;
     margin-left: -2px;
   }
@@ -322,6 +334,7 @@
   justify-content: space-between;
   padding: 0 0 2rem 16px; // aligné sur left: 16px de .sectionNav
   gap: 1rem;
+  pointer-events: auto;
 }
 
 .navLinks {
@@ -430,6 +443,10 @@
   height: 100%;
   display: none;
   justify-content: right;
+  // Le wrapper couvre tout l'écran en permanence (tablette) : sans ça, il intercepte tous les
+  // clics/scroll de la page (même CSS piège que .navMobile) alors que le panneau interne est
+  // réduit à height:0 quand le menu est fermé.
+  pointer-events: none;
 }
 
 .navLinksTablet {
@@ -448,6 +465,7 @@
   border-radius: 0 0 0 $radius-lg;
   overflow: hidden;
   opacity: 0;
+  pointer-events: auto;
   transition: opacity $transition-medium, height $transition-medium;
 }
 
@@ -520,11 +538,18 @@
   width: 100%;
   height: 100%;
   display: none;
+  // Le wrapper couvre tout l'écran en permanence (mobile) : sans ça, il intercepte les clics
+  // (dont celui du burger lui-même) même quand le panneau interne est réduit/fermé.
+  pointer-events: none;
   z-index: 1000;
 }
 
 .mainNavContainerMobile {
-  height: 100%;
+  // Fermé par défaut (0%, pas 100%) : sinon ce panneau plein écran, bien qu'invisible
+  // (opacity:0), reste hit-testable et bloque en permanence son PROPRE bouton burger
+  // (aucun code n'initialise l'état fermé au chargement, seul menuMobiletHide() le fait,
+  // qui n'est appelé qu'APRÈS un premier clic sur le burger — jamais atteignable sinon).
+  height: 0%;
   width: 100%;
   @include flex-column;
   justify-content: space-between;
@@ -533,6 +558,7 @@
   padding: 12px 24px 24px;
   overflow: hidden;
   opacity: 0;
+  pointer-events: auto;
   transition: opacity $transition-fast, height 0.1s ease-in-out;
   z-index: 1000;
 
@@ -692,7 +718,10 @@
   .navContainer   { height: 100%; width: 100%; }
 
   // Masquer le menu desktop, afficher le menu tablette
-  .navDesktop           { display: none; }
+  // .navDesktop est une classe morte (jamais dans le HTML) — le vrai conteneur du menu
+  // desktop est .mainNavContainerDesktop, qui doit lui aussi disparaître en tablette/mobile.
+  .navDesktop               { display: none; }
+  .mainNavContainerDesktop  { display: none; }
   .topBarDesktop        { display: none; }
   .navTablet            { display: flex; }
   .topBar > .languageSelector { display: none; }
@@ -723,6 +752,16 @@
     width: 64px;
     padding: 0;
     margin: 0;
+    // En bas à droite (plus accessible au pouce) plutôt que dans le flux de la topbar.
+    // z-index au-dessus de .navMobile/.mainNavContainerMobile (1000) : sinon, une fois le
+    // menu ouvert, le burger (censé rester cliquable pour refermer) se retrouve peint DERRIÈRE
+    // le panneau plein écran et devient invisible/incliquable.
+    position: fixed;
+    top: auto;
+    bottom: 16px;
+    right: 16px;
+    left: auto;
+    z-index: 1001;
   }
 
   .burgerMenu  { margin-top: 3px; width: 64px; }

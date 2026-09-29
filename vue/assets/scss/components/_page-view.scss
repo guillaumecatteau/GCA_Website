@@ -27,7 +27,7 @@
 .pageViewBody {
   @include flex-column;
   gap: 1.5rem;
-  padding: 1.5rem;
+  padding: 2rem;
 }
 
 .pageViewTextBlock {
@@ -35,6 +35,16 @@
   font-size: $font-size-md;
   color: $color-text-muted;
   line-height: 1.6;
+
+  a { color: $color-text-primary; text-decoration: underline; }
+
+  ul {
+    list-style: disc;
+    padding-left: 1.25rem;
+    margin: 0.4rem 0;
+  }
+
+  li { display: list-item; margin-bottom: 0.3rem; }
 
   &.pageViewTextBlock--intro {
     font-weight: 600;
@@ -109,11 +119,18 @@
   &.pageViewCarouselThumb--active { border-color: $color-text-primary; }
 }
 
-// Bloc droit — détails (titre, client, dates, crédits, catégorie)
+// Bloc droit — empile plusieurs box indépendantes (détails, timeline, carrousels liés)
 .pageViewSide {
-  @include glass-block($radius-lg);
   width: 100%;
   height: fit-content;
+  @include flex-column;
+  align-items: stretch;
+  gap: 1rem;
+}
+
+.pageViewSideBox {
+  @include glass-block($radius-lg);
+  width: 100%;
   padding: 1.5rem;
   @include flex-column;
   align-items: stretch;
@@ -122,7 +139,7 @@
 
 .pageViewTitle {
   font-family: $font-heading;
-  font-size: $font-size-lg;
+  font-size: $font-size-h1;
   color: $color-text-primary;
 }
 
@@ -143,5 +160,226 @@
   font-family: $font-body;
   font-size: $font-size-sm;
   color: $color-text-muted;
+}
+
+// ── Right panel display — box "Related experiences" (timeline verticale) ────
+.pageViewTimeline {
+  position: relative;
+  @include flex-column;
+  gap: 1.25rem;
+  padding-left: 1.25rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: $color-border;
+  }
+}
+
+.pageViewTimelineItem {
+  position: relative;
+}
+
+.pageViewTimelineDot {
+  position: absolute;
+  left: -1.25rem;
+  top: 4px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: $color-text-primary;
+  border: 2px solid $color-bg;
+}
+
+.pageViewTimelineBody {
+  @include flex-column;
+  gap: 0.2rem;
+}
+
+.pageViewTimelineTitle {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.pageViewTimelineDate {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  color: $color-text-faint;
+}
+
+// ── Right panel display — box "Related projects" / "Related posts" (carrousel auto-play) ────
+.pageViewRelBoxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.pageViewRelBoxTitle {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: $color-text-faint;
+}
+
+.pageViewRelBoxNav {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.pageViewRelCarousel {
+  position: relative;
+  display: flex;
+  // Doit être >= au padding ci-dessous, sinon la card voisine dépasse dans le viewport visible
+  // au lieu de rester cachée derrière la réserve de padding.
+  gap: 2rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
+
+  // Bleed dans le padding de .pageViewSideBox : réserve un espace de chaque côté (largeur
+  // = padding de la box) où la card voisine peut apparaître pendant le scroll. Le mask-image
+  // fait EXACTEMENT cette largeur à chaque bord — la card affichée (centrée, cf. _scrollTo)
+  // reste toujours dans la zone opaque du milieu — seule la card voisine qui déborde dans
+  // cette réserve s'estompe, jamais la card elle-même.
+  margin: 0 -1.5rem;
+  padding: 0 1.5rem;
+  mask-image: linear-gradient(to right, transparent 0, black 1.5rem, black calc(100% - 1.5rem), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 1.5rem, black calc(100% - 1.5rem), transparent 100%);
+}
+
+.pageViewRelCarouselDots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pageViewRelCarouselDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: $color-border-active;
+  opacity: 0.35;
+  cursor: pointer;
+  transition: opacity $transition-fast, width $transition-fast;
+
+  &.pageViewRelCarouselDot--active {
+    width: 18px;
+    opacity: 1;
+  }
+}
+
+// Mode "liste tablette" (voir _isTabletListMode en JS) : plusieurs cards visibles côte à côte,
+// scroll latéral libre, pas d'auto-play/boucle/fondu — juste une rangée scrollable classique.
+.pageViewRelCarousel--list {
+  margin: 0;
+  padding: 0;
+  gap: 0.75rem;
+  scroll-snap-type: none;
+  mask-image: none;
+  -webkit-mask-image: none;
+
+  .pageViewRelCard {
+    flex: 0 0 140px;
+    width: 140px;
+    scroll-snap-align: none;
+  }
+}
+
+// Cards des carrousels du right panel — indépendantes des .pageCard de la home,
+// personnalisables séparément via les modificateurs --project / --blog
+.pageViewRelCard {
+  @include glass-block($radius-md);
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  scroll-snap-align: center;
+  transition: border-color $transition-fast;
+
+  &:hover { border-color: $color-border-active; }
+}
+
+.pageViewRelCardMedia {
+  position: absolute;
+  inset: 0;
+  background: $color-block-bg;
+
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+
+.pageViewRelCardInfo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  @include flex-column;
+  gap: 0.3rem;
+  padding: 0.75rem 1rem;
+  background: rgba($color-bg, 0.6);
+}
+
+.pageViewRelCardTitle {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.pageViewRelCardDesc {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  line-height: 1.4;
+}
+
+.pageViewRelCardDate {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  color: $color-text-faint;
+}
+
+// Variantes par type — indépendantes, prêtes pour un style dédié futur
+.pageViewRelCard--projet {}
+.pageViewRelCard--blog   {}
+
+// ---------------------------------------------------------------------------
+// Responsive — tablette/mobile : le right panel repasse SOUS le left panel,
+// dans le même ordre (ordre naturel du DOM, mainBlock avant sideBlock).
+// "Tablette" = même seuil que le passage en menu burger (@include wide-header,
+// $bp-header/1917px), PAS $bp-tablet (1024px, inutilisé par la nav) — sinon le
+// panel gauche/droite reste affiché encore un moment après le passage en burger.
+// Scopé à #pageViewGrid (le .basicGrid des pages publiques projet/expertise/blog)
+// pour ne pas affecter les autres consommateurs de .basicGrid (admin, bio...).
+// ---------------------------------------------------------------------------
+@include wide-header {
+  #pageViewGrid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "mainBloc"
+      "sideBloc";
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  // Un seul scroll (celui de #pageViewGrid) au lieu d'un scroll imbriqué par panel
+  #pageViewGrid .mainBlock,
+  #pageViewGrid .sideBlock {
+    overflow: visible;
+  }
 }
 

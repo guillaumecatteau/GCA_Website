@@ -47,16 +47,27 @@
   </div>
 
   <!-- ── Section 4 : Bio ───────────────────────────────────────────────── -->
+  <!-- Structure identique à une page projet (page-view) : bloc cover en haut,
+       contenu texte FR/EN en dessous, + panel gauche Expérience/Formation/Études
+       (même structure que l'éditeur d'expériences, en lecture seule). -->
   <div class="section" data-section="bio" id="sectionBio">
     <h2 class="title titleTop sectionBioTitle">
       <span>b</span><span>i</span><span>o</span>
     </h2>
-    <div class="sectionBioLayout">
-      <div class="sectionBioTimeline" id="bioTimeline">
-        <!-- Timeline des expériences injectée dynamiquement -->
+    <div class="basicGrid" id="sectionBioGrid">
+      <div class="mainBlock" id="bioTimelineContainer">
+        <!-- 3 groupes (Expériences / Formations / Études) injectés par vue/bio-timeline.js -->
       </div>
-      <div class="sectionBioInfo" id="bioInfo">
-        <!-- Infos curriculum injectées dynamiquement -->
+      <div class="sideBlock">
+        <div class="pageViewMain sectionBioMain" id="sectionBioMain">
+          <div class="pageViewCover" id="sectionBioCover">
+            <!-- Média cover à définir (ex: <img src="..." alt="" />) -->
+          </div>
+          <div class="pageViewBody">
+            <div class="pageViewTextBlock" lang="FR" data-en="Digital designer for over 15 years, I've worked across many different fields: virtual worlds, video games, web design, motion design and 3D animation. This variety of experience taught me to adapt quickly to new tools and constraints, while keeping a consistent creative approach from one project to the next.">Designer num&eacute;rique depuis plus de 15 ans, j&rsquo;ai travaill&eacute; dans des domaines vari&eacute;s&nbsp;: mondes virtuels, jeux vid&eacute;o, web design, motion design et animation 3D. Cette diversit&eacute; d&rsquo;exp&eacute;riences m&rsquo;a appris &agrave; m&rsquo;adapter rapidement &agrave; de nouveaux outils et contraintes, tout en gardant une d&eacute;marche cr&eacute;ative coh&eacute;rente d&rsquo;un projet &agrave; l&rsquo;autre.</div>
+            <div class="pageViewTextBlock" lang="FR" data-en="Curious and self-taught, I enjoy exploring new techniques and technologies, always with the same goal in mind: turning an idea into a polished, coherent visual experience.">Curieux et autodidacte, j&rsquo;aime explorer de nouvelles techniques et technologies, toujours avec le m&ecirc;me objectif&nbsp;: transformer une id&eacute;e en une exp&eacute;rience visuelle aboutie et coh&eacute;rente.</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

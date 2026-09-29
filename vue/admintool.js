@@ -1773,6 +1773,11 @@ let _insertAfterIdx  = -1; // index après lequel insérer un nouveau bloc
 let _mediaPickerCb   = null; // callback du sélecteur de média
 let _selectedPageTags        = new Set(); // IDs des tags sélectionnés pour la page en édition
 let _selectedPageExperiences = new Set(); // IDs des expériences liées à la page en édition
+let _selectedPageRelated     = new Set(); // IDs des pages projet liées (pages de type "blog")
+// Right panel display — pour le type "expertise" (système générique, réutilisable pour d'autres types)
+let _selectedPageRPExperiences = new Set(); // IDs des expériences affichées en timeline (box 1)
+let _selectedPageRPProjects    = new Set(); // IDs des pages projet affichées en carrousel (box 2)
+let _selectedPageRPTags        = new Set(); // IDs des tags catégorie pilotant le carrousel d'articles (box 3)
 
 // Ferme n'importe quel dropdown de sélection (tags/expériences) ouvert au clic extérieur
 document.addEventListener('click', (e) => {
@@ -1792,9 +1797,9 @@ function _richHtmlFromStored(raw) {
   return div.innerHTML.replace(/\n/g, '<br>');
 }
 
-// Ne conserve que les balises de formatage autorisées (gras/italique/saut de ligne)
+// Ne conserve que les balises de formatage autorisées (gras/italique/saut de ligne/lien)
 function _sanitizeRichHtml(html) {
-  const allowedTags = new Set(['B', 'STRONG', 'I', 'EM', 'BR']);
+  const allowedTags = new Set(['B', 'STRONG', 'I', 'EM', 'BR', 'A', 'UL', 'LI']);
   const tmp = document.createElement('div');
   tmp.innerHTML = html;
   (function walk(node) {
@@ -1804,6 +1809,18 @@ function _sanitizeRichHtml(html) {
         if (!allowedTags.has(child.tagName)) {
           while (child.firstChild) node.insertBefore(child.firstChild, child);
           node.removeChild(child);
+        } else if (child.tagName === 'A') {
+          // N'autorise que http(s)/mailto — bloque javascript: et autres schémas dangereux
+          const href = (child.getAttribute('href') || '').trim();
+          [...child.attributes].forEach(attr => child.removeAttribute(attr.name));
+          if (/^(https?:|mailto:)/i.test(href)) {
+            child.setAttribute('href', href);
+            child.setAttribute('target', '_blank');
+            child.setAttribute('rel', 'noopener noreferrer');
+          } else {
+            while (child.firstChild) node.insertBefore(child.firstChild, child);
+            node.removeChild(child);
+          }
         } else {
           [...child.attributes].forEach(attr => child.removeAttribute(attr.name));
         }
@@ -1815,10 +1832,12 @@ function _sanitizeRichHtml(html) {
   return tmp.innerHTML;
 }
 
+let _richLinkTarget = null; // { editable, range, onDone } — en attente de confirmation dans la popup
+
 function _buildRichToolbar(getEditable) {
   const bar = document.createElement('div');
   bar.className = 'richTextToolbar';
-  [['bold', '<b>B</b>'], ['italic', '<i>I</i>']].forEach(([cmd, label]) => {
+  [['bold', '<b>B</b>'], ['italic', '<i>I</i>'], ['insertUnorderedList', '&#8226;&#8226;&#8226;']].forEach(([cmd, label]) => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'richTextBtn';
@@ -1835,11 +1854,49 @@ function _buildRichToolbar(getEditable) {
     });
     bar.appendChild(btn);
   });
+
+  const linkBtn = document.createElement('button');
+  linkBtn.type = 'button';
+  linkBtn.className = 'richTextBtn';
+  linkBtn.innerHTML = '&#128279;';
+  linkBtn.title = 'Lien';
+  linkBtn.addEventListener('mousedown', e => e.preventDefault());
+  linkBtn.addEventListener('click', () => {
+    const editable = getEditable();
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+    const range = sel.getRangeAt(0);
+    if (!editable.contains(range.commonAncestorContainer)) return;
+    _richLinkTarget = {
+      range,
+      onDone: () => { editable.dispatchEvent(new Event('input')); _updateRichToolbarState(bar, editable); },
+    };
+    const popup = document.getElementById('richLinkPopup');
+    const input = document.getElementById('inputRichLinkUrl');
+    if (popup && input) { input.value = ''; popup.style.display = 'flex'; input.focus(); }
+  });
+  bar.appendChild(linkBtn);
+
   return bar;
 }
 
+// Insère un <a> autour de la sélection sauvegardée, sans remplacer le texte sélectionné
+function _insertRichLink(range, url) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  try {
+    range.surroundContents(a);
+  } catch (_) {
+    const frag = range.extractContents();
+    a.appendChild(frag);
+    range.insertNode(a);
+  }
+}
+
 function _updateRichToolbarState(bar, editable) {
-  bar.querySelectorAll('.richTextBtn').forEach(btn => {
+  bar.querySelectorAll('.richTextBtn[data-cmd]').forEach(btn => {
     let active = false;
     try { active = document.queryCommandState(btn.dataset.cmd); } catch (_) {}
     btn.classList.toggle('richTextBtn--active', active);
@@ -1869,6 +1926,33 @@ function _buildRichField(block, idx, lang, placeholder, visible, btnSave) {
     e.preventDefault();
     const text = (e.clipboardData || window.clipboardData).getData('text/plain');
     document.execCommand('insertText', false, text);
+  });
+  // Entrée = <br> forcé, inséré directement via Range (pas execCommand) : Chrome
+  // fusionne/ignore un 2e <br> consécutif inséré via execCommand('insertHTML'),
+  // ce qui supprimait les retours à la ligne vides entre deux paragraphes.
+  editable.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    // À l'intérieur d'une liste à puce, laisser le navigateur créer un nouvel <li>
+    // (notre insertion manuelle de <br> casserait la structure de liste).
+    const sel0 = window.getSelection();
+    if (sel0 && sel0.rangeCount) {
+      const node = sel0.getRangeAt(0).startContainer;
+      const startEl = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+      if (startEl && startEl.closest('li') && editable.contains(startEl)) return;
+    }
+    e.preventDefault();
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    const br = document.createElement('br');
+    range.insertNode(br);
+    range.setStartAfter(br);
+    range.setEndAfter(br);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    editable.dispatchEvent(new Event('input'));
   });
   editable.addEventListener('focus', () => {
     document.execCommand('defaultParagraphSeparator', false, 'br');
@@ -1974,6 +2058,166 @@ function _updatePageExpCount() {
   if (counter) counter.textContent = _selectedPageExperiences.size > 0 ? `(${_selectedPageExperiences.size})` : '';
 }
 
+// ── Sélecteur de pages projet liées — pour les pages de type "blog" ─────────
+async function _loadPageRelatedList(container) {
+  if (!container) return;
+  try {
+    const res  = await fetch('controller/controller.php?action=admin_pages&sub=list&type=projet');
+    const json = await res.json();
+    if (!json.success) return;
+    container.dataset.allPages = JSON.stringify(json.pages.map(p => ({ id: p.id, title_fr: p.title_fr, title_en: p.title_en })));
+    _renderPageRelatedSelector(container, []);
+  } catch (_) {}
+}
+
+function _renderPageRelatedSelector(container, selectedPages) {
+  if (!container) return;
+  const allPages = JSON.parse(container.dataset.allPages || '[]');
+  const isEn     = document.documentElement.lang === 'en';
+  container.innerHTML = '';
+  allPages.forEach(p => {
+    const isSelected = _selectedPageRelated.has(+p.id) || selectedPages.some(sp => sp.id === p.id);
+    if (isSelected) _selectedPageRelated.add(+p.id);
+    const item = document.createElement('div');
+    item.className = 'tagItem' + (isSelected ? ' tagItem--active' : '');
+    item.dataset.pageId = p.id;
+    item.textContent    = isEn ? (p.title_en || p.title_fr) : (p.title_fr || p.title_en);
+    item.addEventListener('click', () => {
+      if (_selectedPageRelated.has(+p.id)) { _selectedPageRelated.delete(+p.id); item.classList.remove('tagItem--active'); }
+      else { _selectedPageRelated.add(+p.id); item.classList.add('tagItem--active'); }
+      _updatePageRelatedCount();
+      document.getElementById('btnSavePage')?.classList.replace('btnOff', 'btnOn');
+    });
+    container.appendChild(item);
+  });
+  _updatePageRelatedCount();
+}
+
+function _updatePageRelatedCount() {
+  const counter = document.getElementById('pageRelatedCount');
+  if (counter) counter.textContent = _selectedPageRelated.size > 0 ? `(${_selectedPageRelated.size})` : '';
+}
+
+// ── Right panel display — Expériences liées (box 1, timeline) — pour le type "expertise" ──
+async function _loadPageRPExpList(container) {
+  if (!container) return;
+  try {
+    const res  = await fetch('controller/controller.php?action=admin_experiences&sub=list');
+    const json = await res.json();
+    if (!json.success) return;
+    container.dataset.allExps = JSON.stringify(json.experiences.map(e => ({ id: e.id, title_fr: e.title_fr, title_en: e.title_en })));
+    _renderPageRPExpSelector(container, []);
+  } catch (_) {}
+}
+
+function _renderPageRPExpSelector(container, selectedExps) {
+  if (!container) return;
+  const allExps = JSON.parse(container.dataset.allExps || '[]');
+  const isEn    = document.documentElement.lang === 'en';
+  container.innerHTML = '';
+  allExps.forEach(exp => {
+    const isSelected = _selectedPageRPExperiences.has(+exp.id) || selectedExps.some(e => e.id === exp.id);
+    if (isSelected) _selectedPageRPExperiences.add(+exp.id);
+    const item = document.createElement('div');
+    item.className = 'tagItem' + (isSelected ? ' tagItem--active' : '');
+    item.dataset.expId = exp.id;
+    item.textContent   = isEn ? (exp.title_en || exp.title_fr) : (exp.title_fr || exp.title_en);
+    item.addEventListener('click', () => {
+      if (_selectedPageRPExperiences.has(+exp.id)) { _selectedPageRPExperiences.delete(+exp.id); item.classList.remove('tagItem--active'); }
+      else { _selectedPageRPExperiences.add(+exp.id); item.classList.add('tagItem--active'); }
+      _updatePageRPExpCount();
+      document.getElementById('btnSavePage')?.classList.replace('btnOff', 'btnOn');
+    });
+    container.appendChild(item);
+  });
+  _updatePageRPExpCount();
+}
+
+function _updatePageRPExpCount() {
+  const counter = document.getElementById('pageRPExpCount');
+  if (counter) counter.textContent = _selectedPageRPExperiences.size > 0 ? `(${_selectedPageRPExperiences.size})` : '';
+}
+
+// ── Right panel display — Projets liés (box 2, carrousel) — pour le type "expertise" ──
+async function _loadPageRPProjList(container) {
+  if (!container) return;
+  try {
+    const res  = await fetch('controller/controller.php?action=admin_pages&sub=list&type=projet');
+    const json = await res.json();
+    if (!json.success) return;
+    container.dataset.allPages = JSON.stringify(json.pages.map(p => ({ id: p.id, title_fr: p.title_fr, title_en: p.title_en })));
+    _renderPageRPProjSelector(container, []);
+  } catch (_) {}
+}
+
+function _renderPageRPProjSelector(container, selectedPages) {
+  if (!container) return;
+  const allPages = JSON.parse(container.dataset.allPages || '[]');
+  const isEn     = document.documentElement.lang === 'en';
+  container.innerHTML = '';
+  allPages.forEach(p => {
+    const isSelected = _selectedPageRPProjects.has(+p.id) || selectedPages.some(sp => sp.id === p.id);
+    if (isSelected) _selectedPageRPProjects.add(+p.id);
+    const item = document.createElement('div');
+    item.className = 'tagItem' + (isSelected ? ' tagItem--active' : '');
+    item.dataset.pageId = p.id;
+    item.textContent    = isEn ? (p.title_en || p.title_fr) : (p.title_fr || p.title_en);
+    item.addEventListener('click', () => {
+      if (_selectedPageRPProjects.has(+p.id)) { _selectedPageRPProjects.delete(+p.id); item.classList.remove('tagItem--active'); }
+      else { _selectedPageRPProjects.add(+p.id); item.classList.add('tagItem--active'); }
+      _updatePageRPProjCount();
+      document.getElementById('btnSavePage')?.classList.replace('btnOff', 'btnOn');
+    });
+    container.appendChild(item);
+  });
+  _updatePageRPProjCount();
+}
+
+function _updatePageRPProjCount() {
+  const counter = document.getElementById('pageRPProjCount');
+  if (counter) counter.textContent = _selectedPageRPProjects.size > 0 ? `(${_selectedPageRPProjects.size})` : '';
+}
+
+// ── Right panel display — Articles liés (box 3, carrousel piloté par tags catégorie) ──
+async function _loadPageRPTagList(container) {
+  if (!container) return;
+  try {
+    const res  = await fetch('controller/controller.php?action=admin_tags&sub=list');
+    const json = await res.json();
+    if (!json.success) return;
+    container.dataset.allTags = JSON.stringify(json.tags.filter(t => t.category === 'category'));
+    _renderPageRPTagSelector(container, []);
+  } catch (_) {}
+}
+
+function _renderPageRPTagSelector(container, selectedTags) {
+  if (!container) return;
+  const allTags = JSON.parse(container.dataset.allTags || '[]');
+  const isEn    = document.documentElement.lang === 'en';
+  container.innerHTML = '';
+  allTags.forEach(tag => {
+    const isSelected = _selectedPageRPTags.has(+tag.id) || selectedTags.some(t => t.id === tag.id);
+    if (isSelected) _selectedPageRPTags.add(+tag.id);
+    const item = document.createElement('div');
+    item.className = 'tagItem' + (isSelected ? ' tagItem--active' : '');
+    item.dataset.tagId = tag.id;
+    item.textContent   = isEn ? (tag.title_en || tag.title_fr) : (tag.title_fr || tag.title_en);
+    item.addEventListener('click', () => {
+      if (_selectedPageRPTags.has(+tag.id)) { _selectedPageRPTags.delete(+tag.id); item.classList.remove('tagItem--active'); }
+      else { _selectedPageRPTags.add(+tag.id); item.classList.add('tagItem--active'); }
+      _updatePageRPTagCount();
+      document.getElementById('btnSavePage')?.classList.replace('btnOff', 'btnOn');
+    });
+    container.appendChild(item);
+  });
+  _updatePageRPTagCount();
+}
+
+function _updatePageRPTagCount() {
+  const counter = document.getElementById('pageRPTagCount');
+  if (counter) counter.textContent = _selectedPageRPTags.size > 0 ? `(${_selectedPageRPTags.size})` : '';
+}
+
 let _galleryPickerBlockIdx = -1; // pour la sélection de médias galerie
 
 // ── Cover média — pan/zoom (l'image occupe toujours 100% de sa box) ────────
@@ -2072,6 +2316,10 @@ function initPagesManagement() {
     _loadPageList();
     _loadPageTagsList(document.getElementById('pageTagSelector'));
     _loadPageExperiencesList(document.getElementById('pageExpSelector'));
+    _loadPageRelatedList(document.getElementById('pageRelatedSelector'));
+    _loadPageRPExpList(document.getElementById('pageRPExpSelector'));
+    _loadPageRPProjList(document.getElementById('pageRPProjSelector'));
+    _loadPageRPTagList(document.getElementById('pageRPTagSelector'));
     return;
   }
   _pagesInited = true;
@@ -2109,8 +2357,19 @@ function initPagesManagement() {
   const btnPickCard    = document.getElementById('btnPickPageCard');
   const inputDateStart = document.getElementById('inputPageDateStart');
   const inputDateEnd   = document.getElementById('inputPageDateEnd');
+  const inputDatePublication = document.getElementById('inputPageDatePublication');
   const pageTagSelector = document.getElementById('pageTagSelector');
   const pageExpSelector = document.getElementById('pageExpSelector');
+  const pageRelatedSelector = document.getElementById('pageRelatedSelector');
+  const pageRPExpSelector  = document.getElementById('pageRPExpSelector');
+  const pageRPProjSelector = document.getElementById('pageRPProjSelector');
+  const pageRPTagSelector  = document.getElementById('pageRPTagSelector');
+  const inputSubtitleFr = document.getElementById('inputPageSubtitleFr');
+  const inputSubtitleEn = document.getElementById('inputPageSubtitleEn');
+  const inputExpIconPath = document.getElementById('inputPageExpIconPath');
+  const expIconPrvImg   = document.getElementById('pageExpIconPreviewImg');
+  const expIconPrvEmpty = document.getElementById('pageExpIconPreviewEmpty');
+  const btnPickExpIcon  = document.getElementById('btnPickPageExpIcon');
   const inputVisible   = document.getElementById('inputPageVisible');
   const btnSave        = document.getElementById('btnSavePage');
   const btnDelete      = document.getElementById('btnDeletePage');
@@ -2131,8 +2390,15 @@ function initPagesManagement() {
 
   // ── Helpers media preview ─────────────────────────────────────────────────
   function _setMediaPreview(img, empty, path) {
+    if (path) {
+      img.onerror = () => { img.onerror = null; img.src = path; };
+      img.src = _getThumbPath(path); img.style.display = 'block'; empty.style.display = 'none';
+    } else { img.src = ''; img.style.display = 'none'; empty.style.display = 'inline'; }
+  }
+  // Preview d'un icône statique (pas de miniature _Thumb, chemin direct)
+  function _setIconFieldPreview(img, empty, path) {
     if (path) { img.src = path; img.style.display = 'block'; empty.style.display = 'none'; }
-    else       { img.src = ''; img.style.display = 'none'; empty.style.display = 'inline'; }
+    else      { img.src = ''; img.style.display = 'none'; empty.style.display = 'inline'; }
   }
   // Met à jour la preview cover dans le premier bloc du builder
   function _updateBuilderCover() {
@@ -2154,9 +2420,13 @@ function initPagesManagement() {
   function _updatePageFieldVisibility() {
     const t = typeEdit.value;
     const isProjet    = t === 'projet';
+    const isBlog      = t === 'blog';
+    const isExpertise = t === 'expertise';
     const showTagsExp = t === 'projet' || t === 'blog';
     document.querySelectorAll('.pageProjectOnly').forEach(el => { el.style.display = isProjet ? '' : 'none'; });
     document.querySelectorAll('.pageTagsExpOnly').forEach(el => { el.style.display = showTagsExp ? '' : 'none'; });
+    document.querySelectorAll('.pageBlogOnly').forEach(el => { el.style.display = isBlog ? '' : 'none'; });
+    document.querySelectorAll('.pageExpertiseOnly').forEach(el => { el.style.display = isExpertise ? '' : 'none'; });
   }
   typeEdit.addEventListener('change', _updatePageFieldVisibility);
 
@@ -2217,8 +2487,18 @@ function initPagesManagement() {
           cover_pos_y: _editingPage?.cover_pos_y ?? 0.5,
           cover_scale: _editingPage?.cover_scale ?? 1,
           cover_video_url: inputCoverVideoUrl.value.trim() || null,
+          subtitle_fr: inputSubtitleFr.value.trim(),
+          subtitle_en: inputSubtitleEn.value.trim(),
+          expertise_icon_path: inputExpIconPath.value || null,
+          date_publication: typeEdit.value === 'blog'
+            ? (inputDatePublication.value || _editingPage?.created_at?.slice(0, 10) || null)
+            : null,
           tags:        (typeEdit.value === 'projet' || typeEdit.value === 'blog') ? [..._selectedPageTags]        : [],
-          experiences: (typeEdit.value === 'projet' || typeEdit.value === 'blog') ? [..._selectedPageExperiences] : [],
+          experiences: (typeEdit.value === 'projet' || typeEdit.value === 'blog') ? [..._selectedPageExperiences]
+                     : typeEdit.value === 'expertise' ? [..._selectedPageRPExperiences] : [],
+          related:     typeEdit.value === 'blog' ? [..._selectedPageRelated]
+                     : typeEdit.value === 'expertise' ? [..._selectedPageRPProjects] : [],
+          related_tags: typeEdit.value === 'expertise' ? [..._selectedPageRPTags] : [],
         }),
       });
       const blocksRes = await fetch('controller/controller.php?action=admin_pages&sub=save_blocks', {
@@ -2237,7 +2517,7 @@ function initPagesManagement() {
   });
 
   // Activer save dès que n'importe quel champ change
-  [titleFrEdit, titleEnEdit, inputDateStart, inputDateEnd, inputCoverVideoUrl].forEach(el =>
+  [titleFrEdit, titleEnEdit, inputDateStart, inputDateEnd, inputCoverVideoUrl, inputSubtitleFr, inputSubtitleEn, inputDatePublication].forEach(el =>
     el.addEventListener('input', () => { btnSave.classList.replace('btnOff','btnOn'); })
   );
   [typeEdit, inputVisible].forEach(el =>
@@ -2323,6 +2603,57 @@ function initPagesManagement() {
     });
   });
 
+  // ── Popup insertion de lien (éditeur de texte riche) ──────────────────────
+  const richLinkPopup = document.getElementById('richLinkPopup');
+  const inputRichLinkUrl = document.getElementById('inputRichLinkUrl');
+  const btnCancelRichLink = document.getElementById('btnCancelRichLink');
+  const btnConfirmRichLink = document.getElementById('btnConfirmRichLink');
+  const _closeRichLinkPopup = () => { richLinkPopup.style.display = 'none'; _richLinkTarget = null; };
+  btnCancelRichLink?.addEventListener('click', _closeRichLinkPopup);
+  richLinkPopup?.addEventListener('click', e => { if (e.target === richLinkPopup) _closeRichLinkPopup(); });
+  btnConfirmRichLink?.addEventListener('click', () => {
+    const url = inputRichLinkUrl.value.trim();
+    if (!url || !_richLinkTarget) { _closeRichLinkPopup(); return; }
+    _insertRichLink(_richLinkTarget.range, url);
+    _richLinkTarget.onDone();
+    _closeRichLinkPopup();
+  });
+
+  // ── Popup sélecteur d'icône d'expertise (uniquement les icônes "_grey") ────
+  const EXP_ICON_FOLDER = 'vue/assets/images/icons';
+  const expIconBrowser  = document.getElementById('expIconBrowser');
+  const expIconGrid     = document.getElementById('expIconBrowserGrid');
+  const btnCloseExpIcon = document.getElementById('btnCloseExpIconBrowser');
+  btnPickExpIcon?.addEventListener('click', async () => {
+    expIconBrowser.style.display = 'flex';
+    expIconGrid.innerHTML = '<p class="adminPlaceholder">Chargement&hellip;</p>';
+    try {
+      const res  = await fetch(`controller/controller.php?action=admin_tags&sub=icons&folder=${encodeURIComponent(EXP_ICON_FOLDER)}`);
+      const json = await res.json();
+      const files = (json.files || []).filter(f => f.toLowerCase().includes('_grey'));
+      if (!files.length) { expIconGrid.innerHTML = '<p class="adminPlaceholder">Aucune ic&ocirc;ne.</p>'; return; }
+      expIconGrid.innerHTML = '';
+      files.forEach(file => {
+        const path = `${EXP_ICON_FOLDER}/${file}`;
+        const item = document.createElement('div');
+        item.className = 'iconBrowserItem';
+        item.title     = file;
+        const img = document.createElement('img');
+        img.src = path; img.alt = file; img.loading = 'lazy';
+        item.appendChild(img);
+        item.addEventListener('click', () => {
+          inputExpIconPath.value = path;
+          _setIconFieldPreview(expIconPrvImg, expIconPrvEmpty, path);
+          expIconBrowser.style.display = 'none';
+          btnSave.classList.replace('btnOff','btnOn');
+        });
+        expIconGrid.appendChild(item);
+      });
+    } catch (_) { expIconGrid.innerHTML = '<p class="adminPlaceholder">Erreur.</p>'; }
+  });
+  btnCloseExpIcon?.addEventListener('click', () => { expIconBrowser.style.display = 'none'; });
+  expIconBrowser?.addEventListener('click', e => { if (e.target === expIconBrowser) expIconBrowser.style.display = 'none'; });
+
   // ── Helpers mode édition ──────────────────────────────────────────────────
   function _enterEditMode(pageId) {
     fetch(`controller/controller.php?action=admin_pages&sub=get&id=${pageId}`)
@@ -2342,10 +2673,26 @@ function initPagesManagement() {
         inputCardId.value    = page.thumbnail_id   || '';
         inputDateStart.value = page.date_start || '';
         inputDateEnd.value   = page.date_end   || '';
+        // Si aucune date de publication n'a été entrée manuellement, on préremplit
+        // avec la date de création — reste modifiable, et c'est cette valeur qui
+        // sera sauvegardée si l'utilisateur ne la modifie pas.
+        inputDatePublication.value = page.date_publication || (page.created_at ? page.created_at.slice(0, 10) : '');
+        inputSubtitleFr.value = page.subtitle_fr || '';
+        inputSubtitleEn.value = page.subtitle_en || '';
+        inputExpIconPath.value = page.expertise_icon_path || '';
+        _setIconFieldPreview(expIconPrvImg, expIconPrvEmpty, page.expertise_icon_path || '');
         _selectedPageTags        = new Set();
         _selectedPageExperiences = new Set();
+        _selectedPageRelated     = new Set();
+        _selectedPageRPExperiences = new Set();
+        _selectedPageRPProjects    = new Set();
+        _selectedPageRPTags        = new Set();
         _renderPageTagSelector(pageTagSelector, page.tags || []);
         _renderPageExpSelector(pageExpSelector, page.experiences || []);
+        _renderPageRelatedSelector(pageRelatedSelector, page.related || []);
+        _renderPageRPExpSelector(pageRPExpSelector, page.experiences || []);
+        _renderPageRPProjSelector(pageRPProjSelector, page.related || []);
+        _renderPageRPTagSelector(pageRPTagSelector, page.related_tags || []);
         _updatePageFieldVisibility();
         btnSave.classList.replace('btnOn','btnOff');
         // Résoudre les chemins des médias cover/card
@@ -2511,7 +2858,8 @@ function initPagesManagement() {
     preview.style.aspectRatio = '16/9';
     const img = document.createElement('img');
     img.style.display = 'none';
-    if (block.media_id && block._media_path) { img.src = block._media_path; img.style.display = 'block'; }
+    img.onerror = () => { img.onerror = null; img.src = block._media_path || img.src; };
+    if (block.media_id && block._media_path) { img.src = _getThumbPath(block._media_path); img.style.display = 'block'; }
     preview.appendChild(img);
     const btnPick = document.createElement('div');
     btnPick.className = 'btnMedium btnOn';
@@ -2520,7 +2868,7 @@ function initPagesManagement() {
       _openMediaPicker(media => {
         _editingBlocks[idx].media_id = media.id;
         _editingBlocks[idx]._media_path = media.file_path;
-        img.src = media.file_path; img.style.display = 'block';
+        img.src = _getThumbPath(media.file_path); img.style.display = 'block';
         btnSave.classList.replace('btnOff','btnOn');
       });
     });
@@ -2530,7 +2878,7 @@ function initPagesManagement() {
     if (block.media_id && !block._media_path) {
       fetch(`controller/controller.php?action=admin_medias&sub=get&id=${block.media_id}`)
         .then(r => r.json()).then(mj => {
-          if (mj.success) { block._media_path = mj.media.file_path; img.src = mj.media.file_path; img.style.display = 'block'; }
+          if (mj.success) { block._media_path = mj.media.file_path; img.src = _getThumbPath(mj.media.file_path); img.style.display = 'block'; }
         }).catch(() => {});
     }
     return wrap;
@@ -2557,10 +2905,11 @@ function initPagesManagement() {
         th.className = 'pageBlockGalleryThumb';
         th.draggable = true;
         const im = document.createElement('img'); im.loading = 'lazy';
-        if (block._galleryPaths[mid]) im.src = block._galleryPaths[mid];
+        im.onerror = () => { im.onerror = null; im.src = block._galleryPaths[mid] || im.src; };
+        if (block._galleryPaths[mid]) im.src = _getThumbPath(block._galleryPaths[mid]);
         else {
           fetch(`controller/controller.php?action=admin_medias&sub=get&id=${mid}`)
-            .then(r => r.json()).then(mj => { if (mj.success) { block._galleryPaths[mid] = mj.media.file_path; im.src = mj.media.file_path; } }).catch(() => {});
+            .then(r => r.json()).then(mj => { if (mj.success) { block._galleryPaths[mid] = mj.media.file_path; im.src = _getThumbPath(mj.media.file_path); } }).catch(() => {});
         }
         // Clic = retirer de la galerie
         th.addEventListener('click', () => { ids.splice(gi, 1); _editingBlocks[idx].gallery = ids.map(id => ({ media_id: id })); renderGallery(); btnSave.classList.replace('btnOff','btnOn'); });
@@ -2640,6 +2989,10 @@ function initPagesManagement() {
   _loadPageList();
   _loadPageTagsList(pageTagSelector);
   _loadPageExperiencesList(pageExpSelector);
+  _loadPageRelatedList(pageRelatedSelector);
+  _loadPageRPExpList(pageRPExpSelector);
+  _loadPageRPProjList(pageRPProjSelector);
+  _loadPageRPTagList(pageRPTagSelector);
 }
 
 // ── Sélecteur de média paginé — niveau module (accessible depuis tous les panels) ──
@@ -2738,11 +3091,22 @@ function _renderPageList(container, pages) {
   const typeLabels = { projet: isEn ? 'Project' : 'Projet', expertise: 'Expertise', blog: 'Blog' };
   pages.forEach(page => {
     const card = document.createElement('div');
-    card.className = 'expCard'; card.dataset.pageId = page.id;
+    card.className = 'expCard expCard--pageList'; card.dataset.pageId = page.id;
     const title = isEn ? (page.title_en || page.title_fr) : (page.title_fr || page.title_en);
     const date  = page.updated_at ? page.updated_at.slice(0, 10) : '';
-    const thumbPath = page.cover_path ? _getThumbPath(page.cover_path) : null;
-    const logoHtml  = thumbPath ? `<img class="expCardLogo" src="${thumbPath}" alt="" onerror="this.style.display='none'" />` : '';
+    let logoHtml = '';
+    if (page.type === 'expertise') {
+      // Icône d'expertise en variante "_dark", centrée sur un fond gris clair
+      const darkPath = page.expertise_icon_path
+        ? page.expertise_icon_path.replace(/_grey(\.\w+)$/i, '_dark$1')
+        : '';
+      logoHtml = `<div class="expCardIconBox">${darkPath ? `<img src="${darkPath}" alt="" />` : ''}</div>`;
+    } else {
+      // Média card en priorité, sinon média cover
+      const rawPath   = page.card_path || page.cover_path || '';
+      const thumbPath = rawPath ? _getThumbPath(rawPath) : null;
+      logoHtml = thumbPath ? `<img class="expCardLogo" src="${thumbPath}" alt="" onerror="this.onerror=null;this.src='${rawPath}';" />` : '';
+    }
     card.innerHTML = `
       <div class="expCardHeader">
         ${logoHtml}

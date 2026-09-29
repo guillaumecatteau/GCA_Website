@@ -126,18 +126,13 @@ const LANGUAGESELECTOR_TABLET = document.getElementById(
   "languageSelectorTablet"
 );
 const BTN_HOME_TABLET = document.getElementById("btnHomeTablet");
-const BTN_PROFIL_TABLET = document.getElementById("btnProfilTablet");
-const BTN_GAMES_TABLET = document.getElementById("btnGamesTablet");
-const BTN_UXUI_TABLET = document.getElementById("btnUxUiTablet");
-const BTN_3D_TABLET = document.getElementById("btn3DTablet");
-const BTN_2D_TABLET = document.getElementById("btn2DTablet");
-const BTN_VIDEO_TABLET = document.getElementById("btnVideoTablet");
-const BTN_WEB_TABLET = document.getElementById("btnWebTablet");
-const BTN_PIXEL_TABLET = document.getElementById("btnPixelTablet");
-const BTN_PORTFOLIO_TABLET = document.getElementById("btnPortfolioTablet");
-const BTN_BLOG_TABLET = document.getElementById("btnBlogTablet");
-const BTN_BIO_TABLET = document.getElementById("btnBioTablet");
-const BTN_CONTACT_TABLET = document.getElementById("btnContactTablet");
+const BTN_PRESENTATION_TABLET = document.getElementById("btnPresentationTablet");
+const BTN_EXPERTISE_TABLET = document.getElementById("btnExpertiseTablet");
+const BTN_PORTFOLIO_SECTION_TABLET = document.getElementById("btnPortfolioSectionTablet");
+const BTN_BIO_SECTION_TABLET = document.getElementById("btnBioSectionTablet");
+const BTN_BLOG_SECTION_TABLET = document.getElementById("btnBlogSectionTablet");
+const BTN_CONTACT_SECTION_TABLET = document.getElementById("btnContactSectionTablet");
+const BTN_SITEMAP_TABLET = document.getElementById("btnSitemapTablet");
 const BTN_ARTSTATION_TABLET = document.getElementById("btnArtstationTablet");
 const BTN_LINKEDIN_TABLET = document.getElementById("btnLinkedinTablet");
 const BTN_YOUTUBE_TABLET = document.getElementById("btnYoutubeTablet");
@@ -150,18 +145,13 @@ let menuTabletDeployment = false;
 function displayNavLinksTablet() {
   const buttons = [
     BTN_HOME_TABLET,
-    BTN_PROFIL_TABLET,
-    BTN_GAMES_TABLET,
-    BTN_UXUI_TABLET,
-    BTN_3D_TABLET,
-    BTN_2D_TABLET,
-    BTN_VIDEO_TABLET,
-    BTN_WEB_TABLET,
-    BTN_PIXEL_TABLET,
-    BTN_PORTFOLIO_TABLET,
-    BTN_BLOG_TABLET,
-    BTN_BIO_TABLET,
-    BTN_CONTACT_TABLET,
+    BTN_PRESENTATION_TABLET,
+    BTN_EXPERTISE_TABLET,
+    BTN_PORTFOLIO_SECTION_TABLET,
+    BTN_BIO_SECTION_TABLET,
+    BTN_BLOG_SECTION_TABLET,
+    BTN_CONTACT_SECTION_TABLET,
+    BTN_SITEMAP_TABLET,
   ];
   const animationDelay = 50;
 
@@ -205,18 +195,13 @@ function displayNavLinksTablet() {
 function hideNavLinksTablet() {
   const buttons = [
     BTN_HOME_TABLET,
-    BTN_PROFIL_TABLET,
-    BTN_GAMES_TABLET,
-    BTN_UXUI_TABLET,
-    BTN_3D_TABLET,
-    BTN_2D_TABLET,
-    BTN_VIDEO_TABLET,
-    BTN_WEB_TABLET,
-    BTN_PIXEL_TABLET,
-    BTN_PORTFOLIO_TABLET,
-    BTN_BLOG_TABLET,
-    BTN_BIO_TABLET,
-    BTN_CONTACT_TABLET,
+    BTN_PRESENTATION_TABLET,
+    BTN_EXPERTISE_TABLET,
+    BTN_PORTFOLIO_SECTION_TABLET,
+    BTN_BIO_SECTION_TABLET,
+    BTN_BLOG_SECTION_TABLET,
+    BTN_CONTACT_SECTION_TABLET,
+    BTN_SITEMAP_TABLET,
   ];
   const animationDelay = 50;
 
@@ -297,7 +282,16 @@ function hideSocialIconsTablet() {
   }, 300);
 }
 function menuTabletDeploy() {
-  MENU_TABLETRIGHT.style.height = "1120px";
+  // Hauteur calculée dynamiquement (nombre d'items variable) plutôt qu'une valeur fixe :
+  // une valeur codée en dur pour l'ancienne liste de 13 items laissait un vide béant avec
+  // les 8 items actuels (icônes non alignées, fond du menu bien plus grand que son contenu).
+  MENU_TABLETRIGHT.style.height = 'auto';
+  const _target = MENU_TABLETRIGHT.scrollHeight;
+  MENU_TABLETRIGHT.style.height = '0px';
+  void MENU_TABLETRIGHT.offsetHeight; // force reflow avant l'animation
+  requestAnimationFrame(() => {
+    MENU_TABLETRIGHT.style.height = _target + 'px';
+  });
   MENU_TABLETRIGHT.style.opacity = "1";
   MENU_TABLETTOP.style.width = "400px";
   MENU_TABLETTOP.style.opacity = "1";
@@ -319,18 +313,13 @@ const LANGUAGESELECTOR_MOBILE = document.getElementById(
   "languageSelectorMobile"
 );
 const BTN_HOME_MOBILE = document.getElementById("btnHomeMobile");
-const BTN_PROFIL_MOBILE = document.getElementById("btnProfilMobile");
-const BTN_GAMES_MOBILE = document.getElementById("btnGamesMobile");
-const BTN_UXUI_MOBILE = document.getElementById("btnUxUiMobile");
-const BTN_3D_MOBILE = document.getElementById("btn3DMobile");
-const BTN_2D_MOBILE = document.getElementById("btn2DMobile");
-const BTN_VIDEO_MOBILE = document.getElementById("btnVideoMobile");
-const BTN_WEB_MOBILE = document.getElementById("btnWebMobile");
-const BTN_PIXEL_MOBILE = document.getElementById("btnPixelMobile");
-const BTN_PORTFOLIO_MOBILE = document.getElementById("btnPortfolioMobile");
-const BTN_BLOG_MOBILE = document.getElementById("btnBlogMobile");
-const BTN_BIO_MOBILE = document.getElementById("btnBioMobile");
-const BTN_CONTACT_MOBILE = document.getElementById("btnContactMobile");
+const BTN_PRESENTATION_MOBILE = document.getElementById("btnPresentationMobile");
+const BTN_EXPERTISE_MOBILE = document.getElementById("btnExpertiseMobile");
+const BTN_PORTFOLIO_SECTION_MOBILE = document.getElementById("btnPortfolioSectionMobile");
+const BTN_BIO_SECTION_MOBILE = document.getElementById("btnBioSectionMobile");
+const BTN_BLOG_SECTION_MOBILE = document.getElementById("btnBlogSectionMobile");
+const BTN_CONTACT_SECTION_MOBILE = document.getElementById("btnContactSectionMobile");
+const BTN_SITEMAP_MOBILE = document.getElementById("btnSitemapMobile");
 const BTN_ARTSTATION_MOBILE = document.getElementById("btnArtstationMobile");
 const BTN_LINKEDIN_MOBILE = document.getElementById("btnLinkedinMobile");
 const BTN_YOUTUBE_MOBILE = document.getElementById("btnYoutubeMobile");
@@ -341,18 +330,13 @@ let menuMobileDeployment = false;
 function displayNavLinksMobile() {
   const buttons = [
     BTN_HOME_MOBILE,
-    BTN_PROFIL_MOBILE,
-    BTN_GAMES_MOBILE,
-    BTN_UXUI_MOBILE,
-    BTN_3D_MOBILE,
-    BTN_2D_MOBILE,
-    BTN_VIDEO_MOBILE,
-    BTN_WEB_MOBILE,
-    BTN_PIXEL_MOBILE,
-    BTN_PORTFOLIO_MOBILE,
-    BTN_BLOG_MOBILE,
-    BTN_BIO_MOBILE,
-    BTN_CONTACT_MOBILE,
+    BTN_PRESENTATION_MOBILE,
+    BTN_EXPERTISE_MOBILE,
+    BTN_PORTFOLIO_SECTION_MOBILE,
+    BTN_BIO_SECTION_MOBILE,
+    BTN_BLOG_SECTION_MOBILE,
+    BTN_CONTACT_SECTION_MOBILE,
+    BTN_SITEMAP_MOBILE,
   ];
   const animationDelay = 50;
 
@@ -402,18 +386,13 @@ function displayNavLinksMobile() {
 function hideNavLinksMobile() {
   const buttons = [
     BTN_HOME_MOBILE,
-    BTN_PROFIL_MOBILE,
-    BTN_GAMES_MOBILE,
-    BTN_UXUI_MOBILE,
-    BTN_3D_MOBILE,
-    BTN_2D_MOBILE,
-    BTN_VIDEO_MOBILE,
-    BTN_WEB_MOBILE,
-    BTN_PIXEL_MOBILE,
-    BTN_PORTFOLIO_MOBILE,
-    BTN_BLOG_MOBILE,
-    BTN_BIO_MOBILE,
-    BTN_CONTACT_MOBILE,
+    BTN_PRESENTATION_MOBILE,
+    BTN_EXPERTISE_MOBILE,
+    BTN_PORTFOLIO_SECTION_MOBILE,
+    BTN_BIO_SECTION_MOBILE,
+    BTN_BLOG_SECTION_MOBILE,
+    BTN_CONTACT_SECTION_MOBILE,
+    BTN_SITEMAP_MOBILE,
   ];
   const animationDelay = 50;
 

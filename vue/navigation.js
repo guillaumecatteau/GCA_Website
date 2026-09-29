@@ -153,9 +153,12 @@ let _homeScroller = null; // instance SectionScroller actuelle
 /////////////// HOME ///////////////
 function activateHome() {
   const buttons = [BTN_HOME_TABLET, BTN_HOME_MOBILE];
+  // Scrolle vers la section "landing" (pas juste accessHome, qui ne fait rien une fois déjà
+  // sur la home dans une autre section — sinon le bouton Accueil devient inutilisable après
+  // la première navigation vers une section).
   buttons.forEach((button) => {
-    button.addEventListener("click", accessHome);
-    button.addEventListener("touchend", accessHome);
+    button.addEventListener("click", () => accessHomeSection("landing"));
+    button.addEventListener("touchend", () => accessHomeSection("landing"));
   });
 }
 function accessHome() {
@@ -167,6 +170,46 @@ function accessHome() {
       _setPage("home");
     }, 500);
   }
+}
+// Accès à une section de la home (tablette/mobile miroir des items de #sectionNav desktop) —
+// retourne d'abord à la home si on est ailleurs, puis scrolle (même logique que le popstate
+// /home/{section} du routeur).
+function accessHomeSection(sectionId) {
+  if (page === "home") {
+    window._homeScrollTo?.(sectionId);
+  } else {
+    accessHome();
+    setTimeout(() => window._homeScrollTo?.(sectionId), 600);
+  }
+}
+function _activateSectionButtons(buttons, sectionId) {
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => accessHomeSection(sectionId));
+    button.addEventListener("touchend", () => accessHomeSection(sectionId));
+  });
+}
+function activatePresentation() {
+  _activateSectionButtons([BTN_PRESENTATION_TABLET, BTN_PRESENTATION_MOBILE], "presentation");
+}
+function activateExpertiseSection() {
+  _activateSectionButtons([BTN_EXPERTISE_TABLET, BTN_EXPERTISE_MOBILE], "expertise");
+}
+function activatePortfolioSection() {
+  _activateSectionButtons([BTN_PORTFOLIO_SECTION_TABLET, BTN_PORTFOLIO_SECTION_MOBILE], "portfolio");
+}
+function activateBioSection() {
+  _activateSectionButtons([BTN_BIO_SECTION_TABLET, BTN_BIO_SECTION_MOBILE], "bio");
+}
+function activateBlogSection() {
+  _activateSectionButtons([BTN_BLOG_SECTION_TABLET, BTN_BLOG_SECTION_MOBILE], "blog");
+}
+function activateContactSection() {
+  _activateSectionButtons([BTN_CONTACT_SECTION_TABLET, BTN_CONTACT_SECTION_MOBILE], "contact");
+}
+// "Plan du site" — mirror du 8e item de #sectionNav, actuellement inerte côté desktop aussi
+// (pas de section correspondante), on reproduit le même comportement (no-op silencieux).
+function activateSitemap() {
+  _activateSectionButtons([BTN_SITEMAP_TABLET, BTN_SITEMAP_MOBILE], "sitemap");
 }
 // Titre custom d'une section home (landing exclue — géré via TL_HOME)
 function _homeSectionTitleEl(sectionId) {
@@ -180,6 +223,8 @@ function displayHome() {
   displayContent(CNT_HOME, 50);
   // Cards dynamiques des sections Expertises / Portfolio / Blog
   window._loadHomeCards?.();
+  // Timeline Expérience / Formation de la section bio
+  window._loadBioTimeline?.();
   // Init du scroll magnétique sur les sections de la home — repositionné
   // directement sur la section ciblée par l'URL (ex: /home/portfolio) pour
   // éviter un flash de la section "landing" avant la transition animée.
@@ -191,10 +236,13 @@ function displayHome() {
   _homeScroller = new SectionScroller(CNT_HOME, CNT_SECTIONNAV);
   _homeScroller.current = _targetIdx;
   _homeScroller.init();
-  if (_targetIdx === 0) titleDisplay(TL_HOME);
-  else titleDisplay(_homeSectionTitleEl(_targetSection));
+  // Permet aux modules de contenu dynamique (cards, timeline bio...) de
+  // recalculer le scroll interne + la scrollbar une fois leur rendu terminé
+  window._refreshSectionScrollUI = () => _homeScroller?.refreshAll();
+  if (_targetIdx === 0) { titleDisplay(TL_HOME); hideBackBlurMask(); }
+  else { titleDisplay(_homeSectionTitleEl(_targetSection)); displayBackBlurMask(); }
 
-  // Mise à jour du slug + titre de section quand on scrolle entre sections
+  // Mise à jour du slug + titre de section + flou d'arrière-plan quand on scrolle
   let _prevSectionId = _targetIdx === 0 ? 'landing' : _targetSection;
   const _onSectionChange = (e) => {
     window._updateHomeSection?.(e.detail.sectionId);
@@ -203,15 +251,19 @@ function displayHome() {
       const nextTitle = e.detail.sectionId === 'landing' ? TL_HOME : _homeSectionTitleEl(e.detail.sectionId);
       if (prevTitle && prevTitle !== nextTitle) titleHide(prevTitle);
       if (nextTitle) titleDisplay(nextTitle);
+      // Seule la section accueil affiche la scène 3D nette, sans flou/tramage
+      if (e.detail.sectionId === 'landing') hideBackBlurMask();
+      else displayBackBlurMask();
       _prevSectionId = e.detail.sectionId;
     }
   };
   CNT_HOME.addEventListener('sectionChange', _onSectionChange);
 
-  // Callback utilisé par le routeur pour scroller vers une section par id
+  // Callback utilisé par le routeur pour scroller vers une section par id (idx 0 = landing/Accueil
+  // inclus, sinon le bouton "Accueil" ne fait plus rien une fois qu'on a navigué vers une section)
   window._homeScrollTo = (sectionId) => {
     const idx = _homeScroller?.sections.findIndex(s => s.dataset.section === sectionId) ?? -1;
-    if (idx > 0) _homeScroller.goTo(idx);
+    if (idx >= 0) _homeScroller.goTo(idx);
   };
   // Icônes section puis icônes sociales desktop en stagger continu
   const _sectionItems = Array.from(CNT_SECTIONNAV.querySelectorAll('.sectionNavItem'));
@@ -272,8 +324,6 @@ function displayHome() {
 /////////////// PROFILE ///////////////
 function activateProfile() {
   const buttons = [
-    BTN_PROFIL_TABLET,
-    BTN_PROFIL_MOBILE,
     BTN_HOME_PROFILE,
   ];
   buttons.forEach((button) => {
@@ -298,7 +348,7 @@ function displayProfile() {
 }
 /////////////// GAMES ///////////////
 function activateGames() {
-  const buttons = [BTN_GAMES_TABLET, BTN_GAMES_MOBILE];
+  const buttons = []; // plus de bouton tablette/mobile depuis le mirroring des sections desktop
   buttons.forEach((button) => {
     button.addEventListener("click", accessGames);
     button.addEventListener("touchend", accessGames);
@@ -321,7 +371,7 @@ function displayGames() {
 }
 /////////////// UXUI ///////////////
 function activateUxUi() {
-  const buttons = [BTN_UXUI_TABLET, BTN_UXUI_MOBILE];
+  const buttons = []; // idem
   buttons.forEach((button) => {
     button.addEventListener("click", accessUxUi);
     button.addEventListener("touchend", accessUxUi);
@@ -344,7 +394,7 @@ function displayUxUi() {
 }
 /////////////// 3D ///////////////
 function activate3d() {
-  const buttons = [BTN_3D_TABLET, BTN_3D_MOBILE];
+  const buttons = []; // idem
   buttons.forEach((button) => {
     button.addEventListener("click", access3d);
     button.addEventListener("touchend", access3d);
@@ -367,7 +417,7 @@ function display3d() {
 }
 /////////////// 2D ///////////////
 function activate2d() {
-  const buttons = [BTN_2D_TABLET, BTN_2D_MOBILE];
+  const buttons = []; // idem
   buttons.forEach((button) => {
     button.addEventListener("click", access2d);
     button.addEventListener("touchend", access2d);
@@ -390,7 +440,7 @@ function display2d() {
 }
 /////////////// VIDEO ///////////////
 function activateVideo() {
-  const buttons = [BTN_VIDEO_TABLET, BTN_VIDEO_MOBILE];
+  const buttons = []; // idem
   buttons.forEach((button) => {
     button.addEventListener("click", accessVideo);
     button.addEventListener("touchend", accessVideo);
@@ -413,7 +463,7 @@ function displayVideo() {
 }
 /////////////// WEB ///////////////
 function activateWeb() {
-  const buttons = [BTN_WEB_TABLET, BTN_WEB_MOBILE];
+  const buttons = []; // idem
   buttons.forEach((button) => {
     button.addEventListener("click", accessWeb);
     button.addEventListener("touchend", accessWeb);
@@ -436,7 +486,7 @@ function displayWeb() {
 }
 /////////////// PIXEL ///////////////
 function activatePixel() {
-  const buttons = [BTN_PIXEL_TABLET, BTN_PIXEL_MOBILE];
+  const buttons = []; // idem
   buttons.forEach((button) => {
     button.addEventListener("click", accessPixel);
     button.addEventListener("touchend", accessPixel);
@@ -459,10 +509,7 @@ function displayPixel() {
 }
 /////////////// PORTFOLIO ///////////////
 function activatePortfolio() {
-  const buttons = [
-    BTN_PORTFOLIO_TABLET,
-    BTN_PORTFOLIO_MOBILE,
-  ];
+  const buttons = []; // idem — remplacé par activatePortfolioSection() (scroll section home)
   buttons.forEach((button) => {
     button.addEventListener("click", accessPortfolio);
     button.addEventListener("touchend", accessPortfolio);
@@ -485,7 +532,7 @@ function displayPortfolio() {
 }
 /////////////// BLOG ///////////////
 function activateBlog() {
-  const buttons = [BTN_BLOG_TABLET, BTN_BLOG_MOBILE];
+  const buttons = []; // idem — remplacé par activateBlogSection() (scroll section home)
   buttons.forEach((button) => {
     button.addEventListener("click", accessBlog);
     button.addEventListener("touchend", accessBlog);
@@ -536,7 +583,7 @@ window.accessPageView = accessPageView;
 
 /////////////// BIO ///////////////
 function activateBio() {
-  const buttons = [BTN_BIO_TABLET, BTN_BIO_MOBILE];
+  const buttons = []; // idem — remplacé par activateBioSection() (scroll section home)
   buttons.forEach((button) => {
     button.addEventListener("click", accessBio);
     button.addEventListener("touchend", accessBio);
@@ -559,7 +606,7 @@ function displayBio() {
 }
 /////////////// CONTACT ///////////////
 function activateContact() {
-  const buttons = [BTN_CONTACT_TABLET, BTN_CONTACT_MOBILE];
+  const buttons = []; // idem — remplacé par activateContactSection() (scroll section home)
   buttons.forEach((button) => {
     button.addEventListener("click", accessContact);
     button.addEventListener("touchend", accessContact);
@@ -891,6 +938,14 @@ function activateNavigation() {
   activateBio();
   activateContact();
   activateConnexion();
+  // Miroir tablette/mobile des sections du menu latéral desktop (#sectionNav)
+  activatePresentation();
+  activateExpertiseSection();
+  activatePortfolioSection();
+  activateBioSection();
+  activateBlogSection();
+  activateContactSection();
+  activateSitemap();
 }
 
 document.addEventListener("DOMContentLoaded", () => {

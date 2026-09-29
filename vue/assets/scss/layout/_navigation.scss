@@ -53,6 +53,7 @@
   gap: 1rem;
   grid-area: mainBloc;
   overflow-y: auto;
+  min-width: 0; // sinon le min-content d'un enfant (carrousel, texte long...) élargit la colonne au-delà de sa part de 3fr/1fr
 }
 
 .sideBlock {
@@ -61,6 +62,7 @@
   gap: 1rem;
   grid-area: sideBloc;
   overflow: visible;
+  min-width: 0; // idem — .basicGrid doit toujours respecter le ratio 3fr/1fr, peu importe le contenu
 }
 
 .gridBlog {
@@ -552,6 +554,7 @@ form {
     width: calc(100% - 200px);
     height: calc(100% - 80px);
     transform: translateY(40px);
+    overflow-y: auto; // sinon un contenu plus haut que le viewport est inaccessible (position:fixed)
   }
   .homeTitle { top: 62.5%; }
   #btnProfileHome { bottom: 20%; }
@@ -563,7 +566,9 @@ form {
     width: 100%;
     height: calc(100% - 80px);
     transform: translateY(40px);
-    z-index: -100;
+    overflow-y: auto; // idem tablette — + PAS de z-index négatif ici (piège corrigé : un
+    // z-index:-100 copié-collé depuis .homeContent passait TOUT le contenu de page derrière
+    // le fond animé, le rendant invisible ET inaccessible au scroll/touch sur mobile)
   }
   .titleTop { gap: 4px; }
   .titleTop > span { font-size: 1.25rem; }

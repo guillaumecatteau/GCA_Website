@@ -28,6 +28,7 @@
         _renderCards(grid, _cachedPages[type], type, isEn);
       } catch (_) {}
     }));
+    window._refreshSectionScrollUI?.();
   }
 
   document.addEventListener('languagechange', (e) => {
@@ -36,6 +37,7 @@
       const grid = document.getElementById(gridId);
       if (grid && _cachedPages[type]) _renderCards(grid, _cachedPages[type], type, isEn);
     });
+    window._refreshSectionScrollUI?.();
   });
 
   function _renderCards(grid, pages, type, isEn) {
@@ -78,6 +80,16 @@
     titleEl.className = 'pageCardTitle';
     titleEl.textContent = title || '';
     info.appendChild(titleEl);
+    // Description carte — uniquement pour les pages expertise
+    if (type === 'expertise') {
+      const desc = isEn ? (page.subtitle_en || page.subtitle_fr) : (page.subtitle_fr || page.subtitle_en);
+      if (desc) {
+        const descEl = document.createElement('span');
+        descEl.className = 'pageCardDesc';
+        descEl.textContent = desc;
+        info.appendChild(descEl);
+      }
+    }
     if (dateLabel) {
       const dateEl = document.createElement('span');
       dateEl.className = 'pageCardDate';

@@ -21,9 +21,10 @@ function getAllPages(string $type = '', bool $visibleOnly = false): array
     $where = empty($conditions) ? '' : 'WHERE ' . implode(' AND ', $conditions);
     $stmt = $bdd->prepare(
         "SELECT p.id, p.type, p.slug, p.title_fr, p.title_en,
+                p.subtitle_fr, p.subtitle_en,
                 p.is_visible, p.comments_enabled,
                 p.date_start, p.date_end, p.date_publication,
-                p.thumbnail_id, p.main_visual_id, p.created_at, p.updated_at,
+                p.thumbnail_id, p.main_visual_id, p.expertise_icon_path, p.created_at, p.updated_at,
                 m.file_path AS cover_path, mc.file_path AS card_path
          FROM pages p
          LEFT JOIN medias m  ON m.id  = p.main_visual_id
@@ -41,10 +42,16 @@ function getPageById(int $id): array|false
     $stmt->execute([':id' => $id]);
     $page = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$page) return false;
-    $page['tags']        = getPageTags($id);
-    $page['related']     = getRelatedPages($id);
-    $page['experiences'] = getPageExperiences($id);
-    $page['blocks']      = getPageBlocks($id);
+    $page['tags']         = getPageTags($id);
+    $page['related']      = getRelatedPages($id);
+    $page['experiences']  = getPageExperiences($id);
+    $page['related_tags'] = getPageRelatedTags($id);
+    $page['blocks']       = getPageBlocks($id);
+    // Right panel "expertise" — articles de blog résolus dynamiquement à partir des tags sélectionnés
+    if ($page['type'] === 'expertise') {
+        $tagIds = array_column($page['related_tags'], 'id');
+        $page['related_posts'] = $tagIds ? getPostsByTagIds($tagIds) : [];
+    }
     // Résout les chemins médias (cover/card/blocs) pour un rendu direct côté client
     $page['cover_path'] = null;
     $page['card_path']  = null;
@@ -126,7 +133,7 @@ function updatePage(int $id, array $data): bool
     global $bdd;
     $allowed = [
         'title_fr','title_en','subtitle_fr','subtitle_en',
-        'main_visual_id','thumbnail_id','is_visible','comments_enabled',
+        'main_visual_id','thumbnail_id','expertise_icon_path','is_visible','comments_enabled',
         'date_start','date_end','date_publication',
         'cover_pos_x','cover_pos_y','cover_scale','cover_video_url',
     ];
@@ -270,8 +277,13 @@ function getRelatedPages(int $pageId): array
 {
     global $bdd;
     $stmt = $bdd->prepare(
-        "SELECT p.id, p.type, p.slug, p.title_fr, p.title_en
-         FROM pages p JOIN pages_related pr ON p.id = pr.related_page_id
+        "SELECT p.id, p.type, p.slug, p.title_fr, p.title_en, p.subtitle_fr, p.subtitle_en,
+                p.date_start, p.date_end, p.thumbnail_id, p.main_visual_id,
+                mc.file_path AS card_path, m.file_path AS cover_path
+         FROM pages p
+         JOIN pages_related pr ON p.id = pr.related_page_id
+         LEFT JOIN medias mc ON mc.id = p.thumbnail_id
+         LEFT JOIN medias m  ON m.id  = p.main_visual_id
          WHERE pr.page_id = :pid"
     );
     $stmt->execute([':pid' => $pageId]);
@@ -282,11 +294,47 @@ function getPageExperiences(int $pageId): array
 {
     global $bdd;
     $stmt = $bdd->prepare(
-        "SELECT e.id, e.title_fr, e.title_en
+        "SELECT e.id, e.title_fr, e.title_en, e.date_start, e.date_end
          FROM experiences e JOIN pages_experiences pe ON e.id = pe.experience_id
-         WHERE pe.page_id = :pid"
+         WHERE pe.page_id = :pid
+         ORDER BY e.date_start DESC"
     );
     $stmt->execute([':pid' => $pageId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Tags "catégorie" sélectionnés pour piloter le box "Related posts" du right panel
+function getPageRelatedTags(int $pageId): array
+{
+    global $bdd;
+    $stmt = $bdd->prepare(
+        "SELECT t.id, t.title_fr, t.title_en
+         FROM tags t JOIN pages_related_tags prt ON t.id = prt.tag_id
+         WHERE prt.page_id = :pid AND t.category = 'category'"
+    );
+    $stmt->execute([':pid' => $pageId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Articles de blog visibles portant au moins un des tags donnés (pour le box "Related posts")
+function getPostsByTagIds(array $tagIds): array
+{
+    global $bdd;
+    $tagIds = array_values(array_unique(array_map('intval', $tagIds)));
+    if (!$tagIds) return [];
+    $placeholders = implode(',', array_fill(0, count($tagIds), '?'));
+    $stmt = $bdd->prepare(
+        "SELECT DISTINCT p.id, p.slug, p.title_fr, p.title_en, p.subtitle_fr, p.subtitle_en,
+                p.date_publication, p.thumbnail_id, p.main_visual_id,
+                mc.file_path AS card_path, m.file_path AS cover_path
+         FROM pages p
+         JOIN pages_tags pt ON pt.page_id = p.id
+         LEFT JOIN medias mc ON mc.id = p.thumbnail_id
+         LEFT JOIN medias m  ON m.id  = p.main_visual_id
+         WHERE p.type = 'blog' AND p.is_visible = 1 AND pt.tag_id IN ($placeholders)
+         ORDER BY p.date_publication DESC"
+    );
+    $stmt->execute($tagIds);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -309,6 +357,11 @@ function _syncPageRelations(int $id, array $data): void
         $bdd->prepare("DELETE FROM pages_experiences WHERE page_id = :id")->execute([':id' => $id]);
         $ins = $bdd->prepare("INSERT IGNORE INTO pages_experiences (page_id, experience_id) VALUES (:pid, :eid)");
         foreach ((array)$data['experiences'] as $eid) $ins->execute([':pid' => $id, ':eid' => (int)$eid]);
+    }
+    if (array_key_exists('related_tags', $data)) {
+        $bdd->prepare("DELETE FROM pages_related_tags WHERE page_id = :id")->execute([':id' => $id]);
+        $ins = $bdd->prepare("INSERT IGNORE INTO pages_related_tags (page_id, tag_id) VALUES (:pid, :tid)");
+        foreach ((array)$data['related_tags'] as $tid) $ins->execute([':pid' => $id, ':tid' => (int)$tid]);
     }
     if (array_key_exists('blocks', $data)) {
         savePageBlocks($id, (array)$data['blocks']);

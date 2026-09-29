@@ -98,6 +98,38 @@
 }
 
 // ---------------------------------------------------------------------------
+// Scroll interne d'une section — activé en JS (SectionScroller) quand le
+// contenu déborde de l'espace disponible. Indépendant du scroll magnétique
+// général : géré par overflow-y + scrollTop manuel, scrollbar native masquée
+// au profit de .sectionScrollBar (cf. scroll.js pour le fondu 64px en JS,
+// dépendant de la position de scroll, appliqué via mask-image inline).
+// .sectionScrollBar est un sibling du wrap (jamais un descendant, sinon
+// l'overflow-y:auto du wrap le rognerait) : sa position/hauteur est calculée
+// et posée en inline style par scroll.js (_positionScrollBar).
+// ---------------------------------------------------------------------------
+.sectionScrollWrap--scrollable {
+  overflow-y: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.sectionScrollBar {
+  position: absolute;
+  width: 4px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sectionScrollBarThumb {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  border-radius: $radius-sm;
+  background: $color-border-active;
+  opacity: 0.5;
+}
+
+// ---------------------------------------------------------------------------
 // Modificateur de layout — section avec colonne 3fr / 1fr
 // Usage : <div class="section section--split">
 // ---------------------------------------------------------------------------
@@ -188,31 +220,23 @@
   color: $color-text-faint;
 }
 
+.pageCardDesc {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  line-height: 1.4;
+}
+
 // Variantes par type — indépendantes, prêtes pour un style dédié futur
 .pageCard--expertise {}
 .pageCard--projet    {}
 .pageCard--blog       {}
 
 
-// Bio — timeline + infos côte à côte
-.sectionBioLayout {
-  width: 100%;
-  height: calc(100% - 120px);
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 2rem;
-}
-
-.sectionBioTimeline {
-  @include flex-column;
-  gap: 1.5rem;
-  overflow-y: auto;
-}
-
-.sectionBioInfo {
-  @include flex-column;
-  gap: 1rem;
-}
+// Bio — panel gauche (mainBlock) : timeline Expérience/Formation/Études, réutilise
+// .basicGrid/.mainBlock/.sideBlock/.tagGroup/.expCard (mêmes styles que l'éditeur
+// d'expériences). Panel droit (sideBlock) : cover + texte (structure page-view).
+// Pas de CSS dédié nécessaire — tout est déjà géré par ces classes partagées.
 
 // Contact — centré, largeur contrainte
 .sectionContactLayout {
@@ -268,6 +292,32 @@
 
   &.sectionNavItem--active > .icon::after {
     opacity: 1;
+  }
+}
+
+// #sectionNav est le menu latéral du mode DESKTOP (home) — un seul mode de navigation visible à
+// la fois, jamais desktop + tablette/mobile en même temps (le menu tablette/mobile prend le relai).
+@include wide-header {
+  .sectionNav { display: none !important; }
+}
+
+// La section Bio de la home réutilise .basicGrid (mainBlock/sideBlock) comme les pages
+// projet/expertise/blog — même traitement responsive que #pageViewGrid : right panel sous
+// left panel en tablette/mobile, un seul scroll interne.
+@include wide-header {
+  #sectionBioGrid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "mainBloc"
+      "sideBloc";
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  #sectionBioGrid .mainBlock,
+  #sectionBioGrid .sideBlock {
+    overflow: visible;
   }
 }
 

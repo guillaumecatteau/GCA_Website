@@ -92,6 +92,20 @@
               <input type="text" id="inputPageTitleEn" class="formInput" maxlength="255" />
             </div>
           </div>
+          <!-- Description carte — pour le type "expertise" uniquement, affichée sur la card d'accueil -->
+          <div class="formGroup langGroup pageExpertiseOnly" id="pageSubtitleGroupWrap" style="display:none">
+            <div class="langSwitch">
+              <label class="formLabel" lang="FR" data-en="Card description">Description carte</label>
+              <button type="button" class="langBtn langBtn--active" data-lang="fr">FR</button>
+              <button type="button" class="langBtn" data-lang="en">EN</button>
+            </div>
+            <div class="langField langField--visible" data-lang="fr">
+              <textarea id="inputPageSubtitleFr" class="formTextarea" maxlength="255" placeholder="Texte affiché sur la card d'expertise"></textarea>
+            </div>
+            <div class="langField" data-lang="en">
+              <textarea id="inputPageSubtitleEn" class="formTextarea" maxlength="255" placeholder="Text displayed on the expertise card"></textarea>
+            </div>
+          </div>
           <div class="formGroup">
             <label class="formLabel" lang="FR" data-en="Type">Type</label>
             <select id="selectEditPageType" class="formSelect">
@@ -129,6 +143,21 @@
               <div class="expTagSelector" id="pageExpSelector"></div>
             </details>
           </div>
+          <!-- Projets liés — pour le type "blog" uniquement -->
+          <div class="formGroup pageBlogOnly" id="pageRelatedGroupWrap" style="display:none">
+            <label class="formLabel" lang="FR" data-en="Related projects">Projets li&eacute;s</label>
+            <details class="expTagDropdown" id="pageRelatedDropdown">
+              <summary class="expTagDropdownSummary">
+                <span lang="FR" data-en="Select projects">S&eacute;lectionner <span id="pageRelatedCount"></span></span>
+              </summary>
+              <div class="expTagSelector" id="pageRelatedSelector"></div>
+            </details>
+          </div>
+          <!-- Date de publication — pour le type "blog" uniquement -->
+          <div class="formGroup pageBlogOnly" id="pageDatePublicationGroup" style="display:none">
+            <label class="formLabel" lang="FR" data-en="Publication date">Date de publication</label>
+            <input type="date" id="inputPageDatePublication" class="formInput" />
+          </div>
           <div class="formGroup">
             <label class="formLabel" lang="FR" data-en="Cover media">M&eacute;dia cover</label>
             <div class="tagIconPicker">
@@ -153,6 +182,49 @@
               </div>
               <input type="hidden" id="inputPageCardId" value="" />
               <button type="button" class="btnSmall" id="btnPickPageCard"><span lang="FR" data-en="Choose&hellip;">Choisir&hellip;</span></button>
+            </div>
+          </div>
+          <!-- Icône d'expertise — pour le type "expertise" uniquement, choisie parmi les icônes "_grey" -->
+          <div class="formGroup pageExpertiseOnly" id="pageExpIconGroupWrap" style="display:none">
+            <label class="formLabel" lang="FR" data-en="Expertise icon">Ic&ocirc;ne d'expertise</label>
+            <div class="tagIconPicker">
+              <div class="tagIconPreview" id="pageExpIconPreview">
+                <img id="pageExpIconPreviewImg" src="" alt="" style="display:none" />
+                <span id="pageExpIconPreviewEmpty">&mdash;</span>
+              </div>
+              <input type="hidden" id="inputPageExpIconPath" value="" />
+              <button type="button" class="btnSmall" id="btnPickPageExpIcon"><span lang="FR" data-en="Choose&hellip;">Choisir&hellip;</span></button>
+            </div>
+          </div>
+          <!-- Right panel display — pour le type "expertise" (système générique, réutilisable pour d'autres types) -->
+          <div class="adminSection pageExpertiseOnly" id="pageRightPanelSection" style="display:none">
+            <span class="adminSectionTitle" lang="FR" data-en="Right panel display">Affichage panneau droit</span>
+            <div class="formGroup">
+              <label class="formLabel" lang="FR" data-en="Related experiences">Exp&eacute;riences li&eacute;es</label>
+              <details class="expTagDropdown" id="pageRPExpDropdown">
+                <summary class="expTagDropdownSummary">
+                  <span lang="FR" data-en="Select experiences">S&eacute;lectionner <span id="pageRPExpCount"></span></span>
+                </summary>
+                <div class="expTagSelector" id="pageRPExpSelector"></div>
+              </details>
+            </div>
+            <div class="formGroup">
+              <label class="formLabel" lang="FR" data-en="Related projects">Projets li&eacute;s</label>
+              <details class="expTagDropdown" id="pageRPProjDropdown">
+                <summary class="expTagDropdownSummary">
+                  <span lang="FR" data-en="Select projects">S&eacute;lectionner <span id="pageRPProjCount"></span></span>
+                </summary>
+                <div class="expTagSelector" id="pageRPProjSelector"></div>
+              </details>
+            </div>
+            <div class="formGroup">
+              <label class="formLabel" lang="FR" data-en="Related posts">Articles li&eacute;s</label>
+              <details class="expTagDropdown" id="pageRPTagDropdown">
+                <summary class="expTagDropdownSummary">
+                  <span lang="FR" data-en="Select categories">S&eacute;lectionner <span id="pageRPTagCount"></span></span>
+                </summary>
+                <div class="expTagSelector" id="pageRPTagSelector"></div>
+              </details>
             </div>
           </div>
           <div class="formGroup">
@@ -218,6 +290,32 @@
         <div class="btnMedium btnDanger" id="btnConfirmDeletePage"><div class="btnLabel"><span class="btnText" lang="FR" data-en="Delete">Supprimer</span></div></div>
         <div class="btnMedium" id="btnCancelDeletePage"><div class="btnLabel"><span class="btnText" lang="FR" data-en="Cancel">Annuler</span></div></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Popup insertion de lien (éditeur de texte riche) -->
+  <div class="confirmOverlay" id="richLinkPopup" style="display:none">
+    <div class="basicBlock richLinkPopupBox">
+      <span class="blockTitle" lang="FR" data-en="Insert a link">Ins&eacute;rer un lien</span>
+      <div class="formGroup">
+        <label class="formLabel" for="inputRichLinkUrl" lang="FR" data-en="URL">URL</label>
+        <input type="url" id="inputRichLinkUrl" class="formInput" placeholder="https://..." />
+      </div>
+      <div class="formGroupBtn richLinkPopupActions">
+        <div class="btnMedium" id="btnCancelRichLink"><div class="btnLabel"><span class="btnText" lang="FR" data-en="Cancel">Annuler</span></div></div>
+        <div class="btnMedium btnOn" id="btnConfirmRichLink"><div class="btnLabel"><span class="btnText" lang="FR" data-en="Insert">Ins&eacute;rer</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup sélecteur d'icône d'expertise (uniquement les icônes "_grey") -->
+  <div class="confirmOverlay" id="expIconBrowser" style="display:none">
+    <div class="iconBrowserBox">
+      <div class="iconBrowserHeader">
+        <span lang="FR" data-en="Choose an expertise icon">Choisir une ic&ocirc;ne d'expertise</span>
+        <button type="button" class="btnSmall" id="btnCloseExpIconBrowser">&#10005;</button>
+      </div>
+      <div class="iconBrowserGrid" id="expIconBrowserGrid"></div>
     </div>
   </div>
 
