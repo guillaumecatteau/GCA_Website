@@ -27,7 +27,12 @@
 // Top Bar
 // ---------------------------------------------------------------------------
 .topBar {
-  height: fit-content;
+  // Hauteur FIXE (pas fit-content) : le desktop sert de référence (36px, hauteur des
+  // icônes .btnConnexion) — sans ça, la tablette (où .burgerContainer fait 64px de haut)
+  // gonflait la hauteur réelle de la topBar bien au-delà du desktop, ce qui décalait tout
+  // le contenu de page en dessous (`.pageContainer` démarre à un offset fixe, $topbar-height,
+  // qui ne tient compte que de CETTE valeur).
+  height: 36px;
   width: calc(100% - 32px);
   margin: 16px;
   @include flex-row;
@@ -129,7 +134,8 @@
 }
 
 .btnConnexion,
-.btnDirectAdmin {
+.btnDirectAdmin,
+.btnShareDesktop {
   height: 36px;
   width: 36px;
   @include flex-center;
@@ -262,14 +268,16 @@
   transition: opacity $transition-fast, width $transition-fast;
 }
 
-.socialLinksTablet {
-  height: fit-content;
-  width: fit-content;
+// Connexion (+ nom d'utilisateur si connecté) — à gauche du sélecteur de langue.
+// Réutilise les classes .btnConnexion/.btnUserLog/.btnAdminLog du desktop (mêmes
+// styles, cf. plus haut), seul ce conteneur de positionnement est propre à la tablette.
+.connexionBoxTablet {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 1.5rem;
-  padding-right: 0.75rem;
+  gap: 0.75rem;
+  opacity: 0;
+  transition: opacity $transition-fast;
 }
 
 // ---------------------------------------------------------------------------
@@ -288,6 +296,10 @@
   transition: all $transition-fast;
 }
 
+// Les 3 barres partagent le même ancrage left:calc(50% - 21px) — la barre du bas utilisait
+// auparavant left:auto; right:0, ce qui la décalait d'1px vers la droite par rapport aux
+// deux autres (aussi bien au repos qu'après l'animation). Même ancrage pour les trois =
+// parfaitement alignées dans tous les états.
 %burger-bar {
   position: absolute;
   left: calc(50% - 21px);
@@ -300,12 +312,7 @@
 
 #burgerBarTop    { @extend %burger-bar; top: 0; }
 #burgerBarMiddle { @extend %burger-bar; top: calc(50% - 3px); }
-#burgerBarBottom {
-  @extend %burger-bar;
-  top: calc(100% - 6px);
-  left: auto;
-  right: 0;
-}
+#burgerBarBottom { @extend %burger-bar; top: calc(100% - 6px); }
 
 // ---------------------------------------------------------------------------
 // Nav Desktop
@@ -450,23 +457,75 @@
 }
 
 .navLinksTablet {
-  height: fit-content;
+  // height:auto (pas fit-content) : fit-content fige la hauteur à sa taille intrinsèque et
+  // empêche le flex-item de rétrécir, même avec min-height:0 — avec height:auto, l'enfant
+  // flex peut réellement se contraindre à l'espace restant du parent et devenir scrollable.
+  height: auto;
   width: fit-content;
   @include flex-column;
   gap: 1.5rem;
+  // Permet à la liste de rétrécir sous sa taille naturelle (et de scroller en interne) si
+  // le container est contraint à une hauteur disponible plus petite — sans ça, le bouton
+  // Partager (ou les derniers liens) pouvait être poussé hors de l'écran sur les viewports
+  // plus courts, invisible et inatteignable.
+  min-height: 0;
+  flex-shrink: 1;
+  overflow-y: auto;
 }
 
 .mainNavContainerTablet {
+  // Collapse ouvert/fermé : AUCUN padding ici (uniquement sur .mainNavContainerTabletInner,
+  // cf. plus bas) — avec box-sizing:border-box (reset global), un padding sur l'élément
+  // dont on anime height:0→N px empêche le rendu de vraiment atteindre 0 (le navigateur
+  // ne descend jamais sous padding-top + padding-bottom), ce qui laissait un bandeau
+  // invisible mais hit-testable (pointer-events:auto) juste sous le burger même menu
+  // "fermé". En gardant ce conteneur neutre (juste la hauteur animée + overflow:hidden),
+  // il atteint un vrai 0px fermé, qui masque ET désactive totalement son enfant.
   height: 0;
   width: 86px;
-  @include flex-center;
-  background-color: #06060977;
-  padding: 1rem 0 2rem;
-  border-radius: 0 0 0 $radius-lg;
   overflow: hidden;
+  border-radius: 0 0 0 $radius-lg;
   opacity: 0;
   pointer-events: auto;
   transition: opacity $transition-medium, height $transition-medium;
+}
+
+.mainNavContainerTabletInner {
+  // height:100% du conteneur externe : reste un contexte de hauteur DÉFINIE même quand
+  // celui-ci est plafonné à une valeur < hauteur naturelle du contenu (cf. menuTabletDeploy()
+  // dans vue/interface.js) — indispensable pour que .navLinksTablet puisse réellement se
+  // contraindre (flex-shrink) et devenir scrollable en interne plutôt que de simplement
+  // déborder, invisible, sous le bouton Partager.
+  height: 100%;
+  width: 100%;
+  @include flex-column;
+  // En haut, pas centré : au repos une fois complètement déployé ça ne change rien (le
+  // contenu occupe exactement scrollHeight), mais PENDANT la transition de hauteur
+  // (0 → scrollHeight) les items apparaissent depuis le haut comme un tiroir qui se
+  // déplie, au lieu d'émerger du milieu vers l'extérieur.
+  justify-content: flex-start;
+  align-items: center;
+  // Pas de fond : seuls les items eux-mêmes doivent être visibles, pas un bloc plein.
+  // padding-top calé pour que l'écart entre le burger et "Accueil" (1er item) soit
+  // identique à celui entre le sélecteur de langue et le burger, cf. vue/interface.js.
+  padding: 20.9px 0 1.5rem;
+}
+
+// Icône partager — tout en bas de l'écran (jamais simplement en bas du contenu : la hauteur
+// du container est plafonnée en JS à l'espace réellement disponible sous le burger, cf.
+// menuTabletDeploy() — le bouton reste donc toujours visible et ancré au bord de l'écran,
+// même si la liste de liens au-dessus doit scroller en interne pour tenir dans cet espace).
+.btnTablet.btnShare {
+  margin-top: auto;
+  flex-shrink: 0;
+  // height:auto plutôt que le height:100% hérité de .btnTablet : ce bouton est un enfant
+  // direct du container (hauteur définie en JS), donc height:100% s'y résolvait littéralement
+  // à TOUTE la hauteur du container (contrairement aux autres items, enfants de <li> non
+  // dimensionnés, où ce même height:100% ne produit aucun effet concret) — combiné à
+  // flex-shrink:0, il engloutissait tout l'espace disponible et réduisait la liste de liens
+  // à 0px.
+  height: auto;
+  padding: 0.5rem 0;
 }
 
 .btnTablet {
@@ -506,29 +565,12 @@
   font-style: normal;
   text-transform: uppercase;
   font-weight: 300;
-  font-size: $font-size-xs;
+  // Réduit par rapport à $font-size-xs (12px) : au hover, le bouton grossit (scale 1.2) et
+  // le libellé le plus long ("Présentation") débordait du container (width: 86px, overflow
+  // hidden) et se retrouvait coupé.
+  font-size: 9px;
+  white-space: nowrap;
   transition: color $transition-fast;
-}
-
-.btnSocialTablet {
-  position: relative;
-  display: flex;
-  height: fit-content;
-  width: fit-content;
-  justify-content: center;
-  opacity: 0;
-  transition: transform $transition-fast, opacity $transition-fast;
-  cursor: pointer;
-
-  > .icon {
-    transform-origin: right center;
-    transform: rotateY(0deg) var(--scale, scale(1));
-    transition: transform $transition-fast, opacity $transition-fast;
-  }
-
-  &:hover > .icon  { --scale: scale(1.5); }
-  &:active > .icon { --scale: scale(1); }
-  &:active > .icon::after { opacity: 1; }
 }
 
 // ---------------------------------------------------------------------------
@@ -545,44 +587,87 @@
 }
 
 .mainNavContainerMobile {
-  // Fermé par défaut (0%, pas 100%) : sinon ce panneau plein écran, bien qu'invisible
-  // (opacity:0), reste hit-testable et bloque en permanence son PROPRE bouton burger
-  // (aucun code n'initialise l'état fermé au chargement, seul menuMobiletHide() le fait,
-  // qui n'est appelé qu'APRÈS un premier clic sur le burger — jamais atteignable sinon).
-  height: 0%;
+  // Fermé par défaut : height:0 (longueur absolue, PAS un pourcentage) — un pourcentage
+  // ("0%") ne se résout de façon fiable que si TOUTE la chaîne de parents a une hauteur
+  // définie explicitement ; dans le cas contraire le navigateur retombe sur un height
+  // "auto" qui se contente de la hauteur minimale du contenu, laissant ce panneau plein
+  // écran, bien qu'invisible (opacity:0), hit-testable en permanence et bloquant les clics
+  // de la page sous lui. 0 (sans unité) est une longueur absolue, toujours résolue à 0px.
+  //
+  // AUCUN padding ici non plus (déplacé sur .mobileMenuInner, cf. plus bas) : avec
+  // box-sizing:border-box (reset global), un padding sur l'élément animé en hauteur
+  // empêche le rendu de vraiment atteindre 0 (jamais sous padding-top + padding-bottom),
+  // laissant ce même bandeau invisible mais hit-testable même "fermé".
+  height: 0;
   width: 100%;
-  @include flex-column;
-  justify-content: space-between;
-  align-items: center;
   background-color: #060609;
-  padding: 12px 24px 24px;
   overflow: hidden;
   opacity: 0;
   pointer-events: auto;
   transition: opacity $transition-fast, height 0.1s ease-in-out;
   z-index: 1000;
+}
+
+.mobileMenuInner {
+  // height:100% du conteneur externe : reste un contexte de hauteur DÉFINIE même quand
+  // celui-ci est réduit à 0 ou en cours de transition — nécessaire pour que le scroll
+  // interne (overflow-y:auto plus bas) fonctionne correctement si le contenu dépasse.
+  height: 100%;
+  width: 100%;
+  @include flex-column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 12px 24px 24px;
+  overflow-y: auto;
+}
+
+// Rangée du haut : logo (identique à celui de la topBar desktop/tablette, qui n'existe
+// plus sur mobile) à gauche, sélecteur de langue au bord opposé, centré verticalement dessus.
+.mobileMenuTopRow {
+  width: 100%;
+  flex-shrink: 0;
+  @include flex-row;
+  justify-content: space-between;
+  align-items: center;
+
+  // Même classes que #mainLogo (topBar) pour un rendu identique — seule l'opacité de base
+  // (0, pensée pour l'animation d'entrée de la topBar via displayMainLogo()) est réécrite
+  // ici : cette instance est démasquée par l'ouverture du menu, pas par une entrée propre.
+  > .mainLogo { opacity: 1; }
 
   > .languageSelector {
-    align-self: flex-end;
     opacity: 0;
     transition: opacity $transition-fast;
   }
 }
 
-.navLinksMobile {
-  height: fit-content;
-  width: fit-content;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+// Icône connexion (+ nom d'utilisateur cliquable si connecté) — entre la rangée du haut
+// et la grille de navigation. Réutilise .btnConnexion/.btnUserLog/.btnAdminLog du desktop.
+.connexionBoxMobile {
+  width: 100%;
+  flex-shrink: 0;
+  @include flex-row;
   justify-content: center;
-  gap: 1rem;
-  margin: 3rem 0;
+  align-items: center;
+  gap: 0.75rem;
+  opacity: 0;
+  transition: opacity $transition-fast;
+}
+
+.navLinksMobile {
+  width: 100%;
+  flex-shrink: 0;
+  display: grid;
+  // 3 par ligne façon clavier de téléphone.
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
 }
 
 .btnMobile {
-  width: 100px;
-  height: 100px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
   @include flex-column;
   align-items: center;
   justify-content: center;
@@ -595,7 +680,7 @@
   transition: transform $transition-fast, opacity $transition-fast,
     background-color $transition-fast, color $transition-fast;
 
-  > .icon { width: 36px; height: 36px; }
+  > .icon { width: 32px; height: 32px; }
 
   &.pressedMobile {
     background-color: $color-text-muted;
@@ -621,17 +706,41 @@
   font-style: normal;
   text-transform: uppercase;
   font-weight: 400;
-  font-size: $font-size-xs;
+  // Réduit par rapport à l'ancienne grille 1 colonne : 3 tuiles par ligne laissent moins
+  // de place par libellé (le plus long, "Présentation", ne doit pas être coupé).
+  font-size: 9px;
+  text-align: center;
   transition: color $transition-fast;
+}
+
+// Libellé au-dessus des icônes de réseaux sociaux.
+.followMeLabel {
+  width: 100%;
+  flex-shrink: 0;
+  margin-top: auto;
+  margin-bottom: -0.75rem;
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-weight: 400;
+  font-style: normal;
+  font-size: $font-size-xs;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 0;
+  transition: opacity $transition-fast;
 }
 
 .socialLinksMobile {
   height: fit-content;
   width: 100%;
+  flex-shrink: 0;
   @include flex-row;
   justify-content: space-around;
   align-items: center;
   margin-bottom: 0.5rem;
+  // Marge à droite pour que la dernière icône ne passe jamais sous le bouton burger fixe
+  // (coin inférieur droit, 76px de large) qui flotte au-dessus de ce menu.
+  padding-right: 64px;
 }
 
 .btnSocialMobile {
@@ -734,7 +843,10 @@
     height: 64px;
     width: 76px;
     display: flex;
-    transform: translateX(4px);
+    // translateX calé pour que le centre du bouton burger tombe exactement sur le centre
+    // du panneau qui se déplie en dessous (.mainNavContainerTablet) : c'est le panneau (et
+    // son contenu) qui fait référence, le burger s'aligne dessus (cf. demande utilisateur).
+    transform: translateX(1.9375px);
     @include flex-center;
     overflow: hidden;
     margin-left: 0;
@@ -747,23 +859,43 @@
   .navTablet    { display: none; }
   .topBarContent { display: none; }
 
+  // L'instance de la topBar (#mainLogo) est masquée en permanence sur mobile : il n'y a
+  // plus de top bar — le logo réapparaît identique (même classes .mainLogo/.mainLogoText)
+  // à l'intérieur du menu burger déplié, cf. #mainLogoMobile plus bas. On cible l'ID (pas
+  // la classe .mainLogo) pour ne pas masquer cette seconde instance par la même règle.
+  #mainLogo { display: none; }
+
+  // Box "popup" collée au coin inférieur droit de l'écran : même langage visuel que les
+  // glass-block classiques, mais SEUL le coin haut-gauche a un radius et SEULS les bords
+  // haut/gauche ont un stroke (les bords bas/droit se confondent avec le bord de l'écran).
   .burgerContainer {
     display: flex;
-    width: 64px;
+    align-items: center;
+    justify-content: center;
+    width: 76px;
+    height: 76px;
     padding: 0;
     margin: 0;
-    // En bas à droite (plus accessible au pouce) plutôt que dans le flux de la topbar.
-    // z-index au-dessus de .navMobile/.mainNavContainerMobile (1000) : sinon, une fois le
-    // menu ouvert, le burger (censé rester cliquable pour refermer) se retrouve peint DERRIÈRE
-    // le panneau plein écran et devient invisible/incliquable.
     position: fixed;
     top: auto;
-    bottom: 16px;
-    right: 16px;
+    bottom: 0;
+    right: 0;
     left: auto;
     z-index: 1001;
+    background-color: $color-block-bg;
+    backdrop-filter: blur(12px);
+    border-top: solid 1px $color-border;
+    border-left: solid 1px $color-border;
+    border-top-left-radius: $radius-lg;
+    transition: all $transition-fast;
   }
 
   .burgerMenu  { margin-top: 3px; width: 64px; }
-  .navMobile   { display: flex; }
+  // align-items:flex-start : sans ça, le cross-axis par défaut (stretch) d'un flex container
+  // row forçait .mainNavContainerMobile à occuper toute la hauteur de .navMobile MÊME
+  // quand son inline style height était explicitement 0% (fermé) — le panneau, bien
+  // qu'invisible (opacity:0), restait donc plein écran et absorbait tous les clics de la
+  // page (pointer-events:auto) au lieu de les laisser passer.
+  .navMobile   { display: flex; align-items: flex-start; }
 }
+

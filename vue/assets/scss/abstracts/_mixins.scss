@@ -15,6 +15,12 @@
 @mixin wide-header {
   @media (max-width: #{$bp-header}) { @content; }
 }
+// Plage "tablette pure" : empilé (menu burger) mais pas encore mobile — assez de largeur pour
+// des mises en page intermédiaires (listes simples, alignements côte à côte). Équivalent JS :
+// window.isTabletRange() (vue/breakpoints.js) — garder les deux synchronisés.
+@mixin tablet-range {
+  @media (min-width: #{$bp-mobile + 1px}) and (max-width: #{$bp-header}) { @content; }
+}
 
 // -----------------------------------------------------------------------------
 // Icône à fichier unique — grey (base) / dark via filtre / white via filtre

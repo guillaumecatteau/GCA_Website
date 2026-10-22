@@ -46,6 +46,17 @@ window.getAnimationDevice = getAnimationDevice;
 function startSequence() {
   startBackground();
 
+  // Lien de réinitialisation de mot de passe reçu par email — page dédiée, hors intro normale.
+  const _resetToken = new URLSearchParams(window.location.search).get('token');
+  if (_resetToken) {
+    setTimeout(() => {
+      displayMainLogo();
+      activateNavigation();
+      window.accessResetPassword?.(_resetToken);
+    }, 400);
+    return;
+  }
+
   // Deep link : sauter l'intro et aller directement à la page cible
   const deepPage = window._routerInit?.();
   if (deepPage) {

@@ -62,7 +62,57 @@
     wrap.appendChild(img);
     if (img.complete) _layoutCover(wrap, img, page);
     window.addEventListener('resize', () => _layoutCover(wrap, img, page));
+    if (page.cover_video_url) _appendCoverVideo(wrap, page.cover_video_url);
     return wrap;
+  }
+
+  // Même extraction d'ID YouTube que l'admin (admintool.js, _getYoutubeThumb) — fallback sur
+  // l'URL brute si elle ne matche pas (autre hébergeur compatible iframe).
+  function _youtubeEmbedUrl(url) {
+    const m = String(url || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+    return m ? `https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0` : url;
+  }
+
+  // Overlay lecture vidéo sur la cover — masqué par défaut (juste le bouton play), la vidéo
+  // (iframe) n'est créée qu'à la première ouverture, jamais chargée en amont.
+  function _appendCoverVideo(wrap, url) {
+    const scrim = document.createElement('div');
+    scrim.className = 'pageViewCoverScrim';
+    wrap.appendChild(scrim);
+
+    const btnPlay = document.createElement('button');
+    btnPlay.type = 'button';
+    btnPlay.className = 'pageViewCoverPlay';
+    btnPlay.innerHTML = '<span class="iconPlay"></span>';
+    wrap.appendChild(btnPlay);
+
+    const videoBox = document.createElement('div');
+    videoBox.className = 'pageViewCoverVideo';
+    const btnClose = document.createElement('button');
+    btnClose.type = 'button';
+    btnClose.className = 'pageViewCoverVideoClose';
+    btnClose.innerHTML = '<span class="icon iconBack"></span>';
+    videoBox.appendChild(btnClose);
+    wrap.appendChild(videoBox);
+
+    let iframe = null;
+    const embedSrc = _youtubeEmbedUrl(url);
+    const open = () => {
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+        iframe.allowFullscreen = true;
+        videoBox.insertBefore(iframe, btnClose);
+      }
+      iframe.src = embedSrc;
+      wrap.classList.add('pageViewCover--videoActive');
+    };
+    const close = () => {
+      wrap.classList.remove('pageViewCover--videoActive');
+      if (iframe) iframe.src = ''; // stoppe la lecture/le son pendant que l'overlay est fermé
+    };
+    btnPlay.addEventListener('click', open);
+    btnClose.addEventListener('click', close);
   }
 
   function _buildTextBlock(block, isEn) {
@@ -219,14 +269,27 @@
     return card;
   }
 
-  // Seuils responsive — DOIVENT rester synchronisés avec $bp-mobile / $bp-header (_variables.scss)
-  const _BP_MOBILE = 800;
-  const _BP_HEADER = 1917; // seuil réel du passage en menu burger (@include wide-header)
-  // Carrousel (auto-play, une card centrée) en desktop ET mobile ; simple liste scrollable
-  // (pas d'auto-play, plusieurs cards visibles) sur la plage "tablette" entre les deux.
-  function _isTabletListMode() {
-    const w = window.innerWidth;
-    return w > _BP_MOBILE && w <= _BP_HEADER;
+  // Seuils partagés — cf. vue/breakpoints.js (chargé avant ce script), source unique pour
+  // toute la logique responsive du site.
+  const _isTabletListMode = () => window.isTabletRange?.() ?? false;
+
+  // Tablette/mobile (même seuil que le stacking CSS de #pageViewGrid, cf. _page-view.scss) :
+  // le right panel (détails) doit être inséré dans le flux du left panel, entre le titre et
+  // le premier bloc — pas simplement empilé sous tout le bloc gauche.
+  const _isStackedMode = () => window.isStackedMode?.() ?? false;
+
+  // Déplace #pageViewSide au bon endroit du DOM selon le breakpoint : juste après le titre
+  // (mode empilé) ou en sibling de .mainBlock dans #pageViewGrid (desktop, layout d'origine).
+  function _positionSide(main, side) {
+    const grid = document.getElementById('pageViewGrid');
+    if (!grid || !main || !side) return;
+    const title = main.querySelector('.pageViewTitle');
+    if (_isStackedMode()) {
+      if (title && title.nextElementSibling !== side) title.insertAdjacentElement('afterend', side);
+    } else {
+      const mainBlockEl = grid.querySelector('.mainBlock');
+      if (mainBlockEl && mainBlockEl.nextElementSibling !== side) mainBlockEl.insertAdjacentElement('afterend', side);
+    }
   }
 
   // Carrousel auto-play — chaque projet est sa PROPRE card, le navigateur défile nativement
@@ -345,8 +408,25 @@
     side.appendChild(box);
   }
 
+  function _buildShareButton(page, isEn) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btnShare pageViewShareBtn';
+    btn.title = 'Partager / Share';
+    btn.dataset.shareTitle = isEn ? (page.title_en || page.title_fr) : (page.title_fr || page.title_en);
+    const icon = document.createElement('span');
+    icon.className = 'icon iconShare';
+    const label = document.createElement('span');
+    label.className = 'pageViewShareLabel';
+    label.textContent = isEn ? 'Share' : 'Partager';
+    btn.appendChild(icon);
+    btn.appendChild(label);
+    return btn;
+  }
+
   function _renderSide(side, page, isEn) {
     side.innerHTML = '';
+    side.appendChild(_buildShareButton(page, isEn));
 
     // Box 1 — (selon le type) détails classiques ou timeline des expériences liées
     const box0 = document.createElement('div');
@@ -361,18 +441,29 @@
     } else {
       const tags = page.tags || [];
       const jobTags      = tags.filter(t => t.category === 'job').map(t => isEn ? (t.title_en || t.title_fr) : (t.title_fr || t.title_en));
-      const categoryTags  = tags.filter(t => t.category === 'category').map(t => isEn ? (t.title_en || t.title_fr) : (t.title_fr || t.title_en));
       const client = (page.experiences || []).map(e => isEn ? (e.title_en || e.title_fr) : (e.title_fr || e.title_en)).join(', ');
       const dateRange = page.type === 'projet'
         ? window._fmtDateRange?.(page.date_start, page.date_end, isEn)
         : window._fmtDate?.((page.date_publication || '').slice(0, 10), isEn);
 
+      // Client + date regroupés (alignés côte à côte en tablette, cf. _page-view.scss) —
+      // les catégories n'apparaissent qu'en desktop, pas assez de place utile en tablette/mobile.
+      const clientDateGroup = document.createElement('div');
+      clientDateGroup.className = 'pageViewDetailRowGroup';
       [
         _buildDetailRow('Client', 'Client', client, isEn),
         _buildDetailRow('Date de production', 'Production date', dateRange, isEn),
-        _buildDetailRow('Crédité en tant que', 'Credited as', jobTags.join(', '), isEn),
-        _buildDetailRow('Catégorie', 'Category', categoryTags.join(', '), isEn),
-      ].forEach(row => { if (row) box0.appendChild(row); });
+      ].forEach(row => { if (row) clientDateGroup.appendChild(row); });
+      if (clientDateGroup.childElementCount) box0.appendChild(clientDateGroup);
+
+      const jobRow = _buildDetailRow('Crédité en tant que', 'Credited as', jobTags.join(', '), isEn);
+      if (jobRow) box0.appendChild(jobRow);
+
+      if (!_isStackedMode()) {
+        const categoryTags = tags.filter(t => t.category === 'category').map(t => isEn ? (t.title_en || t.title_fr) : (t.title_fr || t.title_en));
+        const categoryRow = _buildDetailRow('Catégorie', 'Category', categoryTags.join(', '), isEn);
+        if (categoryRow) box0.appendChild(categoryRow);
+      }
     }
     side.appendChild(box0);
 
@@ -416,6 +507,7 @@
         _renderCategoryTitle(json.page.type, isEn);
         _renderMain(main, json.page, isEn);
         _renderSide(side, json.page, isEn);
+        _positionSide(main, side);
         _lastTabletListMode = _isTabletListMode();
       })
       .catch(() => {});
@@ -436,6 +528,7 @@
     _renderCategoryTitle(_currentPage.type, isEn);
     _renderMain(main, _currentPage, isEn);
     _renderSide(side, _currentPage, isEn);
+    _positionSide(main, side);
   });
 
   // Re-render le right panel si on franchit la frontière carrousel/liste-tablette en resize
@@ -446,13 +539,16 @@
     clearTimeout(_resizeTimer);
     _resizeTimer = setTimeout(() => {
       if (!_currentPage) return;
+      const main = document.getElementById('pageViewMain');
+      const side = document.getElementById('pageViewSide');
+      if (!main || !side) return;
+      _positionSide(main, side);
       const mode = _isTabletListMode();
       if (mode === _lastTabletListMode) return;
       _lastTabletListMode = mode;
-      const side = document.getElementById('pageViewSide');
-      if (!side) return;
       const isEn = document.documentElement.lang === 'en';
       _renderSide(side, _currentPage, isEn);
+      _positionSide(main, side);
     }, 150);
   });
 })();

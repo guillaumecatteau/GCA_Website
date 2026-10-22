@@ -24,6 +24,88 @@
   img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
 }
 
+// Overlay lecture vidéo — scrim + bouton play par défaut, iframe caché tant qu'on ne clique pas.
+.pageViewCoverScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba($color-bg, 0);
+  transition: background $transition-medium;
+  pointer-events: none;
+}
+
+.pageViewCoverPlay {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 64px;
+  height: 64px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $color-block-bg;
+  backdrop-filter: blur(12px);
+  border: 1px solid $color-border;
+  border-radius: 50%;
+  cursor: pointer;
+  transform: scale(1);
+  transform-origin: center;
+  transition: border-color $transition-fast, opacity $transition-fast, transform 0.25s ease-out;
+
+  &:hover {
+    border-color: $color-border-active;
+    transform: scale(1.08);
+    transition: border-color $transition-fast, opacity $transition-fast, transform $transition-icon-bounce;
+  }
+}
+
+.pageViewCoverVideo {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity $transition-medium;
+
+  iframe { width: 100%; height: 100%; border: none; display: block; }
+}
+
+.pageViewCoverVideoClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 4;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transform: scale(1);
+  transform-origin: center;
+  transition: border-color $transition-fast, transform 0.25s ease-out;
+
+  .icon { opacity: 0.6; }
+
+  &:hover {
+    border-color: $color-border-active;
+    transform: scale(1.08);
+    transition: border-color $transition-fast, transform $transition-icon-bounce;
+    .icon { opacity: 1; }
+  }
+}
+
+// État ouvert : scrim assombri, play caché, vidéo visible — tout en fondu (fade in/out).
+.pageViewCover--videoActive {
+  .pageViewCoverScrim { background: rgba($color-bg, 0.75); }
+  .pageViewCoverPlay { opacity: 0; pointer-events: none; }
+  .pageViewCoverVideo { opacity: 1; pointer-events: auto; }
+}
+
 .pageViewBody {
   @include flex-column;
   gap: 1.5rem;
@@ -137,6 +219,42 @@
   gap: 1.25rem;
 }
 
+// Bouton "Partager / Share" — partage l'URL de la page/section courante (cf. vue/share.js)
+.pageViewShareBtn {
+  @include flex-row;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid $color-text-muted;
+  border-radius: 24px;
+  background: none;
+  cursor: pointer;
+  transform: scale(1);
+  transform-origin: center;
+  transition: transform $transition-icon-bounce, border-color $transition-fast, background-color $transition-fast;
+
+  > .icon { width: 18px; height: 18px; }
+
+  &:hover {
+    transform: scale(1.05);
+    border-color: $color-text-primary;
+    background-color: $color-text-muted;
+
+    .pageViewShareLabel { color: $color-bg; }
+    .icon { background-color: $color-bg; }
+  }
+}
+
+.pageViewShareLabel {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  text-transform: uppercase;
+  color: $color-text-muted;
+  transition: color $transition-fast;
+}
+
 .pageViewTitle {
   font-family: $font-heading;
   font-size: $font-size-h1;
@@ -146,6 +264,16 @@
 .pageViewDetailRow {
   @include flex-column;
   gap: 0.3rem;
+}
+
+// Regroupe Client + Date de production — colonne par défaut (desktop, panel étroit), alignés
+// côte à côte en tablette (assez de place une fois le right panel inséré dans le flux principal).
+.pageViewDetailRowGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  .pageViewDetailRow { flex: 1; }
 }
 
 .pageViewDetailLabel {
@@ -380,6 +508,60 @@
   #pageViewGrid .mainBlock,
   #pageViewGrid .sideBlock {
     overflow: visible;
+  }
+
+  // Le right panel est déplacé en JS (page-view.js, _positionSide) entre le titre et le
+  // premier bloc — il ne doit plus ressembler à une box/popup indépendante, juste un
+  // prolongement du contenu du left panel (pas de background/border/padding).
+  #pageViewGrid .pageViewSide .pageViewSideBox {
+    background: none;
+    border: none;
+    backdrop-filter: none;
+    padding: 0;
+  }
+}
+
+// Assez de place en tablette pure (pas encore mobile) pour aligner Client + Date de
+// production côte à côte — reste en colonne en desktop (panel étroit) ET en mobile (pas
+// assez de largeur), cf. mixin `tablet-range` (_mixins.scss).
+@include tablet-range {
+  .pageViewDetailRowGroup {
+    flex-direction: row;
+    gap: 1.5rem;
+
+    .pageViewDetailRow { flex: 1; }
+  }
+}
+
+// Mobile : le cover projet doit être la toute première chose visible de la page (le nom de
+// page/catégorie et le main logo sont masqués, cf. _main-nav.scss) — plus de radius sur le
+// bloc gauche pour un rendu plein-bord.
+@include mobile {
+  .pageViewCategoryTitle { display: none; }
+  .pageViewMain { border-radius: 0; }
+
+  // Bouton retour (uniquement .btnPageBack, pas .btnBackToAdmin qui reste desktop) : miroir
+  // exact de .burgerContainer côté bas-gauche — seul le coin haut-droit a un radius, seuls
+  // les bords haut/droit ont un stroke (bords bas/gauche confondus avec le bord de l'écran).
+  // Toujours présent dans le DOM mais visible seulement quand #cntPAGEVIEW est affiché (donc
+  // "quand c'est nécessaire", ex: en entrant dans un projet du portfolio).
+  .btnPageBack {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: 76px;
+    height: 76px;
+    padding: 0;
+    border: none;
+    border-top: solid 1px $color-border;
+    border-right: solid 1px $color-border;
+    border-radius: 0;
+    border-top-right-radius: $radius-lg;
+    background-color: $color-block-bg;
+    backdrop-filter: blur(12px);
+    z-index: 1001;
   }
 }
 

@@ -2,38 +2,103 @@
 // SECTION NAV LABEL ANIMATIONS
 // Transitions CSS directes sur les spans de label (rotateY + opacity)
 // Évite les conflits avec staggerReveal qui ne gère pas le transform CSS restant
+//
+// Robustesse : lors d'interactions rapides/répétées (survols ou clics successifs
+// avant la fin d'une animation en cours), chaque appel précédent sur un même
+// label est intégralement annulé (tous ses setTimeout en attente) avant de
+// démarrer le nouveau — sinon d'anciens timeouts "hide" peuvent s'exécuter
+// après un "reveal" plus récent (ou l'inverse) et laisser des lettres bloquées
+// dans un état visuel incohérent. Un jeton (`_labelAnimState`) identifie la
+// génération d'animation en cours par label : tout timeout d'une génération
+// périmée se neutralise lui-même au moment de s'exécuter.
 // =============================================================================
+
+const _labelAnimState = new WeakMap(); // labelEl -> { timers: number[] }
+
+function _clearLabelAnim(labelEl) {
+  const state = _labelAnimState.get(labelEl);
+  if (state) state.timers.forEach((id) => clearTimeout(id));
+}
 
 /**
  * Révèle les spans d'un label lettre par lettre (rotateY 90°→0°, opacity 0→1).
- * @param {NodeList|Element[]} spans
- * @param {number} delay  ms entre chaque lettre
+ * @param {Element} labelEl  conteneur .sectionNavLabel (spans = enfants directs)
+ * @param {number}  delay    ms entre chaque lettre
  */
-function _navLabelReveal(spans, delay = 28) {
-  Array.from(spans).forEach((span, i) => {
-    setTimeout(() => {
+function _navLabelReveal(labelEl, delay = 28) {
+  if (!labelEl) return;
+  _clearLabelAnim(labelEl);
+  const state = { timers: [] };
+  _labelAnimState.set(labelEl, state);
+
+  Array.from(labelEl.children).forEach((span, i) => {
+    const id = setTimeout(() => {
+      // Génération périmée (une animation plus récente a déjà pris le relais) : no-op
+      if (_labelAnimState.get(labelEl) !== state) return;
       span.style.transition = `opacity 0.3s ease, transform 0.35s cubic-bezier(0.34,2,0.64,1)`;
       span.style.opacity    = '1';
       span.style.transform  = 'rotateY(0deg)';
     }, delay * i);
+    state.timers.push(id);
   });
 }
 
 /**
  * Cache les spans d'un label lettre par lettre (rotateY 0°→90°, opacity 1→0).
- * @param {NodeList|Element[]} spans
+ * @param {Element} labelEl  conteneur .sectionNavLabel (spans = enfants directs)
  * @param {boolean} reverse  true = masquer de droite à gauche
  * @param {number}  delay    ms entre chaque lettre
  */
-function _navLabelHide(spans, reverse = false, delay = 20) {
-  const arr = Array.from(spans);
+function _navLabelHide(labelEl, reverse = false, delay = 20) {
+  if (!labelEl) return;
+  _clearLabelAnim(labelEl);
+  const state = { timers: [] };
+  _labelAnimState.set(labelEl, state);
+
+  const arr = Array.from(labelEl.children);
   if (reverse) arr.reverse();
   arr.forEach((span, i) => {
-    setTimeout(() => {
+    const id = setTimeout(() => {
+      if (_labelAnimState.get(labelEl) !== state) return;
       span.style.transition = `opacity 0.2s ease, transform 0.2s ease-in`;
       span.style.opacity    = '0';
       span.style.transform  = 'rotateY(90deg)';
     }, delay * i);
+    state.timers.push(id);
+  });
+}
+
+/**
+ * Reconstruit les lettres d'un label (.sectionNavLabel[data-en]) dans la langue demandée —
+ * seul moyen de traduire un texte animé lettre par lettre sans perdre son état visuel en
+ * cours (visible/caché). Le texte FR d'origine est mémorisé une seule fois (dataset._langFr)
+ * à partir du contenu HTML initial, exactement comme controller/language.js le fait pour les
+ * éléments texte simples.
+ * @param {Element} labelEl  conteneur .sectionNavLabel portant data-en="..."
+ * @param {string}  lang     'fr' | 'en'
+ */
+function _setNavLabelLang(labelEl, lang) {
+  if (!labelEl || !labelEl.hasAttribute('data-en')) return;
+  if (labelEl.dataset._langFr === undefined) {
+    labelEl.dataset._langFr = Array.from(labelEl.children).map((s) => s.textContent).join('');
+  }
+  const wanted = (lang === 'en' ? labelEl.getAttribute('data-en') : labelEl.dataset._langFr).toUpperCase();
+  const current = Array.from(labelEl.children).map((s) => s.textContent).join('');
+  if (current === wanted) return; // déjà dans la bonne langue — rien à reconstruire
+
+  // Préserve l'état visuel courant (entièrement révélé ou entièrement caché) plutôt que de
+  // rejouer l'animation lettre par lettre à chaque changement de langue.
+  const wasVisible = labelEl.children[0]?.style.opacity === '1';
+  _clearLabelAnim(labelEl);
+  labelEl.innerHTML = '';
+  wanted.split('').forEach((ch) => {
+    const span = document.createElement('span');
+    span.textContent = ch === ' ' ? '\u00A0' : ch;
+    if (wasVisible) {
+      span.style.opacity   = '1';
+      span.style.transform = 'rotateY(0deg)';
+    }
+    labelEl.appendChild(span);
   });
 }
 
@@ -234,6 +299,12 @@ class SectionScroller {
     from.classList.add(exitClass);
     to.classList.add(enterClass);
 
+    // Feedback immédiat — nav (icône/couleur active) + flou d'arrière-plan : ne jamais
+    // attendre la fin de la transition de contenu (cf. duration), sinon l'utilisateur n'a
+    // aucun retour visuel pendant les ~700ms de chargement de la section.
+    this._updateNav(toIdx);
+    this._applyBackdrop(toIdx);
+
     setTimeout(() => {
       from.classList.remove(exitClass);
       to.classList.remove(enterClass);
@@ -242,10 +313,15 @@ class SectionScroller {
       this.current   = toIdx;
       this.animating = false;
 
-      this._updateNav(toIdx);
       this._refreshSection(to);
       this._dispatchChange(toIdx);
     }, this.duration);
+  }
+
+  // Seule la section "landing" (index 0) affiche la scène 3D nette, sans flou/tramage
+  _applyBackdrop(toIdx) {
+    if (toIdx === 0) window.hideBackBlurMask?.();
+    else window.displayBackBlurMask?.();
   }
 
   // ── Nav icônes + labels ─────────────────────────────────────────────────────
@@ -261,14 +337,14 @@ class SectionScroller {
     // pour éviter les conflits avec le transform rotateY des spans
     const activeItem = this.navItems[activeIndex];
     if (activeItem) {
-      _navLabelReveal(activeItem.querySelectorAll('.sectionNavLabel > span'));
+      _navLabelReveal(activeItem.querySelector('.sectionNavLabel'));
     }
 
     // Cacher le label de l'ancien actif si on n'est pas en zone hover
     if (prev !== undefined && prev !== activeIndex && !this._labelHoverActive) {
       const prevItem = this.navItems[prev];
       if (prevItem) {
-        _navLabelHide(prevItem.querySelectorAll('.sectionNavLabel > span'), true);
+        _navLabelHide(prevItem.querySelector('.sectionNavLabel'), true);
       }
     }
 
@@ -277,6 +353,33 @@ class SectionScroller {
 
   _bindNavClicks() {
     this.navItems.forEach((item) => {
+      // Feedback tactile immédiat (enfoncement au clic, rebond prononcé au relâchement),
+      // entièrement découplé de la navigation réelle (goTo) — l'un ne doit jamais bloquer
+      // ou retarder l'autre, même en cas de clics rapides et répétés.
+      const press   = () => item.classList.add('sectionNavItem--pressed');
+      const release = () => {
+        if (!item.classList.contains('sectionNavItem--pressed')) return;
+        item.classList.remove('sectionNavItem--pressed');
+        // Un seul rebond : on anime directement vers l'état final réel (actif = toujours
+        // scale(1.08), sinon survolé ou non), jamais vers une valeur intermédiaire fixe —
+        // sinon :hover/--active reprend la main juste après et déclenche un second rebond
+        // (double bounce) une fois --released retiré.
+        const isActive = item.classList.contains('sectionNavItem--active');
+        const restingScale = (isActive || item.matches(':hover')) ? '1.08' : '1';
+        item.classList.add('sectionNavItem--released');
+        item.style.transform = `scale(${restingScale})`;
+        item.addEventListener('transitionend', function onEnd(e) {
+          if (e.propertyName !== 'transform') return;
+          item.classList.remove('sectionNavItem--released');
+          item.style.removeProperty('transform');
+          item.removeEventListener('transitionend', onEnd);
+        });
+      };
+      item.addEventListener('pointerdown', press);
+      item.addEventListener('pointerup', release);
+      item.addEventListener('pointercancel', release);
+      item.addEventListener('pointerleave', () => item.classList.remove('sectionNavItem--pressed'));
+
       item.addEventListener('click', () => {
         const target = parseInt(item.dataset.target, 10);
         if (!isNaN(target)) this.goTo(target);

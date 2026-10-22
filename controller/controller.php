@@ -51,10 +51,6 @@ switch ($action) {
         require_once 'comment_post.php';
         break;
 
-    // ── Legacy ────────────────────────────────────────────────────────────
-    case 'search_user':
-        require_once 'search_user.php';
-        break;
 
     default:
         http_response_code(400);

@@ -238,12 +238,105 @@
 // d'expériences). Panel droit (sideBlock) : cover + texte (structure page-view).
 // Pas de CSS dédié nécessaire — tout est déjà géré par ces classes partagées.
 
+// ---------------------------------------------------------------------------
+// Landing — indicateur "scroll down" ancré en bas de section
+// ---------------------------------------------------------------------------
+.scrollDownIndicator {
+  position: absolute;
+  left: 50%;
+  bottom: 48px;
+  transform: translateX(-50%);
+  @include flex-column;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.scrollDownChevrons {
+  position: relative;
+  width: 28px;
+  height: 24px;
+}
+
+.scrollDownChevron {
+  position: absolute;
+  left: 0;
+  width: 28px;
+  height: 8px;
+  opacity: 0;
+  transform: scale3d(0.5, 0.5, 0.5);
+  animation: scrollDownMove 3s ease-out infinite;
+
+  &:nth-child(1) { animation-delay: 1s; }
+  &:nth-child(2) { animation-delay: 2s; }
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 51%;
+    // "lightGray" du design system — équivalent du blanc d'origine, cohérent avec le
+    // reste de la charte (cf. $color-text-muted, utilisé partout ailleurs pour ce ton).
+    background: $color-text-muted;
+  }
+
+  &::before {
+    left: 0;
+    transform: skew(0deg, 30deg);
+  }
+
+  &::after {
+    right: 0;
+    width: 50%;
+    transform: skew(0deg, -30deg);
+  }
+}
+
+@keyframes scrollDownMove {
+  25%  { opacity: 1; }
+  33%  { opacity: 1; transform: translateY(30px); }
+  67%  { opacity: 1; transform: translateY(40px); }
+  100% { opacity: 0; transform: translateY(55px) scale3d(0.5, 0.5, 0.5); }
+}
+
+.scrollDownText {
+  display: block;
+  margin-top: 70px;
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  opacity: .25;
+  animation: scrollDownPulse 2s linear alternate infinite;
+}
+
+@keyframes scrollDownPulse {
+  to { opacity: 1; }
+}
+
 // Contact — centré, largeur contrainte
 .sectionContactLayout {
   width: 100%;
   max-width: 640px;
   @include flex-column;
+  align-items: center;
   gap: 2rem;
+}
+
+// Champ message (textarea) — hauteur libre, icônes de validation sous le champ
+// plutôt qu'en position absolue (incompatible avec une hauteur variable)
+.formGroup--textarea {
+  height: auto;
+
+  .validationIcons {
+    position: static;
+    align-self: flex-end;
+    margin-top: 4px;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -260,7 +353,11 @@
   align-items: flex-start;
   gap: 0.25rem;
   z-index: 200;
-  pointer-events: auto;
+  // La zone vide (ce conteneur s'étire verticalement entre top/bottom, bien au-delà des 7
+  // icônes elles-mêmes) ne doit jamais intercepter de clic — seuls les items le sont
+  // (cf. .sectionNavItem ci-dessous), sinon un clic en dehors d'un item ne fait rien au
+  // lieu de retomber sur le contenu de page réellement situé à cet endroit.
+  pointer-events: none;
 }
 
 .sectionNavItem {
@@ -269,12 +366,24 @@
   justify-content: flex-start;
   align-items: center;
   gap: 10px;
+  // Comble toute la largeur de la colonne (alignée sur le libellé le plus large, ex.
+  // "Présentation") au lieu de s'arrêter à la largeur de son propre contenu — sans ça, un
+  // libellé court (Bio, Blog...) laisse une zone morte à sa droite qui appartient au
+  // conteneur .sectionNav (display:none pointer-events), pas à l'item : un clic dedans ne
+  // déclenche jamais la navigation alors qu'il semble visuellement faire partie du bouton.
+  width: 100%;
   height: 36px;
   cursor: pointer;
   opacity: 1;
+  pointer-events: auto;
   transform: scale(1);
   transform-origin: left center;
   transition: transform 0.25s ease-out; // ease-out au retour (pas de squash)
+  // Icône + label forment un seul bloc cliquable : jamais de sélection de texte sur le
+  // label qui intercepterait le clic (mousedown→drag même minime sur du texte réel) —
+  // l'icône et le texte doivent réagir strictement de la même façon à l'activation.
+  user-select: none;
+  -webkit-user-select: none;
 
   > .icon {
     width: 20px;
@@ -288,6 +397,32 @@
   &:hover {
     transition: transform $transition-icon-bounce; // bounce à l'aller
     transform: scale(1.08);
+  }
+
+  // Clic : enfoncement immédiat — feedback tactile qui ne dépend jamais du chargement
+  // de la section (contrairement à --active, appliqué lui aussi immédiatement désormais).
+  &.sectionNavItem--pressed {
+    transition: transform 0.12s cubic-bezier(0.4, 0, 1, 1);
+    transform: scale(0.78);
+  }
+
+  // Relâchement : rebond prononcé au-delà de la taille normale avant stabilisation
+  // (même courbe à overshoot que le hover, déclenchée explicitement pour primer sur lui
+  // pendant la durée de l'animation — nettoyée au transitionend, cf. scroll.js).
+  &.sectionNavItem--released {
+    transition: transform $transition-icon-bounce;
+    transform: scale(1);
+  }
+
+  // Item actif : identification claire et STABLE — taille légèrement supérieure et
+  // constante, jamais affectée par le survol (contrairement aux items inactifs, dont le
+  // hover reste un aperçu/feedback transitoire). Sans ça, l'item actif grossissait encore
+  // au survol exactement comme n'importe quel autre, rendant l'état actif ambigu.
+  &.sectionNavItem--active {
+    transform: scale(1.08);
+    transition: transform $transition-icon-bounce;
+
+    &:hover { transform: scale(1.08); }
   }
 
   &.sectionNavItem--active > .icon::after {
@@ -334,6 +469,10 @@
 
   > span {
     display: inline-block;
+    // Explicite (pas seulement hérité) : garantit qu'aucune lettre ne devient jamais
+    // elle-même la cible d'un clic/drag de sélection, quel que soit l'état d'affichage.
+    pointer-events: none;
+    user-select: none;
     color: $color-text-muted;
     font-family: $font-body;
     font-size: $font-size-sm;

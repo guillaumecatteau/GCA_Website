@@ -45,24 +45,6 @@
           <span class="icon iconEye" style="display: none"></span>
         </button>
       </div>
-      <div class="formGroup">
-        <label class="formLabel" for="inputQuestionARegister">Couleur favorite</label>
-        <input class="formInput" type="text" id="inputQuestionARegister" name="questionA" maxlength="100" placeholder="Entrez votre réponse" />
-        <p class="errorMessage" id="questionAErrorTextRegister" style="display: none">Doit contenir au moins 2 caractères.</p>
-        <div class="validationIcons">
-          <span class="icon iconValid" id="questionAValidRegister" style="display: none"></span>
-          <span class="icon iconProhibed" id="questionAProhibedRegister" style="display: none"></span>
-        </div>
-      </div>
-      <div class="formGroup">
-        <label class="formLabel" for="inputQuestionBRegister">Plat préféré</label>
-        <input class="formInput" type="text" id="inputQuestionBRegister" name="questionB" maxlength="100" placeholder="Entrez votre réponse" />
-        <p class="errorMessage" id="questionBErrorTextRegister" style="display: none">Doit contenir au moins 2 caractères.</p>
-        <div class="validationIcons">
-          <span class="icon iconValid" id="questionBValidRegister" style="display: none"></span>
-          <span class="icon iconProhibed" id="questionBProhibedRegister" style="display: none"></span>
-        </div>
-      </div>
       <label class="formCheckboxLabel">
         <input type="checkbox" id="mailingRegister" name="remember" />
         <span class="formCheckbox"></span>

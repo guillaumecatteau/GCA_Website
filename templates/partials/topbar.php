@@ -21,6 +21,9 @@
       <a class="btnDirectAdmin" id="btnDirectAdmin" title="Admin tool">
         <span class="icon iconAdmin"></span>
       </a>
+      <button type="button" class="btnShareDesktop btnShare" id="btnShareDesktop" title="Partager / Share">
+        <span class="icon iconShare"></span>
+      </button>
       <a class="btnConnexion" id="btnConnexionDesktop">
         <span class="icon iconConnect" id="btnConnexionIconDesktop"></span>
       </a>
@@ -34,13 +37,19 @@
   </div>
   <div class="topBarContent">
     <nav class="tabletMenuTop" id="menuTabletTop">
-      <ul class="socialLinksTablet">
-        <li><a class="btnSocialTablet" id="btnArtstationTablet" href="https://www.artstation.com/gcdigitalarts" target="_blank" rel="noopener noreferrer"><span class="icon iconRoundArtstation"></span></a></li>
-        <li><a class="btnSocialTablet" id="btnLinkedinTablet" href="https://www.linkedin.com/in/guillaumecatteau/" target="_blank" rel="noopener noreferrer"><span class="icon iconRoundLinkedin"></span></a></li>
-        <li><a class="btnSocialTablet" id="btnYoutubeTablet" href="https://www.youtube.com/@GuillaumeCatteau" target="_blank" rel="noopener noreferrer"><span class="icon iconRoundYoutube"></span></a></li>
-        <li><a class="btnSocialTablet" id="btnFacebookTablet" href="https://www.facebook.com/guillaume.catteau" target="_blank" rel="noopener noreferrer"><span class="icon iconRoundFacebook"></span></a></li>
-        <li><a class="btnSocialTablet" id="btnXTablet" href="https://x.com/GC_DigitalArts" target="_blank" rel="noopener noreferrer"><span class="icon iconRoundX"></span></a></li>
-      </ul>
+      <div class="connexionBoxTablet" id="connexionBoxTablet">
+        <a class="btnUserLog" id="btnUserLogTablet" style="display: none">
+          <span class="icon iconUser"></span>
+          <span class="btnUserLogText" id="userNameTablet"><?php if (isset($_SESSION['user'])): ?><?= htmlspecialchars($_SESSION['user']['firstname']) . ' ' . htmlspecialchars($_SESSION['user']['name']) ?><?php endif; ?></span>
+        </a>
+        <a class="btnAdminLog" id="btnAdminLogTablet" style="display: none">
+          <span class="icon iconUser"></span>
+          <span class="btnUserLogText" id="adminNameTablet"><?php if (isset($_SESSION['user'])): ?><?= htmlspecialchars($_SESSION['user']['firstname']) . ' ' . htmlspecialchars($_SESSION['user']['name']) ?><?php endif; ?></span>
+        </a>
+        <a class="btnConnexion" id="btnConnexionTablet">
+          <span class="icon iconConnect" id="btnConnexionIconTablet"></span>
+        </a>
+      </div>
       <div class="languageSelector" id="languageSelectorTablet">
         <select id="langTablet">
           <option value="fr">FR</option>

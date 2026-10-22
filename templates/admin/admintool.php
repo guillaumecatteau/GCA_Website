@@ -57,6 +57,12 @@
             <span class="btnText" lang="FR" data-en="Comments">Commentaires</span>
           </div>
         </div>
+        <div class="btnMedium btnLarge" id="btnMessagesManagement">
+          <div class="btnLabel">
+            <span class="icon iconCommentsManagement"></span>
+            <span class="btnText" lang="FR" data-en="Messages">Messagerie</span>
+          </div>
+        </div>
         <div class="btnMedium btnLarge" id="btnSceneEditor">
           <div class="btnLabel">
             <span class="icon icon3d"></span>

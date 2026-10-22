@@ -30,36 +30,6 @@
   overflow: visible;
 }
 
-// ── Strokes de débug ─────────────────────────────────────────────────────
-// Visibles uniquement quand <body class="debug-visible">
-// Le bouton toggle est injecté par JS (debugToggle.js)
-body.debug-visible {
-  .pageContainer    { outline: 2px solid red; }
-  .navContainer     { outline: 2px solid blue; }
-  .topBar           { outline: 2px solid yellow; }
-  .adminToolContent,
-  .usersManagementContent,
-  .tagsContent,
-  .mediasContent,
-  .pagesContent,
-  .experiencesContent,
-  .commentsContent,
-  .analyticsContent { outline: 2px solid magenta; }
-  .adminToolLayout  { outline: 2px solid lime; }
-  .adminToolMain    { outline: 2px solid cyan; }
-  .adminToolSidebar { outline: 2px solid orange; }
-  .title.titleTop   { outline: 2px dashed yellow; }
-  .basicGrid        { outline: 2px solid lime; }
-  .mainBlock        { outline: 2px solid cyan; }
-  .sideBlock        { outline: 2px solid orange; }
-}
-
-// Outil dev uniquement utile en desktop (le bouton, position:fixed bottom/right, recouvrait
-// sinon le bouton burger tablette/mobile qui occupe le même coin de l'écran).
-@include wide-header {
-  #debugToggleBtn { display: none !important; }
-}
-
 // Placeholder pour zones "à venir"
 .adminPlaceholder {
   color: $color-text-faint;

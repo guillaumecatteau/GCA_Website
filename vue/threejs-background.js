@@ -19,18 +19,6 @@ import { BokehPass }       from 'three/addons/postprocessing/BokehPass.js';
 // ─── Thèmes par page ─────────────────────────────────────────────────────────
 const THEMES = {
   home:            { wire: '#666666', glow: '#1a1a2e', speed: 0.0018 },
-  profile:         { wire: '#4fc3f7', glow: '#0d2137', speed: 0.0025 },
-  games:           { wire: '#7c4dff', glow: '#1a0050', speed: 0.0040 },
-  uxui:            { wire: '#00e5ff', glow: '#003d45', speed: 0.0025 },
-  '3d':            { wire: '#ff6d00', glow: '#3e1200', speed: 0.0030 },
-  '2d':            { wire: '#ff4081', glow: '#3e0020', speed: 0.0030 },
-  video:           { wire: '#e040fb', glow: '#2a0045', speed: 0.0030 },
-  web:             { wire: '#69f0ae', glow: '#003020', speed: 0.0025 },
-  pixel:           { wire: '#ffd600', glow: '#3a2800', speed: 0.0030 },
-  portfolio:       { wire: '#ffd740', glow: '#382500', speed: 0.0025 },
-  blog:            { wire: '#90a4ae', glow: '#0d1b26', speed: 0.0018 },
-  bio:             { wire: '#ffccbc', glow: '#3e1000', speed: 0.0018 },
-  contact:         { wire: '#80deea', glow: '#003040', speed: 0.0025 },
   connexion:       { wire: '#ef9a9a', glow: '#3e0808', speed: 0.0025 },
   register:        { wire: '#a5d6a7', glow: '#073e10', speed: 0.0025 },
   userprofile:     { wire: '#4fc3f7', glow: '#0d2137', speed: 0.0025 },
@@ -526,8 +514,23 @@ function _buildLightTexture() {
   }
 }
 // ─── Chargement de la scène glTF principale ───────────────────────────────────
-function _loadGLTFScene() {
+// Robustesse : un rafraîchissement forcé (Ctrl+F5) relance TOUTES les requêtes réseau en
+// parallèle (cache HTTP ignoré) — un simple aléa réseau peut alors faire échouer le fetch
+// du .glb une fois sur quelques dizaines, sans aucun rattrapage auparavant (le logo restait
+// alors invisible en permanence, `_logoGroup.visible` ne passant jamais à true). On retente
+// automatiquement quelques fois avant d'abandonner, et on nettoie les tableaux de meshes à
+// chaque tentative pour que la fonction reste ré-entrante (jamais de doublons en cas de
+// second appel, volontaire ou non).
+const _GLB_MAX_ATTEMPTS = 4;
+function _loadGLTFScene(attempt = 1) {
   const loader = new GLTFLoader();
+
+  // Réinitialise l'état de classification des meshes — nécessaire si cette fonction est
+  // rappelée (retry après échec), sinon les tableaux accumuleraient les meshes en double.
+  _logoBodyMeshes.length  = 0;
+  _logoLightMeshes.length = 0;
+  _groundMeshes.length    = 0;
+  _envTopObjects.length   = 0;
 
   loader.load(
     'vue/assets/meshes/MainScene.glb',
@@ -628,7 +631,16 @@ function _loadGLTFScene() {
       if (_pendingState) applyEditorState(_pendingState);
     },
     undefined,
-    err => console.error('[GCABackground] Erreur chargement MainScene.glb :', err)
+    (err) => {
+      console.error(`[GCABackground] Erreur chargement MainScene.glb (tentative ${attempt}/${_GLB_MAX_ATTEMPTS}) :`, err);
+      if (attempt < _GLB_MAX_ATTEMPTS) {
+        // Backoff court — suffisant pour laisser passer un aléa réseau ponctuel sans
+        // retarder perceptiblement l'affichage en cas de succès dès la 1ère tentative.
+        setTimeout(() => _loadGLTFScene(attempt + 1), 400 * attempt);
+      } else {
+        console.error('[GCABackground] Abandon du chargement de MainScene.glb après plusieurs tentatives.');
+      }
+    }
   );
 }
 
@@ -1157,6 +1169,7 @@ function stopAnimation() {
 
 function dispose() {
   if (_raf) cancelAnimationFrame(_raf);
+  _raf = null;
   _cameraInitialized = false; // reset pour permettre une téléportation propre si init() est rappelé
   window.removeEventListener('mousemove', _onMouseMove);
   window.removeEventListener('touchmove', _onTouchMove);
@@ -1175,6 +1188,20 @@ function dispose() {
   _pointCloud?.material?.dispose();
   _composer?.dispose();
   _renderer?.dispose();
+  // Sans ça, init() restait indéfiniment no-op après un dispose() (garde `if (_renderer) return`
+  // sur un renderer déjà disposé mais toujours non-null) — la scène ne pouvait plus jamais
+  // être reconstruite correctement.
+  _renderer         = null;
+  _scene            = null;
+  _camera           = null;
+  _composer         = null;
+  _glbLoaded        = false;
+  _pendingState      = null;
+  _logoGroup        = null;
+  _logoBodyMeshes.length  = 0;
+  _logoLightMeshes.length = 0;
+  _groundMeshes.length    = 0;
+  _envTopObjects.length   = 0;
 }
 
 // ─── API Éditeur ──────────────────────────────────────────────────────────────

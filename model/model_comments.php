@@ -132,3 +132,74 @@ function getPublicComments(int $pageId): array
     $stmt->execute([':pid' => $pageId]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+// ─── Messagerie privée utilisateur ↔ admin (comments.page_id IS NULL) ─────────
+
+function createChatMessage(int $userId, string $message, bool $isAdminReply): int|false
+{
+    global $bdd;
+    $stmt = $bdd->prepare(
+        "INSERT INTO comments (user_id, page_id, message, is_admin_reply)
+         VALUES (:uid, NULL, :msg, :reply)"
+    );
+    $stmt->execute([':uid' => $userId, ':msg' => $message, ':reply' => (int)$isAdminReply]);
+    return (int)$bdd->lastInsertId();
+}
+
+function getChatThread(int $userId): array
+{
+    global $bdd;
+    $stmt = $bdd->prepare(
+        "SELECT id, message, is_admin_reply, created_at, read_at
+         FROM comments
+         WHERE user_id = :uid AND page_id IS NULL
+         ORDER BY created_at ASC"
+    );
+    $stmt->execute([':uid' => $userId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Marque comme lus les messages envoyés par l'AUTRE partie du fil : l'admin lit
+// les messages de l'utilisateur ($byAdmin = true), l'utilisateur lit les réponses
+// de l'admin ($byAdmin = false).
+function markChatThreadRead(int $userId, bool $byAdmin): bool
+{
+    global $bdd;
+    $stmt = $bdd->prepare(
+        "UPDATE comments SET read_at = NOW()
+         WHERE user_id = :uid AND page_id IS NULL AND is_admin_reply = :reply AND read_at IS NULL"
+    );
+    return $stmt->execute([':uid' => $userId, ':reply' => $byAdmin ? 0 : 1]);
+}
+
+function countUnreadChatForUser(int $userId): int
+{
+    global $bdd;
+    $stmt = $bdd->prepare(
+        "SELECT COUNT(*) FROM comments
+         WHERE user_id = :uid AND page_id IS NULL AND is_admin_reply = 1 AND read_at IS NULL"
+    );
+    $stmt->execute([':uid' => $userId]);
+    return (int)$stmt->fetchColumn();
+}
+
+// Vue d'ensemble pour la boîte de réception admin : un fil par utilisateur ayant
+// déjà échangé, avec le dernier message et le nombre de messages utilisateur non lus.
+function getChatThreadsOverview(): array
+{
+    global $bdd;
+    $stmt = $bdd->query(
+        "SELECT u.id AS user_id, CONCAT(u.firstname, ' ', u.name) AS user_name, u.mail,
+                (SELECT message    FROM comments c2 WHERE c2.user_id = u.id AND c2.page_id IS NULL
+                   ORDER BY c2.created_at DESC LIMIT 1) AS last_message,
+                (SELECT created_at FROM comments c3 WHERE c3.user_id = u.id AND c3.page_id IS NULL
+                   ORDER BY c3.created_at DESC LIMIT 1) AS last_message_at,
+                (SELECT COUNT(*)  FROM comments c4 WHERE c4.user_id = u.id AND c4.page_id IS NULL
+                   AND c4.is_admin_reply = 0 AND c4.read_at IS NULL) AS unread_count
+         FROM users u
+         WHERE EXISTS (SELECT 1 FROM comments c1 WHERE c1.user_id = u.id AND c1.page_id IS NULL)
+         ORDER BY last_message_at DESC"
+    );
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+

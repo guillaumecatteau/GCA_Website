@@ -4,7 +4,6 @@
 // Convention de nommage :
 //   rotateIn/Out      — flip Y 90°→0° (nav links, icônes)         0.3s
 //   rotateInSlow/Out  — flip Y 90°→0° (titres lettre par lettre)  1s / 0.6s
-//   moveInBottom/Out  — slide Y +100px→0 (boutons home)           0.75s / 0.5s
 //   moveInBottomFast  — slide Y +1200px→0 (panels admin)          0.75s / 0.5s
 //   bounceInTop/Right — bounce d'entrée (usage ponctuel)          1s
 //   onlineStatus      — rotation icône connexion                   0.3s
@@ -39,21 +38,6 @@
 @keyframes rotateOutSlow {
   from { transform: rotateY(0deg)  var(--scale, scale(1)); opacity: 1; }
   to   { transform: rotateY(90deg) var(--scale, scale(1)); opacity: 0; }
-}
-
-// ---------------------------------------------------------------------------
-// moveInBottom / moveOutBottom — slide depuis le bas (ex: bouton home profile)
-// ---------------------------------------------------------------------------
-.moveInBottom  { animation: moveInBottom  0.75s ease-out forwards; }
-.moveOutBottom { animation: moveOutBottom 0.5s  ease-in  forwards; }
-
-@keyframes moveInBottom {
-  from { transform: translateY(100px); opacity: 0; }
-  to   { transform: translateY(0);     opacity: 1; }
-}
-@keyframes moveOutBottom {
-  from { transform: translateY(0);     opacity: 1; }
-  to   { transform: translateY(100px); opacity: 0; }
 }
 
 // ---------------------------------------------------------------------------

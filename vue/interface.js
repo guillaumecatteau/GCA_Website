@@ -59,7 +59,6 @@ function turnOnLine() {
       icon.style.transform = "rotateZ(-180deg)";
       icon.classList.remove("onlineStatus");
     });
-    console.log("tuned OnLine complete");
   }, 1000);
 }
 function turnOffLine() {
@@ -132,12 +131,23 @@ const BTN_PORTFOLIO_SECTION_TABLET = document.getElementById("btnPortfolioSectio
 const BTN_BIO_SECTION_TABLET = document.getElementById("btnBioSectionTablet");
 const BTN_BLOG_SECTION_TABLET = document.getElementById("btnBlogSectionTablet");
 const BTN_CONTACT_SECTION_TABLET = document.getElementById("btnContactSectionTablet");
-const BTN_SITEMAP_TABLET = document.getElementById("btnSitemapTablet");
-const BTN_ARTSTATION_TABLET = document.getElementById("btnArtstationTablet");
-const BTN_LINKEDIN_TABLET = document.getElementById("btnLinkedinTablet");
-const BTN_YOUTUBE_TABLET = document.getElementById("btnYoutubeTablet");
-const BTN_FACEBOOK_TABLET = document.getElementById("btnFacebookTablet");
-const BTN_X_TABLET = document.getElementById("btnXTablet");
+const BTN_SHARE_TABLET = document.getElementById("btnShareTablet");
+const CONNEXIONBOX_TABLET = document.getElementById("connexionBoxTablet");
+const BTN_CONNEXION_TABLET = document.getElementById("btnConnexionTablet");
+const BTN_CONNEXION_ICON_TABLET = document.getElementById("btnConnexionIconTablet");
+const BTN_USERLOG_TABLET = document.getElementById("btnUserLogTablet");
+const BTN_ADMINLOG_TABLET = document.getElementById("btnAdminLogTablet");
+const NAME_USERLOG_TABLET = document.getElementById("userNameTablet");
+const NAME_ADMINLOG_TABLET = document.getElementById("adminNameTablet");
+// Enregistrés dans les registres partagés (déclarés plus haut) — connectBtnIdle(),
+// turnOnLine()/turnOffLine() et displayUserLog()/displayAdminLog() gèrent alors le bouton
+// tablette exactement comme le bouton desktop, sans code dupliqué.
+BTN_CONNEXION.push(BTN_CONNEXION_TABLET);
+BTN_CONNEXION_ICON.push(BTN_CONNEXION_ICON_TABLET);
+BTN_USERLOG.push(BTN_USERLOG_TABLET);
+BTN_ADMINLOG.push(BTN_ADMINLOG_TABLET);
+NAME_USERLOG.push(NAME_USERLOG_TABLET);
+NAME_ADMINLOG.push(NAME_ADMINLOG_TABLET);
 const MENU_TABLETTOP = document.getElementById("menuTabletTop");
 const MENU_TABLETRIGHT = document.getElementById("menuTabletRight");
 let menuTabletDeployment = false;
@@ -151,7 +161,7 @@ function displayNavLinksTablet() {
     BTN_BIO_SECTION_TABLET,
     BTN_BLOG_SECTION_TABLET,
     BTN_CONTACT_SECTION_TABLET,
-    BTN_SITEMAP_TABLET,
+    BTN_SHARE_TABLET,
   ];
   const animationDelay = 50;
 
@@ -201,7 +211,7 @@ function hideNavLinksTablet() {
     BTN_BIO_SECTION_TABLET,
     BTN_BLOG_SECTION_TABLET,
     BTN_CONTACT_SECTION_TABLET,
-    BTN_SITEMAP_TABLET,
+    BTN_SHARE_TABLET,
   ];
   const animationDelay = 50;
 
@@ -221,72 +231,31 @@ function hideNavLinksTablet() {
     }, animationDelay * index);
   });
 }
-function displaySocialIconsTablet() {
-  const buttons = [
-    BTN_ARTSTATION_TABLET,
-    BTN_LINKEDIN_TABLET,
-    BTN_YOUTUBE_TABLET,
-    BTN_FACEBOOK_TABLET,
-    BTN_X_TABLET,
-  ];
-  const animationDelay = 75;
+// Barre haute tablette (se déplie vers la gauche) — connexion (+ nom d'utilisateur) et
+// sélecteur de langue uniquement (les réseaux sociaux n'y figurent plus).
+function displayConnexionBoxTablet() {
   LANGUAGESELECTOR_TABLET.style.opacity = "1";
-  buttons.reverse().forEach((button, index) => {
-    const icon = button.querySelector(".icon");
-    setTimeout(() => {
-      button.style.opacity = "1";
-      icon.style.transformOrigin = "right center";
-      icon.classList.add("rotateIn");
-
-      icon.addEventListener(
-        "animationend",
-        () => {
-          icon.classList.remove("rotateIn");
-          icon.style.removeProperty("transform");
-          icon.style.transformOrigin = "center"; // Réinitialiser après l'animation
-        },
-        { once: true }
-      );
-    }, animationDelay * index);
-  });
+  CONNEXIONBOX_TABLET.style.opacity = "1";
 }
-function hideSocialIconsTablet() {
-  const buttons = [
-    BTN_ARTSTATION_TABLET,
-    BTN_LINKEDIN_TABLET,
-    BTN_YOUTUBE_TABLET,
-    BTN_FACEBOOK_TABLET,
-    BTN_X_TABLET,
-  ];
-  const animationDelay = 75;
-
-  buttons.forEach((button, index) => {
-    const icon = button.querySelector(".icon");
-    setTimeout(() => {
-      button.style.opacity = "0";
-      icon.style.transformOrigin = "right center";
-      icon.classList.add("rotateOut");
-      icon.addEventListener(
-        "animationend",
-        () => {
-          icon.classList.remove("rotateOut");
-          icon.style.removeProperty("transform");
-          icon.style.removeProperty("opacity");
-        },
-        { once: true }
-      );
-    }, animationDelay * index);
-  });
-  setTimeout(() => {
-    LANGUAGESELECTOR_TABLET.style.opacity = "0";
-  }, 300);
+function hideConnexionBoxTablet() {
+  LANGUAGESELECTOR_TABLET.style.opacity = "0";
+  CONNEXIONBOX_TABLET.style.opacity = "0";
 }
 function menuTabletDeploy() {
   // Hauteur calculée dynamiquement (nombre d'items variable) plutôt qu'une valeur fixe :
   // une valeur codée en dur pour l'ancienne liste de 13 items laissait un vide béant avec
   // les 8 items actuels (icônes non alignées, fond du menu bien plus grand que son contenu).
   MENU_TABLETRIGHT.style.height = 'auto';
-  const _target = MENU_TABLETRIGHT.scrollHeight;
+  const _natural = MENU_TABLETRIGHT.scrollHeight;
+  // Plafonnée à l'espace réellement disponible sous le container (jusqu'au bas de l'écran,
+  // avec une petite marge) : sans ça, sur un écran court, le contenu (liens + bouton
+  // Partager) pouvait dépasser du viewport et pousser le bouton Partager hors champ,
+  // invisible et inatteignable. La liste de liens (.navLinksTablet) peut scroller en
+  // interne si besoin (cf. _main-nav.scss) pendant que le bouton Partager reste ancré
+  // en bas grâce à margin-top:auto.
+  const _containerTop = MENU_TABLETRIGHT.getBoundingClientRect().top;
+  const _available = Math.max(0, window.innerHeight - _containerTop - 16);
+  const _target = Math.min(_natural, _available);
   MENU_TABLETRIGHT.style.height = '0px';
   void MENU_TABLETRIGHT.offsetHeight; // force reflow avant l'animation
   requestAnimationFrame(() => {
@@ -296,12 +265,12 @@ function menuTabletDeploy() {
   MENU_TABLETTOP.style.width = "400px";
   MENU_TABLETTOP.style.opacity = "1";
   displayNavLinksTablet();
-  displaySocialIconsTablet();
+  displayConnexionBoxTablet();
 }
 function menuTabletHide() {
   MENU_TABLETRIGHT.style.opacity = "0";
   hideNavLinksTablet();
-  hideSocialIconsTablet();
+  hideConnexionBoxTablet();
   setTimeout(() => {
     MENU_TABLETRIGHT.style.height = "0";
     MENU_TABLETTOP.style.width = "0";
@@ -319,13 +288,29 @@ const BTN_PORTFOLIO_SECTION_MOBILE = document.getElementById("btnPortfolioSectio
 const BTN_BIO_SECTION_MOBILE = document.getElementById("btnBioSectionMobile");
 const BTN_BLOG_SECTION_MOBILE = document.getElementById("btnBlogSectionMobile");
 const BTN_CONTACT_SECTION_MOBILE = document.getElementById("btnContactSectionMobile");
-const BTN_SITEMAP_MOBILE = document.getElementById("btnSitemapMobile");
 const BTN_ARTSTATION_MOBILE = document.getElementById("btnArtstationMobile");
 const BTN_LINKEDIN_MOBILE = document.getElementById("btnLinkedinMobile");
 const BTN_YOUTUBE_MOBILE = document.getElementById("btnYoutubeMobile");
 const BTN_FACEBOOK_MOBILE = document.getElementById("btnFacebookMobile");
 const BTN_X_MOBILE = document.getElementById("btnXMobile");
+const FOLLOWME_LABEL_MOBILE = document.querySelector(".followMeLabel");
+const BTN_SHARE_MOBILE = document.getElementById("btnShareMobile");
 const MENU_MOBILE = document.getElementById("menuMobile");
+const CONNEXIONBOX_MOBILE = document.getElementById("connexionBoxMobile");
+const BTN_CONNEXION_MOBILE = document.getElementById("btnConnexionMobile");
+const BTN_CONNEXION_ICON_MOBILE = document.getElementById("btnConnexionIconMobile");
+const BTN_USERLOG_MOBILE = document.getElementById("btnUserLogMobile");
+const BTN_ADMINLOG_MOBILE = document.getElementById("btnAdminLogMobile");
+const NAME_USERLOG_MOBILE = document.getElementById("userNameMobile");
+const NAME_ADMINLOG_MOBILE = document.getElementById("adminNameMobile");
+// Même registre partagé que pour la tablette : connectBtnIdle(), turnOnLine()/turnOffLine()
+// et displayUserLog()/displayAdminLog() gèrent alors ce bouton automatiquement.
+BTN_CONNEXION.push(BTN_CONNEXION_MOBILE);
+BTN_CONNEXION_ICON.push(BTN_CONNEXION_ICON_MOBILE);
+BTN_USERLOG.push(BTN_USERLOG_MOBILE);
+BTN_ADMINLOG.push(BTN_ADMINLOG_MOBILE);
+NAME_USERLOG.push(NAME_USERLOG_MOBILE);
+NAME_ADMINLOG.push(NAME_ADMINLOG_MOBILE);
 let menuMobileDeployment = false;
 function displayNavLinksMobile() {
   const buttons = [
@@ -336,7 +321,7 @@ function displayNavLinksMobile() {
     BTN_BIO_SECTION_MOBILE,
     BTN_BLOG_SECTION_MOBILE,
     BTN_CONTACT_SECTION_MOBILE,
-    BTN_SITEMAP_MOBILE,
+    BTN_SHARE_MOBILE,
   ];
   const animationDelay = 50;
 
@@ -392,7 +377,7 @@ function hideNavLinksMobile() {
     BTN_BIO_SECTION_MOBILE,
     BTN_BLOG_SECTION_MOBILE,
     BTN_CONTACT_SECTION_MOBILE,
-    BTN_SITEMAP_MOBILE,
+    BTN_SHARE_MOBILE,
   ];
   const animationDelay = 50;
 
@@ -422,6 +407,7 @@ function displaySocialIconsMobile() {
     BTN_X_MOBILE,
   ];
   const animationDelay = 50;
+  FOLLOWME_LABEL_MOBILE.style.opacity = "1";
   buttons.reverse().forEach((button, index) => {
     const icon = button.querySelector(".icon");
     setTimeout(() => {
@@ -450,6 +436,7 @@ function hideSocialIconsMobile() {
     BTN_X_MOBILE,
   ];
   const animationDelay = 50;
+  FOLLOWME_LABEL_MOBILE.style.opacity = "0";
   buttons.forEach((button, index) => {
     const icon = button.querySelector(".icon");
     setTimeout(() => {
@@ -469,10 +456,18 @@ function hideSocialIconsMobile() {
     }, animationDelay * index);
   });
 }
+// Icône connexion (+ nom d'utilisateur) — entre la rangée du haut et la grille de nav.
+function displayConnexionBoxMobile() {
+  CONNEXIONBOX_MOBILE.style.opacity = "1";
+}
+function hideConnexionBoxMobile() {
+  CONNEXIONBOX_MOBILE.style.opacity = "0";
+}
 function menuMobiletDeploy() {
   MENU_MOBILE.style.height = "100%";
   MENU_MOBILE.style.opacity = "1";
   LANGUAGESELECTOR_MOBILE.style.opacity = "1";
+  displayConnexionBoxMobile();
   displayNavLinksMobile();
   setTimeout(() => {
     displaySocialIconsMobile();
@@ -480,6 +475,7 @@ function menuMobiletDeploy() {
 }
 function menuMobiletHide() {
   hideSocialIconsMobile();
+  hideConnexionBoxMobile();
   setTimeout(() => {
     hideNavLinksMobile();
   }, 100);
@@ -498,11 +494,27 @@ const BURGERBARMIDDLE = document.getElementById("burgerBarMiddle");
 const BURGERBARBOTTOM = document.getElementById("burgerBarBottom");
 const BURGERBARS = [BURGERBARTOP, BURGERBARMIDDLE, BURGERBARBOTTOM];
 
+// Timers de l'animation burgerDeploy()/burgerRetract() en cours — annulés avant chaque
+// nouvel appel pour que les deux fonctions restent sûres même en cas de ré-entrée (le
+// verrou _burgerAnimating ci-dessous empêche déjà ça côté bouton, mais une sélection de
+// lien dans le menu mobile ferme aussi le burger par un autre chemin).
+let _burgerTimers = [];
+function _clearBurgerTimers() {
+  _burgerTimers.forEach((id) => clearTimeout(id));
+  _burgerTimers = [];
+}
+function _burgerTimeout(fn, delay) {
+  const id = setTimeout(fn, delay);
+  _burgerTimers.push(id);
+  return id;
+}
+
 function burgerDeploy() {
+  _clearBurgerTimers();
   BURGERBARS.forEach((bar, index) => {
     bar.style.width = "6px";
     bar.style.backgroundColor = "#ffffff";
-    setTimeout(() => {
+    _burgerTimeout(() => {
       switch (bar) {
         case BURGERBARTOP:
           BURGERBARTOP.style.left = "0";
@@ -511,16 +523,18 @@ function burgerDeploy() {
           BURGERBARMIDDLE.style.left = `calc(50% - 3px)`;
           break;
         case BURGERBARBOTTOM:
-          BURGERBARBOTTOM.style.right = `calc(0 - 0px)`;
+          // left (pas right) : même ancrage que les deux autres barres, cf. _main-nav.scss —
+          // position équivalente (bord droit du container) exprimée en left.
+          BURGERBARBOTTOM.style.left = `calc(100% - 6px)`;
           break;
       }
     }, index * 75);
   });
   BTN_BURGER.style.height = "40px";
   BTN_BURGER.style.width = "40px";
-  setTimeout(() => {
+  _burgerTimeout(() => {
     BURGERBARS.forEach((bar, index) => {
-      setTimeout(() => {
+      _burgerTimeout(() => {
         bar.style.height = "100%";
         bar.style.top = `calc(50% - 21px)`;
         bar.style.backgroundColor = "#b4b4b5";
@@ -529,8 +543,9 @@ function burgerDeploy() {
   }, 300);
 }
 function burgerRetract() {
+  _clearBurgerTimers();
   BURGERBARS.forEach((bar, index) => {
-    setTimeout(() => {
+    _burgerTimeout(() => {
       bar.style.height = "6px";
       switch (bar) {
         case BURGERBARTOP:
@@ -541,19 +556,19 @@ function burgerRetract() {
           BURGERBARMIDDLE.style.top = `calc(50% - 3px)`;
           break;
         case BURGERBARBOTTOM:
-          BURGERBARBOTTOM.style.right = `calc(0 - 0px)`;
+          BURGERBARBOTTOM.style.left = `calc(100% - 6px)`;
           BURGERBARBOTTOM.style.top = `calc(100% - 6px)`;
           break;
       }
     }, index * 75);
-    setTimeout(() => {
+    _burgerTimeout(() => {
       BTN_BURGER.style.height = "40px";
       BTN_BURGER.style.width = "100%";
       BURGERBARS.forEach((bar, index) => {
-        setTimeout(() => {
+        _burgerTimeout(() => {
           bar.style.width = "40px";
           bar.style.backgroundColor = "#b4b4b5";
-          setTimeout(() => {
+          _burgerTimeout(() => {
             switch (bar) {
               case BURGERBARTOP:
                 BURGERBARTOP.style.left = `calc(50% - 21px)`;
@@ -562,16 +577,27 @@ function burgerRetract() {
                 BURGERBARMIDDLE.style.left = `calc(50% - 21px)`;
                 break;
               case BURGERBARBOTTOM:
-                BURGERBARBOTTOM.style.right = `calc(0% - 0px)`;
+                BURGERBARBOTTOM.style.left = `calc(50% - 21px)`;
                 break;
             }
-          });
+          }, 0);
         }, index * 75);
       });
     }, 300);
   });
 }
+
+// Verrou anti-clics rapides : tant qu'une ouverture/fermeture est en cours, tout nouvel
+// appel au bouton est ignoré — sans ça, des clics répétés (souris ou clavier) empilaient
+// des chaînes de setTimeout concurrentes qui finissaient par laisser les barres/panneaux
+// dans un état d'affichage incohérent. La durée couvre la plus longue des séquences
+// déclenchées (menuMobiletHide : 1200ms).
+const BURGER_ANIM_LOCK_MS = 1200;
+let _burgerAnimating = false;
+
 function handleBurgerToggle() {
+  if (_burgerAnimating) return;
+  _burgerAnimating = true;
   BTN_BURGER.style.pointerEvents = "none";
   BTN_BURGER.style.transform = "scale(1)";
   if (menuTabletDeployment || menuMobileDeployment) {
@@ -591,9 +617,11 @@ function handleBurgerToggle() {
     menuMobiletDeploy();
     menuMobileDeployment = true;
   }
+
   setTimeout(() => {
     BTN_BURGER.style.pointerEvents = "auto";
-  }, 800);
+    _burgerAnimating = false;
+  }, BURGER_ANIM_LOCK_MS);
 }
 
 BTN_BURGER.addEventListener("pointerenter", () => {

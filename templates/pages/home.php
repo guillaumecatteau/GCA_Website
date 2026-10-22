@@ -7,11 +7,13 @@
       <span>a</span><span>l</span><span> </span><span>A</span><span>r</span>
       <span>t</span><span>s</span>
     </h2>
-    <div class="btnMedium" id="btnProfileHome">
-      <div class="btnLabel">
-        <span class="icon iconProfil"></span>
-        <span class="btnText" lang="FR" data-en="Profile">Profil</span>
+    <div class="scrollDownIndicator" id="scrollDownIndicator" title="Scroll down">
+      <div class="scrollDownChevrons">
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
       </div>
+      <span class="scrollDownText" lang="FR" data-en="Scroll down">Continuer</span>
     </div>
   </div>
 
@@ -89,7 +91,75 @@
       <span>c</span><span>t</span>
     </h2>
     <div class="sectionContactLayout">
-      <!-- Formulaire de contact à venir -->
+      <form class="form contactForm" id="formContact" autocomplete="off">
+        <div class="formGroup">
+          <label class="formLabel" for="inputNameContact" lang="FR" data-en="Last name">Nom</label>
+          <input class="formInput" type="text" id="inputNameContact" name="name" maxlength="100" placeholder="Entrez votre nom" data-en-placeholder="Enter your last name" />
+          <p class="errorMessage" id="nameErrorTextContact" style="display: none" lang="FR" data-en="Must contain at least 2 characters.">Doit contenir au moins 2 caractères.</p>
+          <div class="validationIcons">
+            <span class="icon iconValid" id="nameValidContact" style="display: none"></span>
+            <span class="icon iconProhibed" id="nameProhibedContact" style="display: none"></span>
+          </div>
+        </div>
+        <div class="formGroup">
+          <label class="formLabel" for="inputFirstnameContact" lang="FR" data-en="First name">Prénom</label>
+          <input class="formInput" type="text" id="inputFirstnameContact" name="firstname" maxlength="100" placeholder="Entrez votre prénom" data-en-placeholder="Enter your first name" />
+          <p class="errorMessage" id="firstnameErrorTextContact" style="display: none" lang="FR" data-en="Must contain at least 2 characters.">Doit contenir au moins 2 caractères.</p>
+          <div class="validationIcons">
+            <span class="icon iconValid" id="firstnameValidContact" style="display: none"></span>
+            <span class="icon iconProhibed" id="firstnameProhibedContact" style="display: none"></span>
+          </div>
+        </div>
+        <div class="formGroup">
+          <label class="formLabel" for="inputCompanyContact" lang="FR" data-en="Company (optional)">Compagnie (facultatif)</label>
+          <input class="formInput" type="text" id="inputCompanyContact" name="company" maxlength="150" placeholder="Entrez votre compagnie" data-en-placeholder="Enter your company" />
+        </div>
+        <div class="formGroup">
+          <label class="formLabel" for="inputMailContact" lang="FR" data-en="Email address">Adresse e-mail</label>
+          <input class="formInput" type="text" id="inputMailContact" name="mail" maxlength="100" placeholder="Entrez votre email" data-en-placeholder="Enter your email" />
+          <p class="errorMessage" id="mailErrorTextContact" style="display: none" lang="FR" data-en="Invalid email address!">Adresse email non valide !</p>
+          <div class="validationIcons">
+            <span class="icon iconValid" id="mailValidContact" style="display: none"></span>
+            <span class="icon iconProhibed" id="mailProhibedContact" style="display: none"></span>
+          </div>
+        </div>
+        <div class="formGroup">
+          <label class="formLabel" for="inputPhoneContact" lang="FR" data-en="Phone (optional)">Téléphone (facultatif)</label>
+          <input class="formInput" type="text" id="inputPhoneContact" name="phone" maxlength="30" placeholder="Entrez votre téléphone" data-en-placeholder="Enter your phone number" />
+        </div>
+        <div class="formGroup">
+          <label class="formLabel" for="inputSubjectContact" lang="FR" data-en="Subject">Sujet</label>
+          <input class="formInput" type="text" id="inputSubjectContact" name="subject" maxlength="150" placeholder="Objet de votre message" data-en-placeholder="Subject of your message" />
+          <p class="errorMessage" id="subjectErrorTextContact" style="display: none" lang="FR" data-en="Must contain at least 3 characters.">Doit contenir au moins 3 caractères.</p>
+          <div class="validationIcons">
+            <span class="icon iconValid" id="subjectValidContact" style="display: none"></span>
+            <span class="icon iconProhibed" id="subjectProhibedContact" style="display: none"></span>
+          </div>
+        </div>
+        <div class="formGroup formGroup--textarea">
+          <label class="formLabel" for="inputMessageContact" lang="FR" data-en="Message">Message</label>
+          <textarea class="formTextarea" id="inputMessageContact" name="message" maxlength="2000" rows="5" placeholder="Votre message..." data-en-placeholder="Your message..."></textarea>
+          <p class="errorMessage" id="messageErrorTextContact" style="display: none" lang="FR" data-en="Must contain at least 10 characters.">Doit contenir au moins 10 caractères.</p>
+          <div class="validationIcons">
+            <span class="icon iconValid" id="messageValidContact" style="display: none"></span>
+            <span class="icon iconProhibed" id="messageProhibedContact" style="display: none"></span>
+          </div>
+        </div>
+        <div class="btnMedium btnOff" id="btnSendContact">
+          <div class="btnLabel">
+            <span class="icon iconContact"></span>
+            <span class="btnText" lang="FR" data-en="Send">Envoyer</span>
+          </div>
+        </div>
+      </form>
+      <div class="messageBox">
+        <div class="message" id="messageContactSucces" style="display: none">
+          <span>M</span><span>e</span><span>s</span><span>s</span><span>a</span><span>g</span><span>e</span><span> </span><span>e</span><span>n</span><span>v</span><span>o</span><span>y</span><span>é</span><span> </span><span>!</span>
+        </div>
+        <div class="message" id="messageContactError" style="display: none">
+          <span>E</span><span>r</span><span>r</span><span>e</span><span>u</span><span>r</span><span> </span><span>t</span><span>e</span><span>c</span><span>h</span><span>n</span><span>i</span><span>q</span><span>u</span><span>e</span><span>!</span><span> </span><span>R</span><span>é</span><span>e</span><span>s</span><span>s</span><span>a</span><span>y</span><span>e</span><span>z</span>
+        </div>
+      </div>
     </div>
   </div>
 

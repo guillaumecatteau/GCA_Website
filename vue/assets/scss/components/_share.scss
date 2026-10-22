@@ -1,0 +1,94 @@
+// =============================================================================
+// PARTAGE — Popup "Partager / Share" (réseaux sociaux)
+// =============================================================================
+// Déclenché par n'importe quel .btnShare (topbar desktop/tablet/mobile, page-view…),
+// cf. vue/share.js. Réutilise le gabarit .confirmOverlay (components/_admintool.scss).
+@use '../abstracts' as *;
+
+// ---------------------------------------------------------------------------
+// Bouton déclencheur
+// ---------------------------------------------------------------------------
+.btnShare {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+// ---------------------------------------------------------------------------
+// Boîte de partage
+// ---------------------------------------------------------------------------
+.shareBox {
+  background: $color-block-bg;
+  border: 1px solid $color-border-active;
+  border-radius: $radius-sm;
+  @include flex-column;
+  gap: 0;
+  width: min(90vw, 360px);
+}
+
+.shareBoxHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid $color-border;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  text-transform: uppercase;
+}
+
+.shareBoxTitle {
+  padding: 0.75rem 1rem 0;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-faint;
+  overflow-wrap: break-word;
+
+  &:empty { display: none; }
+}
+
+.shareList {
+  @include flex-column;
+  gap: 0.25rem;
+  padding: 1rem;
+  list-style: none;
+}
+
+.shareLink {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: $radius-sm;
+  border: 1px solid transparent;
+  background: none;
+  width: 100%;
+  cursor: pointer;
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  text-align: left;
+  transition: border-color $transition-fast, background $transition-fast, color $transition-fast, transform $transition-icon-bounce;
+  transform: scale(1);
+  transform-origin: center left;
+
+  > .icon { width: 20px; height: 20px; flex-shrink: 0; }
+
+  &:hover {
+    border-color: $color-border-active;
+    background: rgba(255, 255, 255, 0.05);
+    color: $color-text-primary;
+    transform: scale(1.03);
+
+    > .icon { background-color: $color-text-primary; }
+  }
+
+  &.shareLink--copied {
+    color: $color-text-primary;
+    border-color: $color-border-active;
+  }
+}

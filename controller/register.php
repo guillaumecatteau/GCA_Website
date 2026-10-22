@@ -9,8 +9,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $firstname = ProtectInjection($_POST['firstname'] ?? '');
     $mail = ProtectInjection($_POST['mail'] ?? '');
     $password = ProtectInjection($_POST['password'] ?? '');
-    $questionA = ProtectInjection($_POST['questionA'] ?? '');
-    $questionB = ProtectInjection($_POST['questionB'] ?? '');
     $newsletter = isset($_POST['newsletter']) ? 1 : 0;
 
     if (emailExists($mail)) {
@@ -25,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     $subscriptionDate = date('Y-m-d');
 
-    $result = registerUser($name, $firstname, $mail, $hashedPassword, $questionA, $questionB, $newsletter, $subscriptionDate, 'user');
+    $result = registerUser($name, $firstname, $mail, $hashedPassword, $newsletter, $subscriptionDate, 'user');
 
     if ($result) {
         echo json_encode([

@@ -1,6 +1,7 @@
 // Système de langue : lit lang="FR" data-en="..." sur chaque élément.
 // Stocke le texte FR initial sur dataset._langFr une seule fois au démarrage,
 // puis swape avec data-en selon la langue active. Persiste via localStorage.
+// Même mécanisme pour les placeholders de champs (data-en-placeholder="...").
 
 (function () {
   const LANG_KEY = 'gcaSiteLang';
@@ -17,6 +18,18 @@
       el.textContent = lang === 'en'
         ? el.getAttribute('data-en')
         : el.dataset._langFr;
+    });
+
+    // Placeholders des champs de formulaire — swap séparé du textContent ci-dessus
+    // (data-en-placeholder plutôt que data-en, pour ne pas entrer en conflit avec un
+    // éventuel data-en porté par le même élément).
+    document.querySelectorAll('[data-en-placeholder]').forEach(el => {
+      if (el.dataset._langFrPlaceholder === undefined) {
+        el.dataset._langFrPlaceholder = el.getAttribute('placeholder') ?? '';
+      }
+      el.setAttribute('placeholder', lang === 'en'
+        ? el.getAttribute('data-en-placeholder')
+        : el.dataset._langFrPlaceholder);
     });
 
     document.querySelectorAll('#lang, #langTablet').forEach(sel => { sel.value = lang; });

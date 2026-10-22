@@ -11,12 +11,12 @@ function emailExists($mail)
     return $stmt->fetchColumn() > 0;
 }
 
-function registerUser($name, $firstname, $mail, $hashedPassword, $questionA, $questionB, $newsletter, $subscriptionDate, $role = 'user')
+function registerUser($name, $firstname, $mail, $hashedPassword, $newsletter, $subscriptionDate, $role = 'user')
 {
     global $bdd;
 
-    $sql = "INSERT INTO users (name, firstname, mail, password, questionA, questionB, newsletter, subscription, role)
-            VALUES (:name, :firstname, :mail, :password, :questionA, :questionB, :newsletter, :subscription, :role)";
+    $sql = "INSERT INTO users (name, firstname, mail, password, newsletter, subscription, role)
+            VALUES (:name, :firstname, :mail, :password, :newsletter, :subscription, :role)";
 
     $stmt = $bdd->prepare($sql);
 
@@ -26,8 +26,6 @@ function registerUser($name, $firstname, $mail, $hashedPassword, $questionA, $qu
             ':firstname'    => $firstname,
             ':mail'         => $mail,
             ':password'     => $hashedPassword,
-            ':questionA'    => $questionA,
-            ':questionB'    => $questionB,
             ':newsletter'   => $newsletter,
             ':subscription' => $subscriptionDate,
             ':role'         => in_array($role, ['user','vip','admin']) ? $role : 'user',
@@ -141,7 +139,7 @@ function importUsersFromCSV(string $csvTmpPath): array
     unset($header);
 
     // Colonnes attendues dans le CSV (minuscules)
-    $expectedCsvHeaders = ['firstname', 'name', 'mail', 'password', 'questiona', 'questionb', 'newsletter', 'isadmin'];
+    $expectedCsvHeaders = ['firstname', 'name', 'mail', 'password', 'newsletter', 'isadmin'];
 
     if ($headers !== $expectedCsvHeaders) {
         fclose($handle);
@@ -159,7 +157,7 @@ function importUsersFromCSV(string $csvTmpPath): array
             return ['code' => 'format', 'message' => "Colonnes manquantes à la ligne $lineNumber"];
         }
 
-        list($firstname, $name, $mail, $password, $questionA, $questionB, $newsletterRaw, $isAdminRaw) =
+        list($firstname, $name, $mail, $password, $newsletterRaw, $isAdminRaw) =
             array_map('trim', $data);
 
         // Validation des champs
@@ -176,11 +174,6 @@ function importUsersFromCSV(string $csvTmpPath): array
         if (mb_strlen($password) < 8) {
             fclose($handle);
             return ['code' => 'format', 'message' => "Mot de passe trop court à la ligne $lineNumber"];
-        }
-
-        if (mb_strlen($questionA) < 1 || mb_strlen($questionB) < 1) {
-            fclose($handle);
-            return ['code' => 'format', 'message' => "Réponses aux questions vides à la ligne $lineNumber"];
         }
 
         if (!in_array($newsletterRaw, ['0', '1'], true)) {
@@ -203,8 +196,8 @@ function importUsersFromCSV(string $csvTmpPath): array
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $subscriptionDate = date('Y-m-d');
 
-        $sql = "INSERT INTO users (firstname, name, mail, password, questionA, questionB, newsletter, subscription, isAdmin)
-                VALUES (:firstname, :name, :mail, :password, :questionA, :questionB, :newsletter, :subscription, :isAdmin)";
+        $sql = "INSERT INTO users (firstname, name, mail, password, newsletter, subscription, isAdmin)
+                VALUES (:firstname, :name, :mail, :password, :newsletter, :subscription, :isAdmin)";
         $stmt = $bdd->prepare($sql);
 
         try {
@@ -213,8 +206,6 @@ function importUsersFromCSV(string $csvTmpPath): array
                 ':name' => $name,
                 ':mail' => $mail,
                 ':password' => $hashedPassword,
-                ':questionA' => $questionA,
-                ':questionB' => $questionB,
                 ':newsletter' => $newsletter,
                 ':subscription' => $subscriptionDate,
                 ':isAdmin' => $isAdmin

@@ -7,18 +7,6 @@
   // page-key (variable `page`) → slug URL
   const _SLUG = {
     'home':                  '/home',
-    'profile':               '/profile',
-    'games':                 '/games',
-    'uxui':                  '/uxui',
-    '3d':                    '/3d',
-    '2d':                    '/2d',
-    'video':                 '/video',
-    'web':                   '/web',
-    'pixel':                 '/pixel',
-    'portfolio':             '/portfolio',
-    'blog':                  '/blog',
-    'bio':                   '/bio',
-    'contact':               '/contact',
     'connexion':             '/connexion',
     'register':              '/register',
     'userProfile':           '/me',
@@ -31,24 +19,13 @@
     'commentsManagement':    '/admin/comments',
     'analytics':             '/admin/analytics',
     'sceneEditor':           '/admin/scene',
+    'messagesManagement':    '/admin/messages',
   };
 
   // slug URL → page-key
   const _ROUTES = {
     '':                  'home',
     'home':              'home',
-    'profile':           'profile',
-    'games':             'games',
-    'uxui':              'uxui',
-    '3d':                '3d',
-    '2d':                '2d',
-    'video':             'video',
-    'web':               'web',
-    'pixel':             'pixel',
-    'portfolio':         'portfolio',
-    'blog':              'blog',
-    'bio':               'bio',
-    'contact':           'contact',
     'connexion':         'connexion',
     'register':          'register',
     'me':                'userProfile',
@@ -61,14 +38,22 @@
     'admin/comments':    'commentsManagement',
     'admin/analytics':   'analytics',
     'admin/scene':       'sceneEditor',
+    'admin/messages':    'messagesManagement',
   };
 
   // Empêche la boucle pushState ↔ popstate
   let _suppressPush = false;
 
+  // Le main logo (mobile only, cf. _main-nav.scss) ne doit s'afficher que pour la home —
+  // seul point de vérité pour ce booléen, pas de logique dupliquée par page.
+  function _syncBodyPage(key) {
+    document.body.classList.toggle('page-home', key === 'home');
+  }
+
   // Remplace toutes les assignations `page = "xxx"` dans navigation.js
   window._setPage = function (key) {
     page = key;
+    _syncBodyPage(key);
     if (_suppressPush) return;
     const slug = _SLUG[key] || ('/' + key);
     if (window.location.pathname !== slug) {
@@ -87,6 +72,7 @@
   // Empile l'URL /p/{slug} pour une page projet/expertise/blog (détail public)
   window._pushPageViewSlug = function (slug) {
     page = 'pageView';
+    _syncBodyPage(page);
     if (_suppressPush) return;
     const url = '/p/' + slug;
     if (window.location.pathname !== url) {
@@ -94,24 +80,14 @@
     }
   };
 
-  // Navigation programmatique (popstate + deep link init)
+  // L'admin tool n'est accessible qu'en mode desktop — registre partagé avec navigation.js
+  // (cf. vue/breakpoints.js, chargé avant ce script).
   function _navigate(key) {
+    if (window.ADMIN_ROUTE_KEYS?.has(key) && !window.isAdminAllowed?.()) key = 'home';
     _suppressPush = true;
     try {
       switch (key) {
         case 'home':                  accessHome(); break;
-        case 'profile':               accessProfile(); break;
-        case 'games':                 accessGames(); break;
-        case 'uxui':                  accessUxUi(); break;
-        case '3d':                    access3d(); break;
-        case '2d':                    access2d(); break;
-        case 'video':                 accessVideo(); break;
-        case 'web':                   accessWeb(); break;
-        case 'pixel':                 accessPixel(); break;
-        case 'portfolio':             accessPortfolio(); break;
-        case 'blog':                  accessBlog(); break;
-        case 'bio':                   accessBio(); break;
-        case 'contact':               accessContact(); break;
         case 'connexion':             accessConnexion(); break;
         case 'register':              accessRegister(); break;
         case 'userProfile':           accessUserProfile(); break;
@@ -124,6 +100,7 @@
         case 'commentsManagement':    accessCommentsManagement(); break;
         case 'analytics':             accessAnalytics(); break;
         case 'sceneEditor':           accessSceneEditor(); break;
+        case 'messagesManagement':    accessMessagesManagement(); break;
       }
     } finally {
       // Ré-activer pushState après la transition (500ms max)
@@ -177,6 +154,7 @@
       _suppressPush = true;
       displayHome();
       page = 'home';
+      _syncBodyPage(page);
       const target = keyOrObj.section;
       if (target && target !== 'landing') {
         setTimeout(() => window._homeScrollTo?.(target), 100);

@@ -1,0 +1,201 @@
+// =============================================================================
+// MESSAGING — Espace utilisateur (infos + chat) et boîte de réception admin
+// =============================================================================
+@use '../abstracts' as *;
+
+// ---------------------------------------------------------------------------
+// Onglets — espace utilisateur (Informations / Messagerie)
+// ---------------------------------------------------------------------------
+.userProfileTabs {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.userProfileTabBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 36px;
+  padding: 0 1rem;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  color: $color-text-muted;
+  cursor: pointer;
+  transition: border-color $transition-fast, color $transition-fast;
+
+  > .icon { width: 18px; height: 18px; }
+
+  &:hover { border-color: $color-border-active; }
+
+  &.userProfileTabBtn--active {
+    color: $color-text-primary;
+    border-color: $color-border-active;
+  }
+}
+
+.userProfileTabPanel {
+  width: 100%;
+  @include flex-column;
+}
+
+// ---------------------------------------------------------------------------
+// Fil de discussion — bulles partagées entre l'espace utilisateur et l'inbox admin
+// ---------------------------------------------------------------------------
+.chatThread {
+  width: 100%;
+  height: 320px;
+  overflow-y: auto;
+  @include flex-column;
+  gap: 0.75rem;
+  padding: 0.25rem;
+}
+
+.chatBubble {
+  max-width: 75%;
+  padding: 0.6rem 0.9rem;
+  border-radius: $radius-md;
+  @include flex-column;
+  gap: 0.25rem;
+
+  // "self" = l'auteur du fil affiché (l'utilisateur dans son espace, l'admin dans l'inbox)
+  &.chatBubble--self {
+    align-self: flex-end;
+    background: $color-block-bg-active;
+  }
+
+  // "other" = l'interlocuteur (l'admin côté utilisateur, l'utilisateur côté inbox admin)
+  &.chatBubble--other {
+    align-self: flex-start;
+    background: $color-block-bg;
+    border: 1px solid $color-border;
+  }
+}
+
+.chatBubbleText {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chatBubbleMeta {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  color: $color-text-faint;
+  align-self: flex-end;
+}
+
+.chatForm {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.chatFormInput {
+  flex: 1;
+  min-height: 44px;
+  max-height: 120px;
+  resize: vertical;
+}
+
+// ---------------------------------------------------------------------------
+// Boîte de réception admin (templates/admin/messages.php)
+// ---------------------------------------------------------------------------
+.msgThreadList {
+  width: 100%;
+  @include flex-column;
+  gap: 0.5rem;
+}
+
+.msgThreadItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  @include glass-block($radius-md);
+  cursor: pointer;
+  transition: border-color $transition-fast;
+
+  &:hover { border-color: $color-border-active; }
+
+  &.msgThreadItem--active { border-color: $color-border-active; }
+}
+
+.msgThreadItemInfo {
+  @include flex-column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.msgThreadItemName {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.msgThreadItemPreview {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  color: $color-text-faint;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.msgThreadItemBadge {
+  flex-shrink: 0;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: $color-border-active;
+  color: $color-bg;
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.msgThreadBlock {
+  width: 100%;
+}
+
+// ---------------------------------------------------------------------------
+// Commentaires — modération (templates/admin/comments.php)
+// ---------------------------------------------------------------------------
+.commentEntry {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  @include glass-block($radius-md);
+  @include flex-column;
+  gap: 0.5rem;
+}
+
+.commentEntryTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.commentEntryActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.commentEntryMessage {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

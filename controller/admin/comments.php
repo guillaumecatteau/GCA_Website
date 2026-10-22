@@ -50,6 +50,27 @@ switch ("$method:$sub") {
         echo json_encode(['success' => $id ? deleteComment($id) : false]);
         break;
 
+    // ── Messagerie privée (boîte de réception) ────────────────────────────
+    case 'GET:chat_threads':
+        echo json_encode(['success' => true, 'threads' => getChatThreadsOverview()]);
+        break;
+
+    case 'GET:chat_thread':
+        $userId = (int)($_GET['user_id'] ?? 0);
+        if (!$userId) { echo json_encode(['success' => false, 'code' => 'MISSING_FIELD']); break; }
+        markChatThreadRead($userId, true);
+        echo json_encode(['success' => true, 'messages' => getChatThread($userId)]);
+        break;
+
+    case 'POST:chat_reply':
+        $userId  = (int)($body['user_id'] ?? 0);
+        $message = trim($body['message'] ?? '');
+        if (!$userId || !$message) { echo json_encode(['success' => false, 'code' => 'MISSING_FIELD']); break; }
+        $message = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
+        $id = createChatMessage($userId, $message, true);
+        echo json_encode($id ? ['success' => true, 'id' => $id] : ['success' => false, 'code' => 'DB_ERROR']);
+        break;
+
     default:
         http_response_code(400);
         echo json_encode(['success' => false, 'code' => 'INVALID_SUB']);

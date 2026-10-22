@@ -393,12 +393,6 @@
   top: 57.5%;
 }
 
-#btnProfileHome {
-  position: absolute;
-  opacity: 0;
-  bottom: 20%;
-}
-
 // ---------------------------------------------------------------------------
 // Formulaires
 // ---------------------------------------------------------------------------
@@ -548,16 +542,13 @@ form {
 // Les valeurs desktop sont définies dans les règles de base, PAS ici.
 // ---------------------------------------------------------------------------
 
-// Tablet (≤10 24px) — navigation tablette + ajustements mise en page
+// Tablet (≤1024px) — navigation tablette uniquement, AUCUN ajustement de mise en page :
+// les safe zones de contenu (haut/bas) doivent rester identiques au desktop.
 @include wide-header {
   .pageContainer {
     width: calc(100% - 200px);
-    height: calc(100% - 80px);
-    transform: translateY(40px);
     overflow-y: auto; // sinon un contenu plus haut que le viewport est inaccessible (position:fixed)
   }
-  .homeTitle { top: 62.5%; }
-  #btnProfileHome { bottom: 20%; }
 }
 
 // Mobile (≤800px)
@@ -575,7 +566,6 @@ form {
   .title { gap: 10px; }
   .title > span { font-size: 1.25rem; }
   .homeTitle { top: 65%; }
-  #btnProfileHome { bottom: 10%; }
 }
 
 // Keyframes consolidés dans vue/assets/scss/components/_animations.scss

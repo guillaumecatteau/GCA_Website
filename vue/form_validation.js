@@ -56,6 +56,18 @@ function passwordCheck(input, iconValid, iconError, errorText, callback) {
     callback(isValid);
   });
 }
+// Longueur minimale générique (sujet/message du formulaire de contact)
+function minLengthCheck(input, minLength, iconValid, iconError, errorText, callback) {
+  input.addEventListener("input", function () {
+    const isValid = input.value.trim().length >= minLength;
+
+    iconValid.style.display = isValid ? "block" : "none";
+    iconError.style.display = isValid ? "none" : "block";
+    errorText.style.display = isValid ? "none" : "block";
+
+    callback(isValid);
+  });
+}
 function togglePasswordVisibility(eyeButtonElement) {
   const formGroup = eyeButtonElement.closest(".formGroup");
 
@@ -71,29 +83,6 @@ function togglePasswordVisibility(eyeButtonElement) {
   passwordInput.type = isVisible ? "password" : "text";
   eyeClosed.style.display = isVisible ? "block" : "none";
   eyeOpen.style.display = isVisible ? "none" : "block";
-}
-function questionACheck(input, iconValid, iconError, errorText, callback) {
-  input.addEventListener("input", function () {
-    const isValid = NAME_REGEX.test(input.value);
-
-    iconValid.style.display = isValid ? "block" : "none";
-    iconError.style.display = isValid ? "none" : "block";
-    errorText.style.display = isValid ? "none" : "block";
-
-    callback(isValid);
-  });
-}
-
-function questionBCheck(input, iconValid, iconError, errorText, callback) {
-  input.addEventListener("input", function () {
-    const isValid = NAME_REGEX.test(input.value);
-
-    iconValid.style.display = isValid ? "block" : "none";
-    iconError.style.display = isValid ? "none" : "block";
-    errorText.style.display = isValid ? "none" : "block";
-
-    callback(isValid);
-  });
 }
 // ///////////////// CONNEXION //////////////////////
 const FORM_CONNEXION = document.getElementById("formConnexion");
@@ -181,6 +170,53 @@ function connexionCheck() {
     togglePasswordVisibility(EYEBTN_PASSWORD_CONNEXION);
   });
 }
+
+// ///////////////// MOT DE PASSE OUBLIÉ //////////////////////
+const FORM_FORGOT_PASSWORD = document.getElementById("formForgotPassword");
+const INPUT_MAIL_FORGOTPASSWORD = document.getElementById("inputMailForgotPassword");
+const BTN_SEND_FORGOTPASSWORD = document.getElementById("btnSendForgotPassword");
+const BTN_CANCEL_FORGOTPASSWORD = document.getElementById("btnCancelForgotPassword");
+const MSG_FORGOTPASSWORD = document.getElementById("msgForgotPassword");
+
+function forgotPasswordCheck() {
+  INPUT_MAIL_FORGOTPASSWORD.addEventListener("input", () => {
+    const valid = /^[a-zA-Z0-9._%+-]{2,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(INPUT_MAIL_FORGOTPASSWORD.value.trim());
+    BTN_SEND_FORGOTPASSWORD.classList.toggle("btnOff", !valid);
+  });
+
+  BTN_FORGOTTENPASSWORD_CONNEXION.addEventListener("click", () => {
+    FORM_CONNEXION.style.display = "none";
+    FORM_FORGOT_PASSWORD.style.display = "flex";
+  });
+
+  BTN_CANCEL_FORGOTPASSWORD.addEventListener("click", (e) => {
+    e.preventDefault();
+    FORM_FORGOT_PASSWORD.style.display = "none";
+    FORM_CONNEXION.style.display = "flex";
+    MSG_FORGOTPASSWORD.style.display = "none";
+  });
+
+  BTN_SEND_FORGOTPASSWORD.addEventListener("click", async (e) => {
+    e.preventDefault();
+    if (BTN_SEND_FORGOTPASSWORD.classList.contains("btnOff")) return;
+
+    const formData = new FormData();
+    formData.append("mail", INPUT_MAIL_FORGOTPASSWORD.value.trim());
+
+    try {
+      const response = await fetch("controller/forgot_password.php", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await response.json();
+      MSG_FORGOTPASSWORD.textContent = result.message;
+      MSG_FORGOTPASSWORD.style.display = "block";
+    } catch (error) {
+      MSG_FORGOTPASSWORD.textContent = "Erreur technique ! Réessayez.";
+      MSG_FORGOTPASSWORD.style.display = "block";
+    }
+  });
+}
 async function loginFetch() {
   const formData = new FormData();
   formData.append("mail", INPUT_MAIL_CONNEXION.value.trim());
@@ -193,17 +229,14 @@ async function loginFetch() {
     });
 
     const result = await response.json();
-    console.log("Réponse login :", result);
 
     if (result.success) {
       switch (result.code) {
         case "LOGIN_ADMIN":
-          console.log("Login admin");
           turnOnLine();
           handleAdminLoginSuccess(result.firstname, result.name);
           break;
         case "LOGIN_SUCCESS":
-          console.log("Login user");
           turnOnLine();
           handleLoginSuccess(result.firstname, result.name);
           break;
@@ -300,7 +333,6 @@ async function logoutFetch() {
     });
     const result = await response.json();
     if (result.success) {
-      console.log("Deconnexion reussie");
       deactivateUserProfile()
       deactivateAdminTool()
       hideAdminLog();
@@ -353,30 +385,6 @@ const ERRORTEXT_PASSWORD_REGISTER = document.getElementById(
   "passwordErrorTextRegister"
 );
 const EYEBTN_PASSWORD_REGISTER = document.getElementById("passwordEyeRegister");
-const INPUT_QUESTIONA_REGISTER = document.getElementById(
-  "inputQuestionARegister"
-);
-const ICONVALID_QUESTIONA_REGISTER = document.getElementById(
-  "questionAValidRegister"
-);
-const ICONERROR_QUESTIONA_REGISTER = document.getElementById(
-  "questionAProhibedRegister"
-);
-const ERRORTEXT_QUESTIONA_REGISTER = document.getElementById(
-  "questionAErrorTextRegister"
-);
-const INPUT_QUESTIONB_REGISTER = document.getElementById(
-  "inputQuestionBRegister"
-);
-const ICONVALID_QUESTIONB_REGISTER = document.getElementById(
-  "questionBValidRegister"
-);
-const ICONERROR_QUESTIONB_REGISTER = document.getElementById(
-  "questionBProhibedRegister"
-);
-const ERRORTEXT_QUESTIONB_REGISTER = document.getElementById(
-  "questionBErrorTextRegister"
-);
 const BTN_REGISTER_REGISTER = document.getElementById("btnRegisterRegister");
 const NEWSLETTER_CHECKBOX_REGISTER = document.getElementById("mailingRegister");
 const MESSAGE_REGISTER_SUCCES = document.getElementById(
@@ -391,17 +399,13 @@ function registerCheck() {
   let validFirstname = false;
   let validMail = false;
   let validPassword = false;
-  let validQuestionA = false;
-  let validQuestionB = false;
 
   function updateRegisterButtonState() {
     if (
       validName &&
       validFirstname &&
       validMail &&
-      validPassword &&
-      validQuestionA &&
-      validQuestionB
+      validPassword
     ) {
       BTN_REGISTER_REGISTER.classList.remove("btnOff");
     } else {
@@ -460,28 +464,6 @@ function registerCheck() {
     }
   );
 
-  questionACheck(
-    INPUT_QUESTIONA_REGISTER,
-    ICONVALID_QUESTIONA_REGISTER,
-    ICONERROR_QUESTIONA_REGISTER,
-    ERRORTEXT_QUESTIONA_REGISTER,
-    (isValid) => {
-      validQuestionA = isValid;
-      updateRegisterButtonState();
-    }
-  );
-
-  questionBCheck(
-    INPUT_QUESTIONB_REGISTER,
-    ICONVALID_QUESTIONB_REGISTER,
-    ICONERROR_QUESTIONB_REGISTER,
-    ERRORTEXT_QUESTIONB_REGISTER,
-    (isValid) => {
-      validQuestionB = isValid;
-      updateRegisterButtonState();
-    }
-  );
-
   EYEBTN_PASSWORD_REGISTER.addEventListener("click", function (e) {
     e.preventDefault();
     togglePasswordVisibility(EYEBTN_PASSWORD_REGISTER);
@@ -493,8 +475,6 @@ async function registerFetch() {
   formData.append("firstname", INPUT_FIRSTNAME_REGISTER.value.trim());
   formData.append("mail", INPUT_MAIL_REGISTER.value.trim());
   formData.append("password", INPUT_PASSWORD_REGISTER.value.trim());
-  formData.append("questionA", INPUT_QUESTIONA_REGISTER.value.trim());
-  formData.append("questionB", INPUT_QUESTIONB_REGISTER.value.trim());
   formData.append(
     "newsletter",
     NEWSLETTER_CHECKBOX_REGISTER.checked ? "1" : "0"
@@ -507,7 +487,6 @@ async function registerFetch() {
     });
 
     const result = await response.json();
-    console.log(result); // Utile pour debug
 
     if (result.success) {
       handleRegisterSuccess();
@@ -566,7 +545,168 @@ function resetRegisterForm() {
   INPUT_FIRSTNAME_REGISTER.value = "";
   INPUT_MAIL_REGISTER.value = "";
   INPUT_PASSWORD_REGISTER.value = "";
-  INPUT_QUESTIONA_REGISTER.value = "";
-  INPUT_QUESTIONB_REGISTER.value = "";
   NEWSLETTER_CHECKBOX_REGISTER.checked = false;
+}
+
+// ///////////////// CONTACT (section Contact de la home) //////////////////////
+const FORM_CONTACT = document.getElementById("formContact");
+const INPUT_NAME_CONTACT = document.getElementById("inputNameContact");
+const ICONVALID_NAME_CONTACT = document.getElementById("nameValidContact");
+const ICONERROR_NAME_CONTACT = document.getElementById("nameProhibedContact");
+const ERRORTEXT_NAME_CONTACT = document.getElementById("nameErrorTextContact");
+const INPUT_FIRSTNAME_CONTACT = document.getElementById("inputFirstnameContact");
+const ICONVALID_FIRSTNAME_CONTACT = document.getElementById("firstnameValidContact");
+const ICONERROR_FIRSTNAME_CONTACT = document.getElementById("firstnameProhibedContact");
+const ERRORTEXT_FIRSTNAME_CONTACT = document.getElementById("firstnameErrorTextContact");
+const INPUT_COMPANY_CONTACT = document.getElementById("inputCompanyContact");
+const INPUT_MAIL_CONTACT = document.getElementById("inputMailContact");
+const ICONVALID_MAIL_CONTACT = document.getElementById("mailValidContact");
+const ICONERROR_MAIL_CONTACT = document.getElementById("mailProhibedContact");
+const ERRORTEXT_MAIL_CONTACT = document.getElementById("mailErrorTextContact");
+const INPUT_PHONE_CONTACT = document.getElementById("inputPhoneContact");
+const INPUT_SUBJECT_CONTACT = document.getElementById("inputSubjectContact");
+const ICONVALID_SUBJECT_CONTACT = document.getElementById("subjectValidContact");
+const ICONERROR_SUBJECT_CONTACT = document.getElementById("subjectProhibedContact");
+const ERRORTEXT_SUBJECT_CONTACT = document.getElementById("subjectErrorTextContact");
+const INPUT_MESSAGE_CONTACT = document.getElementById("inputMessageContact");
+const ICONVALID_MESSAGE_CONTACT = document.getElementById("messageValidContact");
+const ICONERROR_MESSAGE_CONTACT = document.getElementById("messageProhibedContact");
+const ERRORTEXT_MESSAGE_CONTACT = document.getElementById("messageErrorTextContact");
+const BTN_SEND_CONTACT = document.getElementById("btnSendContact");
+const MESSAGE_CONTACT_SUCCES = document.getElementById("messageContactSucces");
+const MESSAGE_CONTACT_ERROR = document.getElementById("messageContactError");
+
+// Lié une seule fois (la home peut être revisitée plusieurs fois par session SPA,
+// contrairement à la page register — éviter d'empiler les listeners de soumission).
+let _contactFormBound = false;
+function contactCheck() {
+  if (_contactFormBound) return;
+  _contactFormBound = true;
+
+  // Champs obligatoires : nom, prénom, email, sujet, message.
+  // Compagnie et téléphone sont facultatifs (jamais pris en compte ici).
+  let validName = false;
+  let validFirstname = false;
+  let validMail = false;
+  let validSubject = false;
+  let validMessage = false;
+
+  function updateContactButtonState() {
+    if (validName && validFirstname && validMail && validSubject && validMessage) {
+      BTN_SEND_CONTACT.classList.remove("btnOff");
+    } else {
+      BTN_SEND_CONTACT.classList.add("btnOff");
+    }
+  }
+
+  BTN_SEND_CONTACT.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (!BTN_SEND_CONTACT.classList.contains("btnOff")) {
+      contactFetch();
+    }
+  });
+
+  nameCheck(
+    INPUT_NAME_CONTACT,
+    ICONVALID_NAME_CONTACT,
+    ICONERROR_NAME_CONTACT,
+    ERRORTEXT_NAME_CONTACT,
+    (isValid) => { validName = isValid; updateContactButtonState(); }
+  );
+
+  firstnameCheck(
+    INPUT_FIRSTNAME_CONTACT,
+    ICONVALID_FIRSTNAME_CONTACT,
+    ICONERROR_FIRSTNAME_CONTACT,
+    ERRORTEXT_FIRSTNAME_CONTACT,
+    (isValid) => { validFirstname = isValid; updateContactButtonState(); }
+  );
+
+  mailCheck(
+    INPUT_MAIL_CONTACT,
+    ICONVALID_MAIL_CONTACT,
+    ICONERROR_MAIL_CONTACT,
+    ERRORTEXT_MAIL_CONTACT,
+    (isValid) => { validMail = isValid; updateContactButtonState(); }
+  );
+
+  minLengthCheck(
+    INPUT_SUBJECT_CONTACT, 3,
+    ICONVALID_SUBJECT_CONTACT,
+    ICONERROR_SUBJECT_CONTACT,
+    ERRORTEXT_SUBJECT_CONTACT,
+    (isValid) => { validSubject = isValid; updateContactButtonState(); }
+  );
+
+  minLengthCheck(
+    INPUT_MESSAGE_CONTACT, 10,
+    ICONVALID_MESSAGE_CONTACT,
+    ICONERROR_MESSAGE_CONTACT,
+    ERRORTEXT_MESSAGE_CONTACT,
+    (isValid) => { validMessage = isValid; updateContactButtonState(); }
+  );
+}
+async function contactFetch() {
+  const formData = new FormData();
+  formData.append("name", INPUT_NAME_CONTACT.value.trim());
+  formData.append("firstname", INPUT_FIRSTNAME_CONTACT.value.trim());
+  formData.append("company", INPUT_COMPANY_CONTACT.value.trim());
+  formData.append("mail", INPUT_MAIL_CONTACT.value.trim());
+  formData.append("phone", INPUT_PHONE_CONTACT.value.trim());
+  formData.append("subject", INPUT_SUBJECT_CONTACT.value.trim());
+  formData.append("message", INPUT_MESSAGE_CONTACT.value.trim());
+
+  BTN_SEND_CONTACT.classList.add("btnOff");
+
+  try {
+    const response = await fetch("controller/contact.php", {
+      method: "POST",
+      body: formData,
+    });
+    const result = await response.json();
+    if (result.success) {
+      handleContactSuccess();
+    } else {
+      handleContactError();
+    }
+  } catch (error) {
+    handleContactError();
+  }
+}
+function handleContactSuccess() {
+  resetContactForm();
+  MESSAGE_CONTACT_SUCCES.style.display = "flex";
+  titleDisplay(MESSAGE_CONTACT_SUCCES);
+  setTimeout(() => {
+    titleHide(MESSAGE_CONTACT_SUCCES);
+  }, 3000);
+  setTimeout(() => {
+    MESSAGE_CONTACT_SUCCES.style.display = "none";
+  }, 5000);
+}
+function handleContactError() {
+  MESSAGE_CONTACT_ERROR.style.display = "flex";
+  titleDisplay(MESSAGE_CONTACT_ERROR);
+  setTimeout(() => {
+    titleHide(MESSAGE_CONTACT_ERROR);
+  }, 3000);
+  setTimeout(() => {
+    BTN_SEND_CONTACT.classList.remove("btnOff");
+  }, 4000);
+  setTimeout(() => {
+    MESSAGE_CONTACT_ERROR.style.display = "none";
+  }, 5000);
+}
+function resetContactForm() {
+  INPUT_NAME_CONTACT.value = "";
+  INPUT_FIRSTNAME_CONTACT.value = "";
+  INPUT_COMPANY_CONTACT.value = "";
+  INPUT_MAIL_CONTACT.value = "";
+  INPUT_PHONE_CONTACT.value = "";
+  INPUT_SUBJECT_CONTACT.value = "";
+  INPUT_MESSAGE_CONTACT.value = "";
+  [ICONVALID_NAME_CONTACT, ICONVALID_FIRSTNAME_CONTACT, ICONVALID_MAIL_CONTACT, ICONVALID_SUBJECT_CONTACT, ICONVALID_MESSAGE_CONTACT]
+    .forEach((icon) => { icon.style.display = "none"; });
+  [ICONERROR_NAME_CONTACT, ICONERROR_FIRSTNAME_CONTACT, ICONERROR_MAIL_CONTACT, ICONERROR_SUBJECT_CONTACT, ICONERROR_MESSAGE_CONTACT]
+    .forEach((icon) => { icon.style.display = "none"; });
 }

@@ -12,7 +12,7 @@ if (isset($_GET['action'])) {
   <?php require 'templates/partials/head.php'; ?>
 </head>
 
-<body>
+<body class="page-home">
   <div class="navContainer">
     <?php require 'templates/partials/topbar.php'; ?>
     <?php require 'templates/partials/nav-desktop.php'; ?>
@@ -24,23 +24,12 @@ if (isset($_GET['action'])) {
     <?php
     // â”€â”€ Pages publiques â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     require 'templates/pages/home.php';
-    require 'templates/pages/profile.php';
-    require 'templates/pages/games.php';
-    require 'templates/pages/uxui.php';
-    require 'templates/pages/3d.php';
-    require 'templates/pages/2d.php';
-    require 'templates/pages/video.php';
-    require 'templates/pages/web.php';
-    require 'templates/pages/pixel.php';
-    require 'templates/pages/portfolio.php';
-    require 'templates/pages/blog.php';
-    require 'templates/pages/bio.php';
-    require 'templates/pages/contact.php';
     require 'templates/pages/page-view.php';
     // â”€â”€ Compte utilisateur â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     require 'templates/pages/connexion.php';
     require 'templates/pages/register.php';
     require 'templates/pages/userprofile.php';
+    require 'templates/pages/reset-password.php';
     // ── Admin ──────────────────────────────────────────────────────────────────────────────────────────
     require 'templates/admin/admintool.php';
     require 'templates/admin/users.php';
@@ -49,6 +38,7 @@ if (isset($_GET['action'])) {
     require 'templates/admin/pages.php';
     require 'templates/admin/experiences.php';
     require 'templates/admin/comments.php';
+    require 'templates/admin/messages.php';
     require 'templates/admin/analytics.php';
     ?>
   </div>
@@ -57,35 +47,31 @@ if (isset($_GET['action'])) {
   <nav class="sectionNav" id="sectionNav" style="display:none" aria-label="Navigation sections">
     <div class="sectionNavItem sectionNavItem--active" data-target="0" title="Accueil">
       <span class="icon iconGC"></span>
-      <span class="sectionNavLabel"><span>A</span><span>C</span><span>C</span><span>U</span><span>E</span><span>I</span><span>L</span></span>
+      <span class="sectionNavLabel" data-en="Home"><span>A</span><span>C</span><span>C</span><span>U</span><span>E</span><span>I</span><span>L</span></span>
     </div>
     <div class="sectionNavItem" data-target="1" title="Présentation">
       <span class="icon iconBio"></span>
-      <span class="sectionNavLabel"><span>P</span><span>R</span><span>É</span><span>S</span><span>E</span><span>N</span><span>T</span><span>A</span><span>T</span><span>I</span><span>O</span><span>N</span></span>
+      <span class="sectionNavLabel" data-en="About"><span>P</span><span>R</span><span>É</span><span>S</span><span>E</span><span>N</span><span>T</span><span>A</span><span>T</span><span>I</span><span>O</span><span>N</span></span>
     </div>
     <div class="sectionNavItem" data-target="2" title="Expertises">
       <span class="icon iconExpertise"></span>
-      <span class="sectionNavLabel"><span>E</span><span>X</span><span>P</span><span>E</span><span>R</span><span>T</span><span>I</span><span>S</span><span>E</span></span>
+      <span class="sectionNavLabel" data-en="Expertise"><span>E</span><span>X</span><span>P</span><span>E</span><span>R</span><span>T</span><span>I</span><span>S</span><span>E</span></span>
     </div>
     <div class="sectionNavItem" data-target="3" title="Portfolio">
       <span class="icon iconPortfolio"></span>
-      <span class="sectionNavLabel"><span>P</span><span>O</span><span>R</span><span>T</span><span>F</span><span>O</span><span>L</span><span>I</span><span>O</span></span>
+      <span class="sectionNavLabel" data-en="Portfolio"><span>P</span><span>O</span><span>R</span><span>T</span><span>F</span><span>O</span><span>L</span><span>I</span><span>O</span></span>
     </div>
     <div class="sectionNavItem" data-target="4" title="Bio">
       <span class="icon iconProfil"></span>
-      <span class="sectionNavLabel"><span>B</span><span>I</span><span>O</span></span>
+      <span class="sectionNavLabel" data-en="Bio"><span>B</span><span>I</span><span>O</span></span>
     </div>
     <div class="sectionNavItem" data-target="5" title="Blog">
       <span class="icon iconBlog"></span>
-      <span class="sectionNavLabel"><span>B</span><span>L</span><span>O</span><span>G</span></span>
+      <span class="sectionNavLabel" data-en="Blog"><span>B</span><span>L</span><span>O</span><span>G</span></span>
     </div>
     <div class="sectionNavItem" data-target="6" title="Contact">
       <span class="icon iconContact"></span>
-      <span class="sectionNavLabel"><span>C</span><span>O</span><span>N</span><span>T</span><span>A</span><span>C</span><span>T</span></span>
-    </div>
-    <div class="sectionNavItem" data-target="7" title="Plan du site">
-      <span class="icon iconGalleries"></span>
-      <span class="sectionNavLabel"><span>P</span><span>L</span><span>A</span><span>N</span> <span>D</span><span>U</span> <span>S</span><span>I</span><span>T</span><span>E</span></span>
+      <span class="sectionNavLabel" data-en="Contact"><span>C</span><span>O</span><span>N</span><span>T</span><span>A</span><span>C</span><span>T</span></span>
     </div>
   </nav>
 
@@ -157,28 +143,24 @@ if (isset($_GET['action'])) {
 
   <?php require 'templates/admin/scene-editor.php'; ?>
 
-  <!-- ── Bouton debug strokes (dev only) ── -->
-  <button id="debugToggleBtn" title="Toggle debug strokes" style="
-    position:fixed; bottom:16px; right:16px; z-index:9999;
-    width:36px; height:36px; border-radius:50%;
-    background:rgba(20,20,30,0.85); border:1px solid rgba(255,255,255,0.15);
-    color:rgba(255,255,255,0.4); font-size:14px; cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    transition:opacity .2s, border-color .2s; opacity:0.5;
-  ">⬡</button>
-  <script>
-    (function(){
-      var btn = document.getElementById('debugToggleBtn');
-      var on  = false;
-      btn.addEventListener('click', function(){
-        on = !on;
-        document.body.classList.toggle('debug-visible', on);
-        btn.style.borderColor = on ? 'rgba(255,80,80,0.8)' : 'rgba(255,255,255,0.15)';
-        btn.style.color       = on ? 'rgba(255,80,80,0.9)' : 'rgba(255,255,255,0.4)';
-        btn.style.opacity     = on ? '1' : '0.5';
-      });
-    })();
-  </script>
+  <!-- ── Partage — popup réseaux sociaux (page/section courante), cf. vue/share.js ── -->
+  <div class="confirmOverlay" id="shareOverlay" style="display:none">
+    <div class="shareBox">
+      <div class="shareBoxHeader">
+        <span lang="FR" data-en="Share">Partager</span>
+        <button type="button" class="btnSmall" id="btnCloseShare">✕</button>
+      </div>
+      <p class="shareBoxTitle" id="shareBoxTitle"></p>
+      <ul class="shareList">
+        <li><a class="shareLink" id="shareLinkFacebook" href="#" target="_blank" rel="noopener noreferrer"><span class="icon iconFacebook"></span><span lang="FR" data-en="Facebook">Facebook</span></a></li>
+        <li><a class="shareLink" id="shareLinkX" href="#" target="_blank" rel="noopener noreferrer"><span class="icon iconX"></span><span lang="FR" data-en="X (Twitter)">X (Twitter)</span></a></li>
+        <li><a class="shareLink" id="shareLinkLinkedin" href="#" target="_blank" rel="noopener noreferrer"><span class="icon iconLinkedin"></span><span lang="FR" data-en="LinkedIn">LinkedIn</span></a></li>
+        <li><a class="shareLink" id="shareLinkWhatsapp" href="#" target="_blank" rel="noopener noreferrer"><span class="icon iconWhatsapp"></span><span lang="FR" data-en="WhatsApp">WhatsApp</span></a></li>
+        <li><a class="shareLink" id="shareLinkEmail" href="#"><span class="icon iconEmail"></span><span lang="FR" data-en="Email">Email</span></a></li>
+        <li><button type="button" class="shareLink" id="shareLinkCopy"><span class="icon iconCopy"></span><span id="shareLinkCopyLabel" lang="FR" data-en="Copy link">Copier le lien</span></button></li>
+      </ul>
+    </div>
+  </div>
 
   <?php require 'templates/partials/backgrounds.php'; ?>
   <?php require 'templates/partials/scripts.php'; ?>

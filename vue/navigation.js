@@ -1,18 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   // TITLES
   TL_HOME = document.querySelector(".homeTitle");
-  TL_PROFILE = document.querySelector(".profileTitle");
-  TL_GAMES = document.querySelector(".gamesTitle");
-  TL_UXUI = document.querySelector(".uxuiTitle");
-  TL_3D = document.querySelector(".title3D");
-  TL_2D = document.querySelector(".title2D");
-  TL_VIDEO = document.querySelector(".videoTitle");
-  TL_WEB = document.querySelector(".webTitle");
-  TL_PIXEL = document.querySelector(".pixelTitle");
-  TL_PORTFOLIO = document.querySelector(".portfolioTitle");
-  TL_BLOG = document.querySelector(".blogTitle");
-  TL_BIO = document.querySelector(".bioTitle");
-  TL_CONTACT = document.querySelector(".contactTitle");
   TL_CONNEXION = document.querySelector(".connexionTitle");
   TL_REGISTER = document.querySelector(".registerTitle");
   TL_USERPROFILE = document.querySelector(".userProfileTitle");
@@ -24,22 +12,12 @@ document.addEventListener("DOMContentLoaded", () => {
   TL_PAGES = document.querySelector(".pagesTitle");
   TL_EXPERIENCES = document.querySelector(".experiencesTitle");
   TL_COMMENTS = document.querySelector(".commentsTitle");
+  TL_MESSAGES = document.querySelector(".messagesTitle");
   TL_ANALYTICS = document.querySelector(".analyticsTitle");
   TL_PAGEVIEW = document.querySelector(".pageViewCategoryTitle");
+  TL_RESETPASSWORD = document.querySelector(".resetPasswordTitle");
   // CONTENTS
   CNT_HOME = document.getElementById("cntHOME");
-  CNT_PROFILE = document.getElementById("cntPROFILE");
-  CNT_GAMES = document.getElementById("cntGAMES");
-  CNT_UXUI = document.getElementById("cntUXUI");
-  CNT_3D = document.getElementById("cnt3D");
-  CNT_2D = document.getElementById("cnt2D");
-  CNT_VIDEO = document.getElementById("cntVIDEO");
-  CNT_WEB = document.getElementById("cntWEB");
-  CNT_PIXEL = document.getElementById("cntPIXEL");
-  CNT_PORTFOLIO = document.getElementById("cntPORTFOLIO");
-  CNT_BLOG = document.getElementById("cntBLOG");
-  CNT_BIO = document.getElementById("cntBIO");
-  CNT_CONTACT = document.getElementById("cntCONTACT");
   CNT_CONNEXION = document.getElementById("cntCONNEXION");
   CNT_REGISTER = document.getElementById("cntREGISTER");
   CNT_USERPROFILE = document.getElementById("cntUSERPROFILE");
@@ -51,13 +29,30 @@ document.addEventListener("DOMContentLoaded", () => {
   CNT_PAGES = document.getElementById("cntPAGES");
   CNT_EXPERIENCES = document.getElementById("cntEXPERIENCES");
   CNT_COMMENTS = document.getElementById("cntCOMMENTS");
+  CNT_MESSAGES = document.getElementById("cntMESSAGES");
   CNT_ANALYTICS = document.getElementById("cntANALYTICS");
   CNT_PAGEVIEW = document.getElementById("cntPAGEVIEW");
+  CNT_RESETPASSWORD = document.getElementById("cntRESETPASSWORD");
   CNT_SECTIONNAV = document.getElementById("sectionNav");
   // BUTTONS & BACKGROUND
-  BTN_HOME_PROFILE = document.getElementById("btnProfileHome");
   BG_HOME = document.getElementById("backgroundHome");
   document.getElementById("btnPageViewBack")?.addEventListener("click", () => history.back());
+  // Indicateur "scroll down" de la section Landing — avance vers la section suivante
+  document.getElementById("scrollDownIndicator")?.addEventListener("click", () => {
+    window._homeScrollTo?.("presentation");
+  });
+  // Intitulés du menu latéral desktop (lettre par lettre, cf. vue/scroll.js) — ignorés par
+  // le système de traduction générique (controller/language.js) car ce ne sont pas de simples
+  // éléments texte. Synchronisés ici avec la langue déjà appliquée au chargement, puis à
+  // chaque changement de langue.
+  document.querySelectorAll('.sectionNavLabel[data-en]').forEach((label) => {
+    window._setNavLabelLang?.(label, document.documentElement.lang);
+  });
+  document.addEventListener('languagechange', (e) => {
+    document.querySelectorAll('.sectionNavLabel[data-en]').forEach((label) => {
+      window._setNavLabelLang?.(label, e.detail.lang);
+    });
+  });
 });
 
 function titleDisplay(title) {
@@ -73,7 +68,6 @@ function titleDisplay(title) {
 }
 function titleHide(title) {
   const titleTextElements = title.querySelectorAll("span");
-  console.log("→ titleHide");
   titleTextElements.forEach((element, index) => {
     setTimeout(() => {
       element.classList.remove("rotateInSlow");
@@ -206,11 +200,6 @@ function activateBlogSection() {
 function activateContactSection() {
   _activateSectionButtons([BTN_CONTACT_SECTION_TABLET, BTN_CONTACT_SECTION_MOBILE], "contact");
 }
-// "Plan du site" — mirror du 8e item de #sectionNav, actuellement inerte côté desktop aussi
-// (pas de section correspondante), on reproduit le même comportement (no-op silencieux).
-function activateSitemap() {
-  _activateSectionButtons([BTN_SITEMAP_TABLET, BTN_SITEMAP_MOBILE], "sitemap");
-}
 // Titre custom d'une section home (landing exclue — géré via TL_HOME)
 function _homeSectionTitleEl(sectionId) {
   if (!sectionId || sectionId === 'landing') return null;
@@ -225,6 +214,8 @@ function displayHome() {
   window._loadHomeCards?.();
   // Timeline Expérience / Formation de la section bio
   window._loadBioTimeline?.();
+  // Formulaire de contact (section Contact) — lié une seule fois, cf. form_validation.js
+  window.contactCheck?.();
   // Init du scroll magnétique sur les sections de la home — repositionné
   // directement sur la section ciblée par l'URL (ex: /home/portfolio) pour
   // éviter un flash de la section "landing" avant la transition animée.
@@ -242,7 +233,8 @@ function displayHome() {
   if (_targetIdx === 0) { titleDisplay(TL_HOME); hideBackBlurMask(); }
   else { titleDisplay(_homeSectionTitleEl(_targetSection)); displayBackBlurMask(); }
 
-  // Mise à jour du slug + titre de section + flou d'arrière-plan quand on scrolle
+  // Mise à jour du slug + titre de section quand on scrolle — le flou d'arrière-plan est
+  // désormais déclenché immédiatement au clic (SectionScroller._applyBackdrop), pas ici.
   let _prevSectionId = _targetIdx === 0 ? 'landing' : _targetSection;
   const _onSectionChange = (e) => {
     window._updateHomeSection?.(e.detail.sectionId);
@@ -251,9 +243,6 @@ function displayHome() {
       const nextTitle = e.detail.sectionId === 'landing' ? TL_HOME : _homeSectionTitleEl(e.detail.sectionId);
       if (prevTitle && prevTitle !== nextTitle) titleHide(prevTitle);
       if (nextTitle) titleDisplay(nextTitle);
-      // Seule la section accueil affiche la scène 3D nette, sans flou/tramage
-      if (e.detail.sectionId === 'landing') hideBackBlurMask();
-      else displayBackBlurMask();
       _prevSectionId = e.detail.sectionId;
     }
   };
@@ -273,7 +262,7 @@ function displayHome() {
   // Afficher le label de la section active après que les items soient apparus
   setTimeout(() => {
     const activeItem = CNT_SECTIONNAV.querySelector('.sectionNavItem--active');
-    if (activeItem) _navLabelReveal(activeItem.querySelectorAll('.sectionNavLabel > span'));
+    if (activeItem) _navLabelReveal(activeItem.querySelector('.sectionNavLabel'));
   }, _sectionItems.length * 60 + 200);
 
   // ── Zone hover : afficher/cacher les labels des sections inactives ──────────
@@ -284,7 +273,7 @@ function displayHome() {
     clearTimeout(_labelHideTimer);
     // Révéler les labels des items non-actifs
     CNT_SECTIONNAV.querySelectorAll('.sectionNavItem:not(.sectionNavItem--active)').forEach((item) => {
-      _navLabelReveal(item.querySelectorAll('.sectionNavLabel > span'));
+      _navLabelReveal(item.querySelector('.sectionNavLabel'));
     });
   };
 
@@ -293,7 +282,7 @@ function displayHome() {
     _labelHideTimer = setTimeout(() => {
       if (_homeScroller) _homeScroller._labelHoverActive = false;
       CNT_SECTIONNAV.querySelectorAll('.sectionNavItem:not(.sectionNavItem--active)').forEach((item) => {
-        _navLabelHide(item.querySelectorAll('.sectionNavLabel > span'), true);
+        _navLabelHide(item.querySelector('.sectionNavLabel'), true);
       });
     }, 500);
   };
@@ -310,251 +299,9 @@ function displayHome() {
     window._homeScrollTo = null;
   };
 
-  setTimeout(() => {
-    BTN_HOME_PROFILE.style.opacity = "1";
-    BTN_HOME_PROFILE.classList.add("moveInBottom");
-    BTN_HOME_PROFILE.addEventListener('animationend', () => {
-      BTN_HOME_PROFILE.classList.remove('moveInBottom');
-    }, { once: true });
-  }, 450);
-
   // Enregistrer /home dans l'historique (notamment pour le chargement initial via startSequence)
   window._setPage?.('home');
 }
-/////////////// PROFILE ///////////////
-function activateProfile() {
-  const buttons = [
-    BTN_HOME_PROFILE,
-  ];
-  buttons.forEach((button) => {
-    button.addEventListener("click", accessProfile);
-    button.addEventListener("touchend", accessProfile);
-  });
-}
-function accessProfile() {
-  if (page !== "profile") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      displayProfile();
-      _setPage("profile");
-    }, 500);
-  }
-}
-function displayProfile() {
-  window.GCABackground?.setPage('profile');
-  CNT_PROFILE.style.display = "flex";
-  titleDisplay(TL_PROFILE);
-}
-/////////////// GAMES ///////////////
-function activateGames() {
-  const buttons = []; // plus de bouton tablette/mobile depuis le mirroring des sections desktop
-  buttons.forEach((button) => {
-    button.addEventListener("click", accessGames);
-    button.addEventListener("touchend", accessGames);
-  });
-}
-function accessGames() {
-  if (page !== "games") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      displayGames();
-      _setPage("games");
-    }, 500);
-  }
-}
-function displayGames() {
-  window.GCABackground?.setPage('games');
-  CNT_GAMES.style.display = "flex";
-  titleDisplay(TL_GAMES);
-}
-/////////////// UXUI ///////////////
-function activateUxUi() {
-  const buttons = []; // idem
-  buttons.forEach((button) => {
-    button.addEventListener("click", accessUxUi);
-    button.addEventListener("touchend", accessUxUi);
-  });
-}
-function accessUxUi() {
-  if (page !== "uxui") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      displayUxUi();
-      _setPage("uxui");
-    }, 500);
-  }
-}
-function displayUxUi() {
-  window.GCABackground?.setPage('uxui');
-  CNT_UXUI.style.display = "flex";
-  titleDisplay(TL_UXUI);
-}
-/////////////// 3D ///////////////
-function activate3d() {
-  const buttons = []; // idem
-  buttons.forEach((button) => {
-    button.addEventListener("click", access3d);
-    button.addEventListener("touchend", access3d);
-  });
-}
-function access3d() {
-  if (page !== "3d") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      display3d();
-      _setPage("3d");
-    }, 500);
-  }
-}
-function display3d() {
-  window.GCABackground?.setPage('3d');
-  CNT_3D.style.display = "flex";
-  titleDisplay(TL_3D);
-}
-/////////////// 2D ///////////////
-function activate2d() {
-  const buttons = []; // idem
-  buttons.forEach((button) => {
-    button.addEventListener("click", access2d);
-    button.addEventListener("touchend", access2d);
-  });
-}
-function access2d() {
-  if (page !== "2d") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      display2d();
-      _setPage("2d");
-    }, 500);
-  }
-}
-function display2d() {
-  window.GCABackground?.setPage('2d');
-  CNT_2D.style.display = "flex";
-  titleDisplay(TL_2D);
-}
-/////////////// VIDEO ///////////////
-function activateVideo() {
-  const buttons = []; // idem
-  buttons.forEach((button) => {
-    button.addEventListener("click", accessVideo);
-    button.addEventListener("touchend", accessVideo);
-  });
-}
-function accessVideo() {
-  if (page !== "video") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      displayVideo();
-      _setPage("video");
-    }, 500);
-  }
-}
-function displayVideo() {
-  window.GCABackground?.setPage('video');
-  CNT_VIDEO.style.display = "flex";
-  titleDisplay(TL_VIDEO);
-}
-/////////////// WEB ///////////////
-function activateWeb() {
-  const buttons = []; // idem
-  buttons.forEach((button) => {
-    button.addEventListener("click", accessWeb);
-    button.addEventListener("touchend", accessWeb);
-  });
-}
-function accessWeb() {
-  if (page !== "web") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      displayWeb();
-      _setPage("web");
-    }, 500);
-  }
-}
-function displayWeb() {
-  window.GCABackground?.setPage('web');
-  CNT_WEB.style.display = "flex";
-  titleDisplay(TL_WEB);
-}
-/////////////// PIXEL ///////////////
-function activatePixel() {
-  const buttons = []; // idem
-  buttons.forEach((button) => {
-    button.addEventListener("click", accessPixel);
-    button.addEventListener("touchend", accessPixel);
-  });
-}
-function accessPixel() {
-  if (page !== "pixel") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      displayPixel();
-      _setPage("pixel");
-    }, 500);
-  }
-}
-function displayPixel() {
-  window.GCABackground?.setPage('pixel');
-  CNT_PIXEL.style.display = "flex";
-  titleDisplay(TL_PIXEL);
-}
-/////////////// PORTFOLIO ///////////////
-function activatePortfolio() {
-  const buttons = []; // idem — remplacé par activatePortfolioSection() (scroll section home)
-  buttons.forEach((button) => {
-    button.addEventListener("click", accessPortfolio);
-    button.addEventListener("touchend", accessPortfolio);
-  });
-}
-function accessPortfolio() {
-  if (page !== "portfolio") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      displayPortfolio();
-      _setPage("portfolio");
-    }, 500);
-  }
-}
-function displayPortfolio() {
-  window.GCABackground?.setPage('portfolio');
-  CNT_PORTFOLIO.style.display = "flex";
-  titleDisplay(TL_PORTFOLIO);
-}
-/////////////// BLOG ///////////////
-function activateBlog() {
-  const buttons = []; // idem — remplacé par activateBlogSection() (scroll section home)
-  buttons.forEach((button) => {
-    button.addEventListener("click", accessBlog);
-    button.addEventListener("touchend", accessBlog);
-  });
-}
-function accessBlog() {
-  if (page !== "blog") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      displayBlog();
-      _setPage("blog");
-    }, 500);
-  }
-}
-function displayBlog() {
-  window.GCABackground?.setPage('blog');
-  CNT_BLOG.style.display = "flex";
-  titleDisplay(TL_BLOG);
-  displayContent(CNT_BLOG, 50);
-}
-
 /////////////// PAGE VIEW (détail public projet/expertise/blog) ///////////////
 function accessPageView(slug) {
   if (page === "pageView" && _currentPageViewSlug === slug) return;
@@ -581,52 +328,6 @@ function displayPageView(slug) {
 }
 window.accessPageView = accessPageView;
 
-/////////////// BIO ///////////////
-function activateBio() {
-  const buttons = []; // idem — remplacé par activateBioSection() (scroll section home)
-  buttons.forEach((button) => {
-    button.addEventListener("click", accessBio);
-    button.addEventListener("touchend", accessBio);
-  });
-}
-function accessBio() {
-  if (page !== "bio") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      displayBio();
-      _setPage("bio");
-    }, 500);
-  }
-}
-function displayBio() {
-  window.GCABackground?.setPage('bio');
-  CNT_BIO.style.display = "flex";
-  titleDisplay(TL_BIO);
-}
-/////////////// CONTACT ///////////////
-function activateContact() {
-  const buttons = []; // idem — remplacé par activateContactSection() (scroll section home)
-  buttons.forEach((button) => {
-    button.addEventListener("click", accessContact);
-    button.addEventListener("touchend", accessContact);
-  });
-}
-function accessContact() {
-  if (page !== "contact") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      displayContact();
-      _setPage("contact");
-    }, 500);
-  }
-}
-function displayContact() {
-  window.GCABackground?.setPage('contact');
-  CNT_CONTACT.style.display = "flex";
-  titleDisplay(TL_CONTACT);
-}
 /////////////// CONNEXION ///////////////
 function activateConnexion() {
   connectBtnIdle();
@@ -648,6 +349,7 @@ function displayConnexion() {
   displayContent(CNT_CONNEXION, 50);
   setAutofocus(FORM_CONNEXION);
   connexionCheck();
+  forgotPasswordCheck();
   activateRegister();
 }
 /////////////// REGISTER ///////////////
@@ -705,8 +407,22 @@ function displayUserProfile() {
   window.GCABackground?.setPage('userprofile');
   CNT_USERPROFILE.style.display = "flex";
   titleDisplay(TL_USERPROFILE);
-  displayContent(CNT_REGISTER, 50);
+  displayContent(CNT_USERPROFILE, 50);
+  window._initUserProfile?.();
 }
+/////////////// RESET PASSWORD (lien reçu par email, hors intro normale) ///////////////
+function accessResetPassword(token) {
+  page = "resetPassword";
+  displayResetPassword(token);
+}
+function displayResetPassword(token) {
+  window.GCABackground?.setPage('resetpassword');
+  CNT_RESETPASSWORD.style.display = "flex";
+  titleDisplay(TL_RESETPASSWORD);
+  displayContent(CNT_RESETPASSWORD, 50);
+  window._initResetPassword?.(token);
+}
+window.accessResetPassword = accessResetPassword;
 /////////////// ADMINTOOL ///////////////
 function activateAdminTool() {
   const buttons = BTN_ADMINLOG;
@@ -723,6 +439,7 @@ function deactivateAdminTool() {
   });
 }
 function accessAdminTool() {
+  if (!window.isAdminAllowed?.()) { accessHome(); return; }
   if (page !== "adminTool") {
     displayBackBlurMask();
     unloadPage();
@@ -743,6 +460,7 @@ function displayAdminTool() {
   activatePagesManagement();
   activateExperiencesManagement();
   activateCommentsManagement();
+  activateMessagesManagement();
   activateSceneEditor();
   // Masquer le bouton d'accès à l'admin pendant qu'on y est
   const adminBtn = document.getElementById('btnDirectAdmin');
@@ -877,6 +595,28 @@ function displayCommentsManagement() {
   titleDisplay(TL_COMMENTS);
   displayContent(CNT_COMMENTS, 50);
 }
+/////////////// MESSAGES (boîte de réception) ///////////////
+function activateMessagesManagement() {
+  const btn = document.getElementById('btnMessagesManagement');
+  if (!btn) return;
+  btn.addEventListener('click',    accessMessagesManagement);
+  btn.addEventListener('touchend', accessMessagesManagement);
+}
+function accessMessagesManagement() {
+  if (page !== 'messagesManagement') {
+    displayBackBlurMask();
+    unloadPage();
+    setTimeout(() => { displayMessagesManagement(); _setPage('messagesManagement'); }, 501);
+  }
+}
+function displayMessagesManagement() {
+  window.GCABackground?.setPage('admintool');
+  if (typeof initMessagesManagement === 'function') initMessagesManagement();
+  CNT_MESSAGES.style.display = 'flex';
+  titleDisplay(TL_MESSAGES);
+  displayContent(CNT_MESSAGES, 50);
+}
+window.accessMessagesManagement = accessMessagesManagement;
 /////////////// ANALYTICS ///////////////
 function activateAnalytics() {
   const btn = document.getElementById('btnAnalytics');
@@ -925,18 +665,6 @@ function displayUsersManagement() {
 /////////////// NAVIGATION ///////////////
 function activateNavigation() {
   activateHome();
-  activateProfile();
-  activateGames();
-  activateUxUi();
-  activate3d();
-  activate2d();
-  activateVideo();
-  activateWeb();
-  activatePixel();
-  activatePortfolio();
-  activateBlog();
-  activateBio();
-  activateContact();
   activateConnexion();
   // Miroir tablette/mobile des sections du menu latéral desktop (#sectionNav)
   activatePresentation();
@@ -945,7 +673,6 @@ function activateNavigation() {
   activateBioSection();
   activateBlogSection();
   activateContactSection();
-  activateSitemap();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -975,8 +702,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (devAdminBtn) devAdminBtn.addEventListener('click', () => accessAdminTool());
 });
 
+// Éjecte vers la home si la fenêtre repasse sous le seuil desktop pendant qu'on est dans
+// l'admin tool (ex: resize/rotation) — l'admin tool ne doit jamais rester affiché hors desktop.
+// Registre des pages admin partagé avec controller/router.js (cf. vue/breakpoints.js).
+window.addEventListener('resize', () => {
+  if (window.ADMIN_ROUTE_KEYS?.has(page) && !window.isAdminAllowed?.()) accessHome();
+});
+
 function unloadPage() {
-  console.log("→ unloadPage : current page =", page);
   switch (page) {
     case "home": {
       titleHide(TL_HOME);
@@ -993,95 +726,17 @@ function unloadPage() {
       staggerHide(CNT_SECTIONNAV.querySelectorAll('.sectionNavItem'), {
         delay: 40, reverse: true, startAt: _socialItemsOut.length, onDone: () => { CNT_SECTIONNAV.style.display = 'none'; }
       });
-      BTN_HOME_PROFILE.classList.remove("moveInBottom", "moveOutBottom");
-      void BTN_HOME_PROFILE.offsetWidth;
-      BTN_HOME_PROFILE.style.opacity = "0";
-      BTN_HOME_PROFILE.classList.add("moveOutBottom");
       setTimeout(() => {
         CNT_HOME.style.display = "none";
-        BTN_HOME_PROFILE.classList.remove("moveOutBottom");
       }, 500);
       break;
     }
-    case "profile":
-      titleHide(TL_PROFILE);
-      setTimeout(() => {
-        CNT_PROFILE.style.display = "none";
-      }, 501);
-      break;
-    case "games":
-      titleHide(TL_GAMES);
-      setTimeout(() => {
-        CNT_GAMES.style.display = "none";
-      }, 501);
-      break;
-    case "uxui":
-      titleHide(TL_UXUI);
-      setTimeout(() => {
-        CNT_UXUI.style.display = "none";
-      }, 501);
-      break;
-    case "3d":
-      titleHide(TL_3D);
-      setTimeout(() => {
-        CNT_3D.style.display = "none";
-      }, 501);
-      break;
-    case "2d":
-      titleHide(TL_2D);
-      setTimeout(() => {
-        CNT_2D.style.display = "none";
-      }, 501);
-      break;
-    case "video":
-      titleHide(TL_VIDEO);
-      setTimeout(() => {
-        CNT_VIDEO.style.display = "none";
-      }, 501);
-      break;
-    case "web":
-      titleHide(TL_WEB);
-      setTimeout(() => {
-        CNT_WEB.style.display = "none";
-      }, 501);
-      break;
-    case "pixel":
-      titleHide(TL_PIXEL);
-      setTimeout(() => {
-        CNT_PIXEL.style.display = "none";
-      }, 501);
-      break;
-    case "portfolio":
-      titleHide(TL_PORTFOLIO);
-      setTimeout(() => {
-        CNT_PORTFOLIO.style.display = "none";
-      }, 501);
-      break;
-    case "blog":
-      titleHide(TL_BLOG);
-      hideContent(CNT_BLOG, 25);
-      setTimeout(() => {
-        CNT_BLOG.style.display = "none";
-      }, 501);
-      break;
     case "pageView":
       titleHide(TL_PAGEVIEW);
       hideContent(CNT_PAGEVIEW, 25);
       window._unloadPageView?.();
       setTimeout(() => {
         CNT_PAGEVIEW.style.display = "none";
-      }, 501);
-      break;
-    case "bio":
-      titleHide(TL_BIO);
-      setTimeout(() => {
-        CNT_BIO.style.display = "none";
-      }, 501);
-      break;
-    case "contact":
-      titleHide(TL_CONTACT);
-      setTimeout(() => {
-        CNT_CONTACT.style.display = "none";
       }, 501);
       break;
     case "connexion":
@@ -1091,6 +746,10 @@ function unloadPage() {
         CNT_CONNEXION.style.display = "none";
         resetLoginForm();
         BTN_LOGIN_CONNEXION.removeEventListener("click", loginFetch);
+        FORM_FORGOT_PASSWORD.style.display = "none";
+        FORM_CONNEXION.style.display = "flex";
+        MSG_FORGOTPASSWORD.style.display = "none";
+        INPUT_MAIL_FORGOTPASSWORD.value = "";
       }, 501);
       break;
     case "register":
@@ -1100,7 +759,6 @@ function unloadPage() {
         CNT_REGISTER.style.display = "none";
         resetRegisterForm();
         BTN_REGISTER_REGISTER.removeEventListener("click", registerFetch);
-        // EYEBTN_PASSWORD_REGISTER.removeEventListener("click", togglePassword);
       }, 501);
       break;
     case "userProfile":
@@ -1108,6 +766,13 @@ function unloadPage() {
       hideContent(CNT_USERPROFILE, 25);
       setTimeout(() => {
         CNT_USERPROFILE.style.display = "none";
+      }, 501);
+      break;
+    case "resetPassword":
+      titleHide(TL_RESETPASSWORD);
+      hideContent(CNT_RESETPASSWORD, 25);
+      setTimeout(() => {
+        CNT_RESETPASSWORD.style.display = "none";
       }, 501);
       break;
     case "adminTool":
@@ -1150,6 +815,11 @@ function unloadPage() {
       titleHide(TL_COMMENTS);
       hideContent(CNT_COMMENTS, 25);
       setTimeout(() => { CNT_COMMENTS.style.display = "none"; }, 501);
+      break;
+    case "messagesManagement":
+      titleHide(TL_MESSAGES);
+      hideContent(CNT_MESSAGES, 25);
+      setTimeout(() => { CNT_MESSAGES.style.display = "none"; }, 501);
       break;
     case "analytics":
       titleHide(TL_ANALYTICS);

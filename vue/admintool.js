@@ -1,17 +1,9 @@
 // ////////////////////////////////////////////////////////////////////////////////////////////////
-// //////////////////////////////// ADMIN TOOL MENU ///////////////////////////////////////////////
-// ////////////////////////////////////////////////////////////////////////////////////////////////
-const BTN_USERSMANAGEMENT        = document.getElementById("btnUsersManagement");
-const BTN_TAGSMANAGEMENT         = document.getElementById("btnTagsManagement");
-const BTN_MEDIASMANAGEMENT       = document.getElementById("btnMediasManagement");
-const BTN_PAGESMANAGEMENT        = document.getElementById("btnPagesManagement");
-const BTN_EXPERIENCESMANAGEMENT  = document.getElementById("btnExperiencesManagement");
-const BTN_COMMENTSMANAGEMENT     = document.getElementById("btnCommentsManagement");
-const BTN_ANALYTICS              = document.getElementById("btnAnalytics");
-const BTN_SCENEEDITOR            = document.getElementById("btnSceneEditor");
-// ////////////////////////////////////////////////////////////////////////////////////////////////
 // /////////////////////////////// USERS MANAGEMENT ///////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////////////////////////////
+// Référencé directement par vue/navigation.js (activateUsersManagement/deactivateUsersManagement) —
+// contrairement aux autres boutons admin, qui font leur propre getElementById local.
+const BTN_USERSMANAGEMENT = document.getElementById("btnUsersManagement");
 const USER_LIST_CONTAINER = document.getElementById("usersListContainer");
 const USER_FILTERS = document.getElementById("userEntryFilters");
 const USER_TEMPLATE = document.getElementById("userEntryTemplate");
@@ -416,7 +408,6 @@ function showSearchMessage(type) {
 }
 async function handleUserSearch() {
   const filters = getSearchFilters();
-console.log("Filtres envoyés :", filters);
   try {
     const response = await fetch("controller/controller.php?action=admin_users&sub=search", {
       method: "POST",
@@ -429,7 +420,6 @@ console.log("Filtres envoyés :", filters);
     if (!response.ok) throw new Error("Réponse réseau incorrecte");
 
     const data = await response.json();
-    console.log("Résultat du fetch :", data);
 
     if (data.success) {
       if (data.data && data.data.length > 0) {
@@ -3144,3 +3134,221 @@ function _renderPageList(container, pages) {
 
 // Exposé pour les cards de la liste
 let _pagesEnterEditMode = null;
+
+// ================================================================================================
+// /////////////////////////////// COMMENTS MANAGEMENT (modération) //////////////////////////////
+// ================================================================================================
+
+let _commentsInited = false;
+
+function _commentsFilters() {
+  const params = {
+    id:        document.getElementById('inputSearchCommentId').value.trim(),
+    user_id:   document.getElementById('inputSearchCommentUser').value.trim(),
+    page_id:   document.getElementById('inputSearchCommentPage').value.trim(),
+    date_from: document.getElementById('inputSearchCommentFrom').value,
+    date_to:   document.getElementById('inputSearchCommentTo').value,
+    q:         document.getElementById('inputSearchCommentQ').value.trim(),
+    is_hidden: document.getElementById('inputSearchCommentHidden').checked ? '1' : '',
+  };
+  Object.keys(params).forEach(k => { if (!params[k]) delete params[k]; });
+  return params;
+}
+
+function _loadComments() {
+  const listCnt = document.getElementById('commentsListContainer');
+  if (!listCnt) return;
+  const params = new URLSearchParams(_commentsFilters());
+  fetch(`controller/controller.php?action=admin_comments&sub=list&${params.toString()}`)
+    .then(r => r.json())
+    .then(json => {
+      if (!json.success) return;
+      listCnt.innerHTML = '';
+      if (!json.comments.length) {
+        listCnt.innerHTML = '<p class="adminPlaceholder">Aucun commentaire.</p>';
+        return;
+      }
+      json.comments.forEach(c => listCnt.appendChild(_buildCommentEntry(c)));
+    })
+    .catch(() => {});
+}
+
+function _buildCommentEntry(c) {
+  const entry = document.createElement('div');
+  entry.className = 'commentEntry';
+
+  const top = document.createElement('div');
+  top.className = 'commentEntryTop';
+  const meta = document.createElement('span');
+  meta.className = 'entryTXT';
+  const when = new Date(c.created_at).toLocaleString('fr-FR');
+  meta.textContent = `${c.user_name || '—'} · ${c.page_title || '—'} · ${when}`;
+  top.appendChild(meta);
+
+  const actions = document.createElement('div');
+  actions.className = 'commentEntryActions';
+  const btnToggle = document.createElement('div');
+  btnToggle.className = 'expActionBtn';
+  btnToggle.title = +c.is_hidden ? 'Afficher' : 'Masquer';
+  btnToggle.innerHTML = `<span class="icon ${+c.is_hidden ? 'iconEyeClosed' : 'iconEye'}"></span>`;
+  btnToggle.addEventListener('click', () => {
+    fetch('controller/controller.php?action=admin_comments&sub=toggle_hidden', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: c.id, is_hidden: !+c.is_hidden }),
+    }).then(r => r.json()).then(json => { if (json.success) _loadComments(); });
+  });
+  const btnDelete = document.createElement('div');
+  btnDelete.className = 'expActionBtn expActionBtnDanger';
+  btnDelete.title = 'Supprimer';
+  btnDelete.innerHTML = '<span class="icon iconDelete"></span>';
+  btnDelete.addEventListener('click', () => {
+    if (!confirm('Supprimer ce commentaire ?')) return;
+    fetch('controller/controller.php?action=admin_comments&sub=delete', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: c.id }),
+    }).then(r => r.json()).then(json => { if (json.success) _loadComments(); });
+  });
+  actions.appendChild(btnToggle);
+  actions.appendChild(btnDelete);
+  top.appendChild(actions);
+
+  const text = document.createElement('p');
+  text.className = 'commentEntryMessage';
+  text.textContent = c.message;
+
+  entry.appendChild(top);
+  entry.appendChild(text);
+  return entry;
+}
+
+function initCommentsManagement() {
+  const listCnt = document.getElementById('commentsListContainer');
+  if (!listCnt) return;
+  if (_commentsInited) { _loadComments(); return; }
+  _commentsInited = true;
+
+  document.getElementById('btnSearchComments')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    _loadComments();
+  });
+  _loadComments();
+}
+
+// ================================================================================================
+// /////////////////////////////// MESSAGES (boîte de réception) /////////////////////////////////
+// ================================================================================================
+
+let _messagesInited      = false;
+let _activeThreadUserId   = null;
+
+function _loadThreads() {
+  const listCnt = document.getElementById('msgThreadList');
+  if (!listCnt) return;
+  fetch('controller/controller.php?action=admin_comments&sub=chat_threads')
+    .then(r => r.json())
+    .then(json => {
+      if (!json.success) return;
+      listCnt.innerHTML = '';
+      if (!json.threads.length) {
+        listCnt.innerHTML = '<p class="adminPlaceholder">Aucune conversation.</p>';
+        return;
+      }
+      json.threads.forEach(t => listCnt.appendChild(_buildThreadItem(t)));
+    })
+    .catch(() => {});
+}
+
+function _buildThreadItem(t) {
+  const item = document.createElement('div');
+  item.className = 'msgThreadItem' + (+t.user_id === _activeThreadUserId ? ' msgThreadItem--active' : '');
+
+  const info = document.createElement('div');
+  info.className = 'msgThreadItemInfo';
+  const name = document.createElement('span');
+  name.className = 'msgThreadItemName';
+  name.textContent = t.user_name;
+  const preview = document.createElement('span');
+  preview.className = 'msgThreadItemPreview';
+  preview.textContent = t.last_message || '';
+  info.appendChild(name);
+  info.appendChild(preview);
+  item.appendChild(info);
+
+  if (+t.unread_count > 0) {
+    const badge = document.createElement('span');
+    badge.className = 'msgThreadItemBadge';
+    badge.textContent = t.unread_count;
+    item.appendChild(badge);
+  }
+
+  item.addEventListener('click', () => _openThread(+t.user_id, t.user_name));
+  return item;
+}
+
+function _renderAdminThread(messages) {
+  const thread = document.getElementById('msgThreadMessages');
+  if (!thread) return;
+  thread.innerHTML = '';
+  messages.forEach(msg => {
+    const bubble = document.createElement('div');
+    bubble.className = 'chatBubble ' + (+msg.is_admin_reply ? 'chatBubble--self' : 'chatBubble--other');
+    const text = document.createElement('p');
+    text.className = 'chatBubbleText';
+    text.textContent = msg.message;
+    const meta = document.createElement('span');
+    meta.className = 'chatBubbleMeta';
+    meta.textContent = new Date(msg.created_at).toLocaleString('fr-FR');
+    bubble.appendChild(text);
+    bubble.appendChild(meta);
+    thread.appendChild(bubble);
+  });
+  thread.scrollTop = thread.scrollHeight;
+}
+
+function _openThread(userId, userName) {
+  _activeThreadUserId = userId;
+  document.getElementById('msgThreadPlaceholder').style.display = 'none';
+  document.getElementById('msgThreadBlock').style.display = 'flex';
+  document.getElementById('msgThreadUserName').textContent = userName;
+  fetch(`controller/controller.php?action=admin_comments&sub=chat_thread&user_id=${userId}`)
+    .then(r => r.json())
+    .then(json => { if (json.success) _renderAdminThread(json.messages); })
+    .catch(() => {});
+  _loadThreads(); // rafraîchit la liste (badge non-lu du fil ouvert vient d'être effacé côté serveur)
+}
+
+function _sendAdminReply() {
+  if (!_activeThreadUserId) return;
+  const input = document.getElementById('msgReplyInput');
+  const message = input.value.trim();
+  if (!message) return;
+  const btn = document.getElementById('btnMsgReplySend');
+  btn.classList.add('btnOff');
+  fetch('controller/controller.php?action=admin_comments&sub=chat_reply', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: _activeThreadUserId, message }),
+  })
+    .then(r => r.json())
+    .then(json => {
+      if (json.success) {
+        input.value = '';
+        const userName = document.getElementById('msgThreadUserName').textContent;
+        _openThread(_activeThreadUserId, userName);
+      }
+      btn.classList.remove('btnOff');
+    })
+    .catch(() => btn.classList.remove('btnOff'));
+}
+
+function initMessagesManagement() {
+  const listCnt = document.getElementById('msgThreadList');
+  if (!listCnt) return;
+  if (_messagesInited) { _loadThreads(); return; }
+  _messagesInited = true;
+
+  document.getElementById('btnMsgReplySend')?.addEventListener('click', _sendAdminReply);
+  document.getElementById('msgReplyInput')?.addEventListener('input', (e) => {
+    document.getElementById('btnMsgReplySend').classList.toggle('btnOff', !e.target.value.trim());
+  });
+  _loadThreads();
+}

@@ -46,6 +46,23 @@
         </div>
       </div>
     </form>
+    <!-- Mini-formulaire "mot de passe oublié" — masqué par défaut, basculé par btnForgottenConnexion -->
+    <form action="" method="POST" class="form" id="formForgotPassword" style="display: none">
+      <div class="formGroup">
+        <label class="formLabel" for="inputMailForgotPassword">Adresse e-mail</label>
+        <input class="formInput" type="text" id="inputMailForgotPassword" maxlength="100" placeholder="Entrez votre mail" />
+      </div>
+      <div class="btnMedium btnOff" id="btnSendForgotPassword">
+        <div class="btnLabel">
+          <span class="icon iconConnect"></span>
+          <span class="btnText" lang="FR" data-en="Send reset link">Envoyer le lien</span>
+        </div>
+      </div>
+      <div class="linkClickGroup">
+        <span class="linkClickText" id="btnCancelForgotPassword" lang="FR" data-en="Back to login">Retour à la connexion</span>
+      </div>
+      <div class="formMessage" id="msgForgotPassword" style="display: none"></div>
+    </form>
     <div class="messageBox">
       <div class="message" id="messageLoginSuccess" style="display: none">
         <span>C</span><span>o</span><span>n</span><span>n</span><span>e</span><span>x</span><span>i</span><span>o</span><span>n</span><span> </span><span>r</span><span>é</span><span>u</span><span>s</span><span>s</span><span>i</span><span>e</span><span>!</span>
