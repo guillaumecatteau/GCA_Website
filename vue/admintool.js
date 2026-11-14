@@ -1284,6 +1284,7 @@ let _mediasData       = [];
 let _mediasInited     = false;
 let _selectedMediaIds = new Set();
 let _mediaPanelUpdate = null;
+let _mediaProjectOptionsUpdate = null;
 let _mediasPage       = 1;
 const _MEDIAS_PER_PAGE = 100; // grille 10×10
 
@@ -1353,6 +1354,10 @@ function initMediasManagement() {
   let _allTechTags   = [];
   let _allPages      = [];
   let _mediaDirty    = false;
+  // Champs explicitement modifiés par l'utilisateur durant l'édition en cours.
+  // Permet, en sélection multiple, de ne sauvegarder que les champs réellement
+  // édités et de ne jamais écraser les autres métadonnées déjà communes au groupe.
+  let _touchedFields = new Set();
 
   // Charger les tags catégorie et technologie une seule fois
   (async () => {
@@ -1364,6 +1369,36 @@ function initMediasManagement() {
         _allTechTags = json.tags.filter(t => t.category === 'technology');
       }
     } catch (_) {}
+  })();
+
+  // Charger la liste des projets (pages de type "projet") pour le menu « Projet lié »
+  function _renderMediaProjectOptions() {
+    if (!inputPage) return;
+    const isEn    = document.documentElement.lang === 'en';
+    const current = inputPage.value;
+    inputPage.innerHTML = '';
+    const noneOpt = document.createElement('option');
+    noneOpt.value       = '';
+    noneOpt.textContent = isEn ? 'None' : '(Aucun)';
+    inputPage.appendChild(noneOpt);
+    _allPages.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value       = p.id;
+      opt.textContent = isEn ? (p.title_en || p.title_fr) : (p.title_fr || p.title_en);
+      inputPage.appendChild(opt);
+    });
+    inputPage.value = current;
+  }
+  _mediaProjectOptionsUpdate = _renderMediaProjectOptions;
+  (async () => {
+    try {
+      const res  = await fetch('controller/controller.php?action=admin_pages&sub=list&type=projet');
+      const json = await res.json();
+      if (json.success) {
+        _allPages = json.pages.map(p => ({ id: p.id, title_fr: p.title_fr, title_en: p.title_en }));
+      }
+    } catch (_) {}
+    _renderMediaProjectOptions();
   })();
 
   // ── Sélection (click = seul, Ctrl+click = multi) ─────────────────────────
@@ -1385,14 +1420,15 @@ function initMediasManagement() {
     btnSave.classList.toggle('btnOff', !_mediaDirty);
   }
   [inputDescFr, inputDescEn, inputAlt, inputYear, inputUrl].filter(Boolean).forEach(el =>
-    el.addEventListener('input', () => { _mediaDirty = true; _checkMediaForm(); })
+    el.addEventListener('input', () => { _mediaDirty = true; _touchedFields.add(el); _checkMediaForm(); })
   );
   [inputGallery, inputCard, inputPage].filter(Boolean).forEach(el =>
-    el.addEventListener('change', () => { _mediaDirty = true; _checkMediaForm(); })
+    el.addEventListener('change', () => { _mediaDirty = true; _touchedFields.add(el); _checkMediaForm(); })
   );
 
   // ── Right panel ───────────────────────────────────────────────────────────
   function _updateRightPanel() {
+    _touchedFields = new Set();
     const count = _selectedMediaIds.size;
     const isEn  = document.documentElement.lang === 'en';
 
@@ -1486,12 +1522,16 @@ function initMediasManagement() {
       await Promise.all([..._selectedMediaIds].map(id => {
         const payload = { id };
         if (isMulti) {
-          if (inputDescFr.value.trim()) payload.description_fr = inputDescFr.value.trim();
-          if (inputDescEn.value.trim()) payload.description_en = inputDescEn.value.trim();
-          if (inputYear.value)          payload.year = +inputYear.value;
-          payload.show_in_gallery = inputGallery.checked ? 1 : 0;
-          payload.is_card_media   = inputCard?.checked ? 1 : 0;
-          if (inputPage?.value) payload.project_id = +inputPage.value || null;
+          // En multi-sélection, on n'envoie que les champs explicitement modifiés
+          // par l'utilisateur durant cette édition : les autres métadonnées déjà
+          // présentes sur chaque média (ex. année déjà appliquée en masse) ne
+          // doivent jamais être écrasées par une valeur vide.
+          if (_touchedFields.has(inputDescFr)) payload.description_fr = inputDescFr.value.trim();
+          if (_touchedFields.has(inputDescEn)) payload.description_en = inputDescEn.value.trim();
+          if (_touchedFields.has(inputYear))   payload.year = inputYear.value ? +inputYear.value : null;
+          if (_touchedFields.has(inputGallery)) payload.show_in_gallery = inputGallery.checked ? 1 : 0;
+          if (inputCard && _touchedFields.has(inputCard)) payload.is_card_media = inputCard.checked ? 1 : 0;
+          if (inputPage && _touchedFields.has(inputPage)) payload.project_id = inputPage.value ? +inputPage.value : null;
           // En multi : les tags sélectionnés remplacent ceux de chaque média
           const combined = [..._mediaCatTags, ..._mediaTechTags];
           if (combined.length > 0) payload.tags = combined;
@@ -1653,8 +1693,9 @@ function initMediasManagement() {
 }
 
 // Synchronise depuis Galleries puis charge la liste
+// (conserve volontairement la page de pagination courante : un rechargement après
+// sauvegarde/suppression ne doit pas ramener l'utilisateur en début de liste)
 async function _syncAndLoad(skipImport = false) {
-  _mediasPage = 1; // retour en première page à chaque rechargement
   if (!skipImport) {
     try {
       await fetch('controller/controller.php?action=admin_medias&sub=import_all', { method: 'POST' });
@@ -1749,6 +1790,10 @@ document.addEventListener('languagechange', () => {
     if (c) _loadTagList(c, true);
   }
   if (_expInited) _loadExpList(true);
+  if (_mediasInited) {
+    _mediaProjectOptionsUpdate?.();
+    _mediaPanelUpdate?.();
+  }
 });
 
 // ================================================================================================

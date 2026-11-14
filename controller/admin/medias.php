@@ -69,16 +69,17 @@ switch ("$method:$sub") {
         $id = (int)($body['id'] ?? 0);
         if (!$id) { echo json_encode(['success' => false, 'code' => 'MISSING_ID']); break; }
         $str = fn($v) => trim($v ?? '');
-        $fields = [
-            'description_fr'  => $str($body['description_fr']  ?? ''),
-            'description_en'  => $str($body['description_en']  ?? ''),
-            'alt_text'        => $str($body['alt_text']         ?? ''),
-            'year'            => isset($body['year']) && $body['year'] !== '' ? (int)$body['year'] : null,
-            'project_id'      => isset($body['project_id']) && $body['project_id'] !== '' ? (int)$body['project_id'] : null,
-            'show_in_gallery' => (int)(bool)($body['show_in_gallery'] ?? 0),
-            'is_card_media'   => (int)(bool)($body['is_card_media'] ?? 0),
-            'tags'            => (array)($body['tags'] ?? []),
-        ];
+        // On ne construit que les champs réellement transmis par le client : un champ absent
+        // du body ne doit jamais écraser la valeur existante en base (édition multi-média partielle).
+        $fields = [];
+        if (array_key_exists('description_fr', $body)) $fields['description_fr'] = $str($body['description_fr']);
+        if (array_key_exists('description_en', $body)) $fields['description_en'] = $str($body['description_en']);
+        if (array_key_exists('alt_text', $body))        $fields['alt_text']       = $str($body['alt_text']);
+        if (array_key_exists('year', $body))            $fields['year']            = $body['year'] !== '' && $body['year'] !== null ? (int)$body['year'] : null;
+        if (array_key_exists('project_id', $body))      $fields['project_id']      = $body['project_id'] !== '' && $body['project_id'] !== null ? (int)$body['project_id'] : null;
+        if (array_key_exists('show_in_gallery', $body)) $fields['show_in_gallery'] = (int)(bool)$body['show_in_gallery'];
+        if (array_key_exists('is_card_media', $body))   $fields['is_card_media']   = (int)(bool)$body['is_card_media'];
+        if (array_key_exists('tags', $body))            $fields['tags']            = (array)$body['tags'];
         if (!empty($body['file_path'])) {
             $fields['file_path'] = $str($body['file_path']);
         }

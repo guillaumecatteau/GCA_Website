@@ -4,7 +4,8 @@
 $STATES_FILE = __DIR__ . '/../json/scene-states.json';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Lecture des états
+    // Lecture des états — PUBLIQUE (nécessaire au chargement de la scène Three.js sur le site
+    // pour tout visiteur, pas seulement les admins) : pas de garde admin_check.php ici.
     if (!file_exists($STATES_FILE)) {
         echo json_encode(['success' => true, 'states' => (object)[]]);
         exit;
@@ -20,12 +21,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Seul un admin peut sauvegarder les états de scène
-    $role = $_SESSION['user']['role'] ?? '';
-    if (!in_array($role, ['vip', 'admin'], true)) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'code' => 'FORBIDDEN', 'message' => 'Accès refusé.']);
-        exit;
+    // Gate d'accès admin commune (respecte ADMIN_DEV_MODE comme tous les autres contrôleurs
+    // admin/*.php), chargée UNIQUEMENT pour les écritures (save/delete) — avant ce correctif,
+    // ce bloc réimplémentait son propre contrôle de rôle sans le bypass ADMIN_DEV_MODE, d'où
+    // les "Accès refusé" en sauvegarde/suppression alors que la lecture (GET) fonctionnait.
+    require_once __DIR__ . '/admin_check.php';
+    if (!ADMIN_DEV_MODE) {
+        $role = $_SESSION['user']['role'] ?? '';
+        if (!in_array($role, ['vip', 'admin'], true)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'code' => 'FORBIDDEN', 'message' => 'Accès refusé.']);
+            exit;
+        }
     }
 
     $body = file_get_contents('php://input');
@@ -37,11 +44,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Charger les états existants
+    // Charger les états existants — ABSOLUMENT ne jamais repartir d'un tableau vide si le
+    // fichier existe mais est illisible/corrompu : une sauvegarde écrirait alors SEULEMENT le
+    // nouvel état et effacerait silencieusement tous les autres (incident déjà constaté : perte
+    // de plusieurs états lors d'un save concurrent à une écriture du fichier). On abandonne la
+    // sauvegarde plutôt que de risquer d'écraser des données existantes.
     $states = [];
     if (file_exists($STATES_FILE)) {
-        $existing = json_decode(file_get_contents($STATES_FILE), true);
-        if (json_last_error() === JSON_ERROR_NONE) $states = $existing;
+        $raw = file_get_contents($STATES_FILE);
+        if (trim($raw) !== '') {
+            $existing = json_decode($raw, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'code' => 'CORRUPT_FILE', 'message' => 'Fichier des états illisible — sauvegarde annulée pour éviter toute perte de données.']);
+                exit;
+            }
+            $states = $existing ?? [];
+        }
     }
 
     switch ($data['action']) {
@@ -84,6 +103,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             http_response_code(400);
             echo json_encode(['success' => false, 'code' => 'UNKNOWN_ACTION']);
             exit;
+    }
+
+    // Sauvegarde défensive du fichier précédent avant toute écriture (filet de sécurité
+    // supplémentaire en cas de bug imprévu côté merge/migration) — un seul fichier .bak,
+    // écrasé à chaque sauvegarde, pas un historique complet.
+    if (file_exists($STATES_FILE)) {
+        @copy($STATES_FILE, $STATES_FILE . '.bak');
     }
 
     // Écriture

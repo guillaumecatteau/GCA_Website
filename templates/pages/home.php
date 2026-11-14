@@ -7,13 +7,13 @@
       <span>a</span><span>l</span><span> </span><span>A</span><span>r</span>
       <span>t</span><span>s</span>
     </h2>
-    <div class="scrollDownIndicator" id="scrollDownIndicator" title="Scroll down">
+    <div class="scrollDownIndicator" data-scroll-target="presentation" title="Scroll down">
       <div class="scrollDownChevrons">
         <div class="scrollDownChevron"></div>
         <div class="scrollDownChevron"></div>
         <div class="scrollDownChevron"></div>
       </div>
-      <span class="scrollDownText" lang="FR" data-en="Scroll down">Continuer</span>
+      <span class="scrollDownText" lang="FR" data-en="About">Présentation</span>
     </div>
   </div>
 
@@ -24,6 +24,14 @@
       <span>t</span><span>a</span><span>t</span><span>i</span><span>o</span><span>n</span>
     </h2>
     <!-- Contenu custom à définir -->
+    <div class="scrollDownIndicator" data-scroll-target="expertise" title="Scroll down">
+      <div class="scrollDownChevrons">
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
+      </div>
+      <span class="scrollDownText" lang="FR" data-en="Expertise">Expertises</span>
+    </div>
   </div>
 
   <!-- ── Section 2 : Expertises ────────────────────────────────────────── -->
@@ -35,6 +43,14 @@
     <div class="sectionCardsGrid" id="expertiseCards">
       <!-- Cards injectées dynamiquement -->
     </div>
+    <div class="scrollDownIndicator" data-scroll-target="portfolio" title="Scroll down">
+      <div class="scrollDownChevrons">
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
+      </div>
+      <span class="scrollDownText" lang="FR" data-en="Portfolio">Portfolio</span>
+    </div>
   </div>
 
   <!-- ── Section 3 : Portfolio ─────────────────────────────────────────── -->
@@ -45,6 +61,14 @@
     </h2>
     <div class="sectionCardsGrid" id="portfolioCards">
       <!-- Cards injectées dynamiquement -->
+    </div>
+    <div class="scrollDownIndicator" data-scroll-target="bio" title="Scroll down">
+      <div class="scrollDownChevrons">
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
+      </div>
+      <span class="scrollDownText" lang="FR" data-en="Bio">Bio</span>
     </div>
   </div>
 
@@ -72,6 +96,14 @@
         </div>
       </div>
     </div>
+    <div class="scrollDownIndicator" data-scroll-target="blog" title="Scroll down">
+      <div class="scrollDownChevrons">
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
+      </div>
+      <span class="scrollDownText" lang="FR" data-en="Blog">Blog</span>
+    </div>
   </div>
 
   <!-- ── Section 5 : Blog ──────────────────────────────────────────────── -->
@@ -81,6 +113,14 @@
     </h2>
     <div class="sectionCardsGrid" id="blogCards">
       <!-- Cards injectées dynamiquement -->
+    </div>
+    <div class="scrollDownIndicator" data-scroll-target="contact" title="Scroll down">
+      <div class="scrollDownChevrons">
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
+      </div>
+      <span class="scrollDownText" lang="FR" data-en="Contact">Contact</span>
     </div>
   </div>
 

@@ -37,9 +37,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // BUTTONS & BACKGROUND
   BG_HOME = document.getElementById("backgroundHome");
   document.getElementById("btnPageViewBack")?.addEventListener("click", () => history.back());
-  // Indicateur "scroll down" de la section Landing — avance vers la section suivante
-  document.getElementById("scrollDownIndicator")?.addEventListener("click", () => {
-    window._homeScrollTo?.("presentation");
+  // Indicateurs "scroll down" (un par section, sauf la dernière) — avance vers la section
+  // suivante indiquée par data-scroll-target ; texte déjà traduit via [data-en] générique
+  // (controller/language.js), le libellé affiché est le nom de LA SECTION SUIVANTE.
+  document.querySelectorAll('.scrollDownIndicator[data-scroll-target]').forEach((el) => {
+    el.addEventListener('click', () => window._homeScrollTo?.(el.dataset.scrollTarget));
   });
   // Intitulés du menu latéral desktop (lettre par lettre, cf. vue/scroll.js) — ignorés par
   // le système de traduction générique (controller/language.js) car ce ne sont pas de simples
@@ -724,8 +726,17 @@ function unloadPage() {
       const _socialItemsOut = Array.from(document.querySelectorAll('#socialLinksDesktop .btnSocialLateral'));
       staggerHide(_socialItemsOut, { delay: 40, reverse: true });
       staggerHide(CNT_SECTIONNAV.querySelectorAll('.sectionNavItem'), {
-        delay: 40, reverse: true, startAt: _socialItemsOut.length, onDone: () => { CNT_SECTIONNAV.style.display = 'none'; }
+        delay: 40, reverse: true, startAt: _socialItemsOut.length,
       });
+      // display:none à échéance fixe (500ms, comme CNT_HOME juste en dessous) plutôt que dans
+      // le onDone du stagger : avec ~12 items à 40ms d'écart + durée d'animation CSS, le dernier
+      // animationend pouvait arriver après qu'un accessHome() rapide ait déjà ré-affiché la nav
+      // (displayHome() lui-même planifié à 500ms) — ce onDone tardif écrasait alors
+      // CNT_SECTIONNAV.style.display en 'none' APRÈS son ré-affichage, laissant la navigation
+      // latérale invisible en revenant sur la home (ex: après avoir visité l'admin tool).
+      setTimeout(() => {
+        CNT_SECTIONNAV.style.display = 'none';
+      }, 500);
       setTimeout(() => {
         CNT_HOME.style.display = "none";
       }, 500);
@@ -830,6 +841,8 @@ function unloadPage() {
       titleHide(TL_SCENEEDITOR);
       hideBackBlurMask();
       window.GCABackground?.setEditorMode(false);
+      window.GCABackground?.setCameraViewOverride?.(null);
+      document.querySelectorAll('.seViewBtn.seToolBtn--active').forEach(b => b.classList.remove('seToolBtn--active'));
       setTimeout(() => {
         CNT_SCENEEDITOR.classList.remove('se-visible');
       }, 501);

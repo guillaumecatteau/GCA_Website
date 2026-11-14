@@ -424,6 +424,12 @@
   width: 36px;
   height: 36px;
   opacity: 0;   // caché par défaut — révélé par staggerReveal (style.opacity='1' inline)
+  // Non cliquable tant que non révélé : #socialLinksDesktop est rendu en permanence par
+  // nav-desktop.php (toutes pages), mais staggerReveal() n'est déclenché QUE depuis l'init de
+  // la home — sur les autres pages, ces liens restaient invisibles (opacity:0) mais cliquables
+  // (bug : cliquer dans le coin inférieur gauche de n'importe quelle page ouvrait un réseau
+  // social). staggerReveal() repasse ce pointer-events à "auto" une fois l'icône révélée.
+  pointer-events: none;
   transition: opacity $transition-slow;
   cursor: pointer;
   text-decoration: none;

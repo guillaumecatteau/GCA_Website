@@ -121,11 +121,11 @@
             </details>
           </div>
 
-          <!-- Lier à une page -->
+          <!-- Lier à un projet -->
           <div class="formGroup">
-            <label class="formLabel" for="inputMediaPage" lang="FR" data-en="Linked page">Page liée</label>
+            <label class="formLabel" for="inputMediaPage" lang="FR" data-en="Linked project">Projet lié</label>
             <select class="formSelect" id="inputMediaPage">
-              <option value="" lang="FR" data-en="None">(Aucune)</option>
+              <option value="" lang="FR" data-en="None">(Aucun)</option>
             </select>
           </div>
 

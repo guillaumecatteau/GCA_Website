@@ -3,6 +3,14 @@
 // ============================================================================
 @use '../abstracts' as *;
 
+// Désactive la sélection de texte sur toute l'interface pendant un glisser (scrub de la
+// timeline, déplacement d'une keyframe) — sinon le texte environnant se sélectionne au passage
+// du curseur de souris pendant le drag.
+.seNoSelectDuringDrag {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 // ── Conteneur principal ──────────────────────────────────────────────────────
 // Placé directement dans <body>, HORS du pageContainer (évite le conflit avec
 // .pageContainer > div { display: flex }).
@@ -22,7 +30,15 @@
     align-items: stretch;
     background: transparent;
     pointer-events: none;
-    z-index: 200; // au-dessus du navContainer (z-index: 100)
+    // 1500 et non 200 : .sceneEditorContent étant position:fixed + z-index, il établit son
+    // propre contexte d'empilement — ses enfants (y compris les overlays fixes comme
+    // #seKeyframeTimeline, #seAxisGuide, #seTransitionFadeOverlay) restent donc TOUJOURS
+    // confinés sous ce niveau quelle que soit leur propre valeur de z-index. Or le site public
+    // a des couches à z-index 1000-1001 (nav latérale desktop, menu mobile) qui, sans ce
+    // correctif, passaient AU-DESSUS de tout l'outil admin et interceptaient les clics
+    // (confirmé en testant la nouvelle timeline de keyframes : les clics "traversaient"
+    // jusqu'à la nav de la home en dessous).
+    z-index: 1500;
   }
 
   .sceneEditorTitle {
@@ -58,7 +74,17 @@
 
 .seTopboxBtns {
   display: flex;
-  gap: 0.4rem;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+// Icônes d'action nues (sans chrome de bouton) : sauvegarder/supprimer/dupliquer/etc. de la
+// topbox — juste une icône cliquable, pas de fond/bordure/cercle.
+.seIconBtn {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+  &:hover { opacity: 1; }
 }
 
 .seTopboxFeedback {
@@ -135,6 +161,44 @@
   background: rgba(4, 5, 8, 0.97);
   border-left: 1px solid rgba(255,255,255,0.08);
   pointer-events: all;
+
+  // Visibilité Master Scene / State Variation : certains éléments statiques du template
+  // portent [data-master-only] (visibles uniquement en édition de la Master Scene) ou
+  // [data-variation-only] (visibles uniquement pour une State Variation) — cf. seScopeBar.
+  // Les listes de lumières générées dynamiquement (JS) gèrent leur propre filtrage de champs
+  // via le paramètre `variationMode` (pas de génération des champs non autorisés).
+  &[data-scope="master"] [data-variation-only] { display: none !important; }
+  &[data-scope="variation"] [data-master-only] { display: none !important; }
+}
+
+// ── Barre de scope (Master Scene / State Variation) ───────────────────────────
+.seScopeBar {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+.seScopeBtn {
+  flex: 1 1 50%;
+  background: rgba(255,255,255,0.03);
+  border: none;
+  color: rgba(255,255,255,0.45);
+  font-family: $font-heading;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.6rem 0.4rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+
+  &:hover { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.05); }
+
+  &.seScopeBtn--active {
+    color: rgba(255,167,38,0.95);
+    background: rgba(255,167,38,0.08);
+    border-bottom-color: rgba(255,167,38,0.8);
+  }
 }
 
 // ── Barre d'onglets ────────────────────────────────────────────────────────────────
@@ -287,6 +351,25 @@
   }
 }
 
+// Ligne sélecteur (dropdown pleine largeur, ex: méthode d'easing de transition)
+.seRowSelect {
+  grid-template-columns: 52px 1fr;
+
+  select {
+    width: 100%;
+    height: 28px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 3px;
+    color: rgba(255,255,255,0.8);
+    font-size: 0.68rem;
+    padding: 0 0.3rem;
+    cursor: pointer;
+    &:focus { outline: none; border-color: rgba(255,167,38,0.5); }
+    option { background: #0d0d18; }
+  }
+}
+
 .seRowCheck {
   display: flex;
   align-items: center;
@@ -294,13 +377,52 @@
   padding: 0.2rem 0;
 
   label { flex: 1; }
-  input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    accent-color: rgba(255,167,38,0.9);
-    cursor: pointer;
-    flex-shrink: 0;
+}
+
+// Case à cocher personnalisée — le reset global (_reset.scss) applique
+// `appearance:none` à TOUS les <input>, y compris les checkbox : sans rendu natif ET sans
+// accent-color (inopérant une fois appearance:none posé), la case devenait totalement
+// invisible (ni cadre, ni coche), texte du label seul visible. On reconstruit donc ici un
+// visuel complet (cadre + fond + coche) directement sur l'input via ::after, sans wrapper
+// HTML supplémentaire.
+@mixin se-custom-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin: 0;
+  position: relative;
+  // Contraste renforcé à l'état non coché (signalé à plusieurs reprises comme invisible malgré
+  // sa présence réelle dans le DOM) : bordure et fond nettement plus visibles sur fond sombre.
+  border: 1.5px solid rgba(255,255,255,0.55);
+  border-radius: 3px;
+  background: rgba(255,255,255,0.12);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover { border-color: rgba(255,167,38,0.8); background: rgba(255,255,255,0.2); }
+
+  &:checked {
+    background: rgba(255,167,38,0.9);
+    border-color: rgba(255,167,38,0.9);
   }
+
+  &:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border: solid #060609;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+}
+
+.seRowCheck input[type="checkbox"] {
+  @include se-custom-checkbox;
 }
 
 // ── Éditeur gradient Logo Light ───────────────────────────────────────────────
@@ -329,14 +451,55 @@
   align-items: center;
   gap: 0.4rem;
 
+  &.seGradientStop--dragging { opacity: 0.4; }
+
+  .seGradientDragHandle {
+    flex-shrink: 0;
+    width: 16px;
+    text-align: center;
+    font-size: 0.8rem;
+    letter-spacing: -2px;
+    color: rgba(255,255,255,0.35);
+    cursor: grab;
+    user-select: none;
+    &:active { cursor: grabbing; }
+  }
+
   input[type="color"] {
-    flex: 1;
+    flex: 0 0 34px;
     height: 26px;
     border: 1px solid rgba(255,255,255,0.12);
     border-radius: 3px;
     padding: 2px;
     background: rgba(255,255,255,0.05);
     cursor: pointer;
+    &:focus { outline: none; border-color: rgba(255,167,38,0.5); }
+  }
+
+  .seGradientStopHex {
+    flex: 1;
+    min-width: 0;
+    height: 26px;
+    font-size: 0.7rem;
+    text-align: center;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 3px;
+    color: rgba(255,255,255,0.75);
+    &:focus { outline: none; border-color: rgba(255,167,38,0.5); }
+  }
+
+  .seGradientStopPos {
+    flex-shrink: 0;
+    width: 48px;
+    height: 26px;
+    font-size: 0.7rem;
+    text-align: center;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 3px;
+    color: rgba(255,255,255,0.75);
     &:focus { outline: none; border-color: rgba(255,167,38,0.5); }
   }
 
@@ -398,9 +561,10 @@
 }
 
 .seExtraLight {
+  position: relative;
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 4px;
-  padding: 0.4rem 0.5rem;
+  padding: 0.4rem 1.6rem 0.4rem 0.5rem; // marge droite pour laisser la place à la flèche de repli
   margin-bottom: 0.35rem;
   background: rgba(255,255,255,0.02);
 }
@@ -409,11 +573,65 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.35rem;
   margin-bottom: 0.3rem;
 
   .seGroupLabel {
     border-left-color: rgba(100,200,255,0.5);
     margin-bottom: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .seGroupLabel--editable {
+    cursor: text;
+    &:hover { color: rgba(255,255,255,0.55); }
+  }
+
+  .seGroupLabelInput {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.60rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(100,200,255,0.5);
+    border-radius: 3px;
+    color: #fff;
+    padding: 0.1rem 0.3rem;
+  }
+
+  .seExtraLightTypeSelect {
+    flex-shrink: 0;
+    font-size: 0.58rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 3px;
+    color: rgba(255,255,255,0.75);
+    padding: 0.15rem 0.3rem;
+    height: 22px;
+    cursor: pointer;
+    option { background: #0d0d18; }
+  }
+
+  // Réordonner (▲▼) un groupe de lumière
+  .seExtraLightMoveBtn {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    font-size: 0.65rem;
+    line-height: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 3px;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    &:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    &:disabled { opacity: 0.25; cursor: default; &:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); } }
   }
 
   .seExtraLightRemoveBtn {
@@ -430,6 +648,31 @@
     cursor: pointer;
     &:hover { background: rgba(255,80,60,0.4); }
   }
+}
+
+// Replier/déplier les paramètres d'une lumière : une simple flèche en haut à droite de la box,
+// pas un bouton avec fond/bordure (cf. demande de ne garder que des icônes cliquables nues).
+.seExtraLight--collapsed .seExtraLightFields { display: none; }
+.seExtraLightCollapseBtn {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.65rem;
+  line-height: 1;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer;
+  transition: transform 0.15s, color 0.15s;
+  &:hover { color: rgba(255,255,255,0.75); }
+  .seExtraLight--collapsed & { transform: rotate(-90deg); }
+}
+
+// Lumières "fixes" (key/rimLeft/rimRight) : même rendu que les lumières additionnelles,
+// sans bouton supprimer (identité fonctionnelle liée au moteur).
+.seExtraLight--core {
+  border-color: rgba(255,167,38,0.15);
 }
 
 // ── Éditeur d'animation ───────────────────────────────────────────────────────
@@ -564,6 +807,22 @@
 .seSubStateEditBtn {
   font-size: 0.62rem;
   padding: 0.15rem 0.45rem;
+}
+
+.seSubStateMoveBtn {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 0.65rem;
+  line-height: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 3px;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  &:hover { background: rgba(255,255,255,0.12); color: #fff; }
+  &:disabled { opacity: 0.25; cursor: default; &:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); } }
 }
 
 .seSubStateRemoveBtn {
@@ -704,3 +963,475 @@
   &::-webkit-scrollbar       { width: 3px; }
   &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
 }
+
+// ── Barre d'outils viewport (repérage visuel) ─────────────────────────────────
+// Flotte au-dessus du viewport (pas dans .seInspector, qui est pointer-events:all
+// mais positionné à droite) — réactive explicitement pointer-events puisque
+// .sceneEditorContent.se-visible les désactive globalement par défaut.
+.seViewportToolbar {
+  position: fixed;
+  top: calc(#{$topbar-height} + 1rem);
+  left: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: all;
+  z-index: 210;
+}
+
+.seToolBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 5, 8, 0.85);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  .icon { width: 18px; height: 18px; }
+
+  .seToolBtnGlyph {
+    font-size: 1rem;
+    line-height: 1;
+    color: rgba(255,255,255,0.55);
+  }
+
+  &:hover { background: rgba(255,167,38,0.15); border-color: rgba(255,167,38,0.35); }
+
+  &.seToolBtn--active {
+    background: rgba(255,167,38,0.25);
+    border-color: rgba(255,167,38,0.6);
+    .seToolBtnGlyph { color: rgba(255,167,38,0.95); }
+  }
+}
+
+.seViewportToolbarSep {
+  width: 100%;
+  height: 1px;
+  background: rgba(255,255,255,0.12);
+  margin: 0.15rem 0;
+}
+
+// ── Repères d'axes X/Y de la fenêtre (aide au cadrage caméra) ─────────────────
+.seAxisGuide {
+  position: fixed;
+  inset: 0;
+  pointer-events: none; // purement visuel, ne doit jamais intercepter de clic
+  z-index: 205;
+}
+
+.seAxisGuideLineH,
+.seAxisGuideLineV {
+  position: absolute;
+  background: repeating-linear-gradient(
+    to right,
+    rgba(255,167,38,0.55) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+.seAxisGuideLineH {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+.seAxisGuideLineV {
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  transform: translateX(-50%);
+  // Même motif pointillé mais orienté verticalement.
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,167,38,0.55) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+// ── Color Map Lead — preview temps réel + liste des lumières ─────────────────
+.seCmlPreviewWrap {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  border-radius: 4px;
+  overflow: visible; // les repères dépassent légèrement en haut/bas de la bande
+  cursor: pointer;
+  touch-action: none; // laisse le drag (pointermove) gérer le geste, pas le scroll tactile
+}
+
+.seCmlPreviewCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.seCmlMarkers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; // les clics passent à .seCmlPreviewWrap (drag) ; cf. délégation JS
+}
+
+.seCmlMarker {
+  position: absolute;
+  top: -5px;
+  width: 10px;
+  height: calc(100% + 10px);
+  transform: translateX(-50%);
+  border-left: 2px solid var(--cml-color, #fff);
+  border-right: 2px solid var(--cml-color, #fff);
+  pointer-events: all; // réactivé individuellement : cible du clic de sélection/drag
+  cursor: grab;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--cml-color, #fff);
+    transform: translateX(-50%);
+    box-shadow: 0 0 4px rgba(0,0,0,0.6);
+  }
+  &::before { top: -4px; }
+  &::after  { bottom: -4px; }
+
+  &.seCmlMarker--selected {
+    &::before, &::after {
+      box-shadow: 0 0 0 2px rgba(255,167,38,0.9), 0 0 4px rgba(0,0,0,0.6);
+    }
+  }
+}
+
+.seCmlHint {
+  font-size: 0.60rem;
+  color: rgba(255,255,255,0.30);
+  margin-top: 0.4rem;
+}
+
+.seCmlLightList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.5rem;
+}
+
+.seCmlLightRow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover { background: rgba(255,255,255,0.04); }
+
+  &.seCmlLightRow--selected {
+    background: rgba(255,167,38,0.10);
+    border-color: rgba(255,167,38,0.35);
+  }
+
+  input[type="checkbox"] {
+    @include se-custom-checkbox;
+  }
+}
+
+.seCmlSwatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25);
+  flex-shrink: 0;
+}
+
+.seCmlRowLabel {
+  flex: 1;
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seCmlRowPos {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.35);
+  flex-shrink: 0;
+}
+
+// ── Case "Exposer à l'animation" : wrapper autour de la .seRow (jamais à l'intérieur, cf.
+// _kfRebuildExposeCheckboxes) devant un paramètre numérique quand l'état est en mode "Animé" —
+// transforme ce paramètre en piste indépendante dans la timeline du bas. ──────────────────────
+.seKfExposeWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+
+  .seRow { flex: 1; min-width: 0; }
+}
+
+.seKfExposeChk {
+  @include se-custom-checkbox;
+  width: 14px;
+  height: 14px;
+
+  &:checked::after {
+    left: 4px;
+    top: 0px;
+    width: 3px;
+    height: 7px;
+  }
+}
+
+// ── Timeline de keyframes par paramètre (état "Animé") ────────────────────────────────────
+// Flotte au-dessus du viewport (pas dans .seInspector, qui est pointer-events:all mais
+// positionné à droite) — réactive explicitement pointer-events, sinon elle hérite du
+// pointer-events:none de .sceneEditorContent et devient totalement non cliquable (bug
+// constaté : impossible d'ajouter/déplacer une keyframe ou de scruber la timeline).
+.seKeyframeTimeline {
+  position: fixed;
+  left: 0;
+  right: 340px; // laisse la place à l'inspecteur (panneau droit fixe, cf. .seInspector width)
+  bottom: 0;
+  background: rgba(10,10,16,0.92);
+  border-top: 1px solid rgba(255,167,38,0.3);
+  pointer-events: all;
+  z-index: 204;
+  display: flex;
+  flex-direction: column;
+  max-height: 40vh;
+}
+
+.seKfHeader {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem 0.35rem;
+  flex-shrink: 0;
+
+  .icon { height: 16px; width: 16px; }
+}
+
+// Durée de l'état "Animé" — vit désormais dans la timeline (plus dans la box principale de
+// l'état, qui ne gère que le type d'état + sa transition d'entrée/sortie).
+.seKfDurationGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-self: start;
+
+  label {
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.45);
+    white-space: nowrap;
+  }
+  input[type="range"] { width: 100px; }
+  input[type="number"] {
+    width: 64px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 3px;
+    color: #e0e0e0;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.25rem;
+  }
+  .seUnit { font-size: 0.6rem; color: rgba(255,255,255,0.35); }
+}
+
+// Contrôles façon lecteur vidéo — centrés horizontalement dans la box (cf. demande) : retour au
+// début, keyframe précédente, lecture, stop, keyframe suivante, aller à la fin.
+.seKfPlayerControls {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  justify-self: center;
+}
+
+.seKfStopBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1rem; // aligné visuellement sur la taille des icônes voisines (16×16, cf. .seKfHeader .icon)
+  line-height: 1;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s, color 0.15s;
+  &:hover { opacity: 1; color: #fff; }
+}
+
+.seKfTime {
+  font-size: 0.65rem;
+  color: rgba(255,167,38,0.9);
+  font-variant-numeric: tabular-nums;
+  justify-self: end;
+}
+
+// Saisie manuelle du temps du curseur (ms) — remplace l'ancien affichage en lecture seule.
+.seKfTimeGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  justify-self: end;
+
+  input[type="number"] {
+    width: 60px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,167,38,0.35);
+    border-radius: 3px;
+    color: rgba(255,167,38,0.9);
+    font-size: 0.65rem;
+    font-variant-numeric: tabular-nums;
+    padding: 0.15rem 0.25rem;
+    text-align: right;
+    &:focus { outline: none; border-color: rgba(255,167,38,0.7); }
+  }
+  .seUnit { font-size: 0.6rem; color: rgba(255,255,255,0.35); }
+}
+
+.seKfHint {
+  font-size: 0.58rem;
+  color: rgba(255,255,255,0.3);
+  padding: 0 0.6rem 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seKfRuler {
+  position: relative;
+  height: 18px;
+  // Doit occuper EXACTEMENT la même largeur horizontale que les pistes (.seKfLane) en dessous,
+  // sinon impossible de se repérer entre la règle de temps et les keyframes qu'elle survole.
+  // Calcul aligné sur .seKfTrackList (padding 0.6rem) + .seKfTrackLabel (180px) + .seKfTrack
+  // (gap 0.5rem) : cf. règles ci-dessous, à garder synchronisées si l'une de ces valeurs change.
+  margin: 0 0.6rem 1rem calc(0.6rem + 180px + 0.5rem);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+// Graduations de temps en secondes le long de la règle de la timeline.
+.seKfRulerTick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255,255,255,0.18);
+  pointer-events: none;
+}
+
+.seKfRulerTickLabel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 2px;
+  transform: translateX(-50%);
+  font-size: 0.52rem;
+  color: rgba(255,255,255,0.35);
+  white-space: nowrap;
+}
+
+.seKfPlayhead {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: rgba(255,167,38,0.95);
+  left: 0;
+  pointer-events: none;
+}
+
+.seKfTrackList {
+  overflow-y: auto;
+  padding: 0.3rem 0.6rem 0.6rem;
+}
+
+.seKfTrack {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 24px;
+}
+
+.seKfTrackLabel {
+  width: 180px;
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seKfLane {
+  position: relative;
+  flex: 1 1 auto;
+  height: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 2px;
+  cursor: copy;
+}
+
+.seKfMarker {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  background: rgba(255,167,38,0.9);
+  border: 1px solid rgba(0,0,0,0.4);
+  transform: translate(-50%, -50%) rotate(45deg);
+  cursor: grab;
+  &:active { cursor: grabbing; }
+  &:hover { background: #fff; }
+}
+
+.seKfContextMenu {
+  position: fixed;
+  z-index: 300;
+  pointer-events: all; // cf. #seKeyframeTimeline — hors .seInspector, hérite sinon pointer-events:none
+  background: #14141f;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  font-size: 0.65rem;
+  overflow: hidden;
+
+  div {
+    padding: 0.4rem 0.8rem;
+    color: rgba(255,255,255,0.75);
+    cursor: pointer;
+    white-space: nowrap;
+    &:hover { background: rgba(255,167,38,0.15); color: #fff; }
+  }
+
+  .seKfContextMenuSep {
+    height: 1px;
+    margin: 0.2rem 0;
+    background: rgba(255,255,255,0.1);
+    cursor: default;
+    &:hover { background: rgba(255,255,255,0.1); }
+  }
+}
+

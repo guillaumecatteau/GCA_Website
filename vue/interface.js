@@ -691,6 +691,11 @@ function staggerReveal(elements, { delay = 60, animation = 'rotateIn', startAt =
         // Fixer opacity:1 inline pour que les éléments restent visibles même si
         // leur CSS de base dit opacity:0 (ex: .btnSocialLateral qui démarre caché)
         el.style.opacity = '1';
+        // Idem pour pointer-events : certains éléments (ex: .btnSocialLateral) sont
+        // pointer-events:none par défaut en CSS tant qu'ils ne sont pas révélés (cf. bug
+        // "icônes invisibles mais cliquables" sur les pages où cette révélation ne se
+        // déclenche jamais) — on les réactive explicitement ici, une fois réellement visibles.
+        el.style.pointerEvents = 'auto';
         if (i === els.length - 1) onDone?.();
       }, { once: true });
     }, delay * (startAt + i));
@@ -713,6 +718,7 @@ function staggerHide(elements, { delay = 60, animation = 'rotateOut', startAt = 
       el.addEventListener('animationend', () => {
         el.classList.remove(animation);
         el.style.opacity = '0';
+        el.style.pointerEvents = 'none'; // cf. staggerReveal — redevient non cliquable une fois masqué
         if (i === els.length - 1) onDone?.();
       }, { once: true });
     }, delay * (startAt + i));
