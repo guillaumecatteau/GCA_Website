@@ -9,27 +9,42 @@
 
   const _SECTIONS = [
     { type: 'expertise', gridId: 'expertiseCards' },
-    { type: 'projet',    gridId: 'portfolioCards' },
     { type: 'blog',      gridId: 'blogCards' },
   ];
 
   let _cachedPages = {}; // type -> pages[] — permet de ré-afficher sans refetch au changement de langue
+  let _loadedTypes = new Set(); // types déjà chargés — chargement progressif par section visitée
+
+  async function _loadType(type, gridId) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    const isEn = document.documentElement.lang === 'en';
+    try {
+      const res  = await fetch(`controller/controller.php?action=admin_pages&sub=list&type=${type}&visible_only=1`);
+      const json = await res.json();
+      if (!json.success) return;
+      _cachedPages[type] = json.pages || [];
+      _renderCards(grid, _cachedPages[type], type, isEn);
+      window._refreshSectionScrollUI?.();
+    } catch (_) {}
+  }
 
   async function _fetchAndRenderHomeCards() {
-    const isEn = document.documentElement.lang === 'en';
-    await Promise.all(_SECTIONS.map(async ({ type, gridId }) => {
-      const grid = document.getElementById(gridId);
-      if (!grid) return;
-      try {
-        const res  = await fetch(`controller/controller.php?action=admin_pages&sub=list&type=${type}&visible_only=1`);
-        const json = await res.json();
-        if (!json.success) return;
-        _cachedPages[type] = json.pages || [];
-        _renderCards(grid, _cachedPages[type], type, isEn);
-      } catch (_) {}
-    }));
-    window._refreshSectionScrollUI?.();
+    await Promise.all(_SECTIONS.map(({ type, gridId }) => _loadType(type, gridId)));
   }
+
+  // Chargement progressif : une section n'est chargée que la première fois qu'elle devient
+  // visible (cf. demande "charger les section progressivement... maximiser le lancement du
+  // site"), au lieu de tout charger d'un coup à l'affichage de la home.
+  // "portfolio" n'est plus géré ici — cf. vue/portfolio-carousel.js (carrousel dédié).
+  window._loadHomeCardsForSection = function (sectionId) {
+    const map = { expertise: 'expertise', blog: 'blog' };
+    const type = map[sectionId];
+    if (!type || _loadedTypes.has(type)) return;
+    _loadedTypes.add(type);
+    const entry = _SECTIONS.find(s => s.type === type);
+    if (entry) _loadType(type, entry.gridId);
+  };
 
   document.addEventListener('languagechange', (e) => {
     const isEn = e.detail.lang === 'en';

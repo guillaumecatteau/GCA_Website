@@ -1,12 +1,59 @@
+<?php
+// Réglages publics du titre/sous-titre/texte de bienvenue Accueil — rendus EN SSR (plutôt
+// que fetchés uniquement en JS, cf. vue/home-hero.js) pour éliminer tout bond visible au
+// chargement : les variables CSS ci-dessous (posées en inline style) correspondent aux
+// VRAIES valeurs configurées dès le tout premier paint. --home-title-offset-vh et le "top"
+// du texte de bienvenue utilisent des unités CSS natives (vh / %) — NATURELLEMENT
+// immunisées au zoom navigateur sans le moindre calcul JS, cf. _navigation.scss
+// (.homeHeroGroup, .homeWelcomeText) — home-hero.js ne fait plus que RAFFINER le
+// positionnement du groupe titre/sous-titre (compensation zoom explicite + plafond de
+// largeur), le texte de bienvenue n'a lui plus besoin d'AUCUN JS pour son positionnement.
+require_once __DIR__ . '/../../model/model_admin.php';
+$_heroSettings = getHeroSettings();
+$_heroRefPxPerVh = 1080 / 100; // cf. REFERENCE_HEIGHT dans vue/home-hero.js — garder synchronisé
+$_heroInlineVars = sprintf(
+  '--home-title-size:%.1fpx;--home-subtitle-size:%.1fpx;--home-title-letter-spacing:%.1fpx;--home-subtitle-distance:%.1fpx;--home-title-offset-vh:%.2fvh;',
+  $_heroSettings['titleVh'] * $_heroRefPxPerVh,
+  $_heroSettings['subtitleVh'] * $_heroRefPxPerVh,
+  $_heroSettings['titleLetterSpacing'],
+  $_heroSettings['subtitleDistanceVh'] * $_heroRefPxPerVh,
+  $_heroSettings['titleOffsetPct']
+);
+$_welcomeTextInlineStyle = sprintf('top:%.1f%%;', $_heroSettings['welcomeTextTopPct']);
+?>
 <div class="homeContent" id="cntHOME" style="display: none">
 
   <!-- ── Section 0 : Landing ─────────────────────────────────────────── -->
   <div class="section section--active" data-section="landing" id="sectionLanding">
-    <h2 class="title titleMain homeTitle">
-      <span>D</span><span>i</span><span>g</span><span>i</span><span>t</span>
-      <span>a</span><span>l</span><span> </span><span>A</span><span>r</span>
-      <span>t</span><span>s</span>
-    </h2>
+    <!-- ── Groupe titre + sous-titre — un seul ensemble rigide, position:absolute et centré
+         horizontalement vis-à-vis de la section globale (cf. demande explicite). Position
+         verticale pilotée PAR le réglage "Position du titre" (translateY via
+         --home-title-offset-vh, cf. ci-dessus) ; le sous-titre, TOUJOURS positionné
+         relativement au titre (jamais en absolu), n'utilise son propre réglage que pour
+         définir l'ÉCART (gap) entre les deux (margin-top, cf. _navigation.scss). Mis à
+         l'échelle comme un bloc rigide via transform:scale() (cf. vue/home-hero.js,
+         _applyHeroScale()) : garantit que l'espacement des lettres, la taille du
+         sous-titre et la distance titre/sous-titre conservent TOUJOURS le même ratio entre
+         eux (et avec le logo de la scène 3D), quel que soit le redimensionnement de
+         fenêtre — et reste IMMUNISÉ au zoom navigateur. ── -->
+    <div class="homeHeroGroup" id="homeHeroGroup" style="<?= htmlspecialchars($_heroInlineVars, ENT_QUOTES, 'UTF-8') ?>">
+      <h2 class="title titleMain homeTitle">
+        <span>D</span><span>i</span><span>g</span><span>i</span><span>t</span>
+        <span>a</span><span>l</span><span> </span><span>A</span><span>r</span>
+        <span>t</span><span>s</span>
+      </h2>
+      <h3 class="homeSubtitle" id="homeSubtitle"></h3>
+    </div>
+    <!-- ── Texte de bienvenue — élément AUTONOME (sibling de #homeHeroGroup, pas un
+         enfant) : position verticale propre, réglable depuis Settings (% de la hauteur de
+         page, cf. model/model_admin.php "hero_welcome_text_top_pct"), indépendante du
+         titre/sous-titre. Centré horizontalement (marges auto, cf. _navigation.scss).
+         Simple fondu d'opacité, desktop + tablette uniquement (caché sur mobile, cf.
+         _navigation.scss). i18n via lang/data-en, même convention que
+         templates/partials/topbar.php. ── -->
+    <p class="homeWelcomeText" id="homeWelcomeText" style="<?= htmlspecialchars($_welcomeTextInlineStyle, ENT_QUOTES, 'UTF-8') ?>" lang="FR" data-en="Welcome to my portfolio">
+      Bienvenue sur mon portfolio
+    </p>
     <div class="scrollDownIndicator" data-scroll-target="presentation" title="Scroll down">
       <div class="scrollDownChevrons">
         <div class="scrollDownChevron"></div>
@@ -59,8 +106,16 @@
       <span>p</span><span>o</span><span>r</span><span>t</span><span>f</span>
       <span>o</span><span>l</span><span>i</span><span>o</span>
     </h2>
-    <div class="sectionCardsGrid" id="portfolioCards">
-      <!-- Cards injectées dynamiquement -->
+    <div class="pfCarousel" id="portfolioCarousel">
+      <button type="button" class="pfCarouselArrow pfCarouselArrow--prev" id="btnPortfolioPrev" aria-label="Previous">
+        <span class="icon iconPrevious"></span>
+      </button>
+      <div class="pfCarouselTrack" id="portfolioCarouselTrack">
+        <!-- Slots injectés par vue/portfolio-carousel.js -->
+      </div>
+      <button type="button" class="pfCarouselArrow pfCarouselArrow--next" id="btnPortfolioNext" aria-label="Next">
+        <span class="icon iconNext"></span>
+      </button>
     </div>
     <div class="scrollDownIndicator" data-scroll-target="bio" title="Scroll down">
       <div class="scrollDownChevrons">
@@ -96,6 +151,43 @@
         </div>
       </div>
     </div>
+    <div class="scrollDownIndicator" data-scroll-target="gallery" title="Scroll down">
+      <div class="scrollDownChevrons">
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
+        <div class="scrollDownChevron"></div>
+      </div>
+      <span class="scrollDownText" lang="FR" data-en="Gallery">Gallerie</span>
+    </div>
+  </div>
+
+  <!-- ── Section 5 : Gallerie — carrousel détaillé dans Section Gallerie (cf. home-gallery.js) ── -->
+  <div class="section" data-section="gallery" id="sectionGallery">
+    <h2 class="title titleTop sectionGalleryTitle">
+      <span>g</span><span>a</span><span>l</span><span>l</span><span>e</span><span>r</span><span>i</span><span>e</span>
+    </h2>
+    <div class="sectionGalleryContent" id="sectionGalleryContent">
+      <div class="galleryFilters" id="galleryFilters">
+        <!-- Icônes de filtre (expertises) injectées par vue/home-gallery.js -->
+      </div>
+      <div class="pfCarousel galleryCarousel" id="galleryCarousel">
+        <button type="button" class="pfCarouselArrow pfCarouselArrow--prev" id="btnGalleryPrev" aria-label="Previous">
+          <span class="icon iconPrevious"></span>
+        </button>
+        <div class="pfCarouselTrack" id="galleryCarouselTrack">
+          <!-- Slots injectés par vue/home-gallery.js -->
+        </div>
+        <button type="button" class="pfCarouselArrow pfCarouselArrow--next" id="btnGalleryNext" aria-label="Next">
+          <span class="icon iconNext"></span>
+        </button>
+      </div>
+      <div class="galleryDetails" id="galleryDetails">
+        <!-- Année / projet / description + icône share injectés par vue/home-gallery.js -->
+      </div>
+      <div class="galleryThumbsHolder" id="galleryThumbsHolder">
+        <!-- Bande de miniatures injectée par vue/home-gallery.js (vue/gallery-common.js) -->
+      </div>
+    </div>
     <div class="scrollDownIndicator" data-scroll-target="blog" title="Scroll down">
       <div class="scrollDownChevrons">
         <div class="scrollDownChevron"></div>
@@ -106,7 +198,7 @@
     </div>
   </div>
 
-  <!-- ── Section 5 : Blog ──────────────────────────────────────────────── -->
+  <!-- ── Section 6 : Blog ──────────────────────────────────────────────── -->
   <div class="section" data-section="blog" id="sectionBlog">
     <h2 class="title titleTop sectionBlogTitle">
       <span>b</span><span>l</span><span>o</span><span>g</span>
@@ -124,7 +216,7 @@
     </div>
   </div>
 
-  <!-- ── Section 6 : Contact ───────────────────────────────────────────── -->
+  <!-- ── Section 7 : Contact ───────────────────────────────────────────── -->
   <div class="section" data-section="contact" id="sectionContact">
     <h2 class="title titleTop sectionContactTitle">
       <span>c</span><span>o</span><span>n</span><span>t</span><span>a</span>

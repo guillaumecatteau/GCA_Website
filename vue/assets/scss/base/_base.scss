@@ -43,3 +43,49 @@ h2 {
 .hidden {
   display: none;
 }
+
+// ── Curseur texte / sélection — restreints aux seuls champs éditables ──────────────────────
+// Par défaut, tout le site désactive la sélection de texte et force un curseur normal (flèche)
+// partout : certains boutons/zones (ex: nav) affichaient un curseur "I-beam" ou une sélection
+// de texte involontaire au clic, comme si on pouvait y taper quelque chose. Seuls les vrais
+// champs de saisie (input/textarea/select/contenteditable) récupèrent leur comportement natif.
+html, body {
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input,
+textarea,
+select,
+[contenteditable],
+[contenteditable] * {
+  cursor: auto;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+// `input` générique ci-dessus inclut à tort les range/checkbox/radio/color/file/submit/button
+// — des manipulateurs cliquables, jamais des champs de saisie de texte : ils héritaient donc
+// un curseur "I-beam" et un comportement de sélection de texte au clic (cf. Interface
+// générale : "quand je clique sur un curseur/slider j'ai toujours un curseur d'entrée texte").
+// Uniquement les types réellement éditables (texte, nombre, date, email...) doivent garder
+// cursor:auto / user-select:text ; tous les autres repassent explicitement en mode "bouton".
+input:is([type="range"], [type="checkbox"], [type="radio"], [type="color"], [type="file"],
+  [type="submit"], [type="button"], [type="reset"], [type="image"]) {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+// Rideau de lancement (cf. templates partials, index.php + vue/launch-overlay inline script) —
+// le masquage critique est posé en inline dans le HTML pour un effet garanti dès le premier
+// paint ; cette règle ne fait que documenter/compléter le comportement une fois le CSS chargé.
+.launchOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background-color: $color-bg;
+  pointer-events: auto;
+}

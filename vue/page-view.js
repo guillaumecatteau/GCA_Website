@@ -148,30 +148,26 @@
     const mainBox = document.createElement('div');
     mainBox.className = 'pageViewCarouselMain';
     const mainImg = document.createElement('img'); mainImg.alt = '';
+    mainImg.addEventListener('click', () => window.GCAGallery?.openFullscreenViewer(items[idx].file_path, ''));
     mainBox.appendChild(mainImg);
     const btnNext = document.createElement('button');
     btnNext.type = 'button'; btnNext.className = 'pageViewCarouselNav'; btnNext.innerHTML = '&#8250;';
     carousel.appendChild(btnPrev); carousel.appendChild(mainBox); carousel.appendChild(btnNext);
 
-    const thumbsWrap = document.createElement('div');
-    thumbsWrap.className = 'pageViewCarouselThumbs';
-    const thumbEls = items.map((it, i) => {
-      const th = document.createElement('div');
-      th.className = 'pageViewCarouselThumb';
-      const im = document.createElement('img'); im.loading = 'lazy';
-      im.src = window._getThumbPath?.(it.file_path) || it.file_path;
-      im.onerror = () => { im.onerror = null; im.src = it.file_path; };
-      th.appendChild(im);
-      th.addEventListener('click', () => _setCarouselIdx(i));
-      thumbsWrap.appendChild(th);
-      return th;
-    });
-
+    // Bande de miniatures + préchargement progressif — cf. vue/gallery-common.js
+    // (logique partagée avec la Section Gallerie, cf. vue/home-gallery.js).
     let idx = 0;
+    const thumbsWrap = window.GCAGallery?.buildThumbStrip(items, {
+      getThumbPath: window._getThumbPath,
+      onSelect: (i) => _setCarouselIdx(i),
+      activeIndex: 0,
+    }) || document.createElement('div');
+
     function _setCarouselIdx(i) {
       idx = (i + items.length) % items.length;
       mainImg.src = items[idx].file_path;
-      thumbEls.forEach((el, ei) => el.classList.toggle('pageViewCarouselThumb--active', ei === idx));
+      thumbsWrap.setActive?.(idx);
+      window.GCAGallery?.preloadAround(items, idx, (it) => it.file_path);
     }
     btnPrev.addEventListener('click', () => _setCarouselIdx(idx - 1));
     btnNext.addEventListener('click', () => _setCarouselIdx(idx + 1));
@@ -476,6 +472,246 @@
   }
 
 
+  // ===========================================================================
+  // COMMENTAIRES (pages Blog uniquement) — cf. Redéfinition des commentaires.
+  // Anonymes (nom/mail saisis à la volée, mail jamais publié) sauf pour l'admin
+  // connecté, auto-signé "GC Digital Arts". Réponses hiérarchisées, dépliables.
+  // ===========================================================================
+  const _MAIL_REGEX = /^[a-zA-Z0-9._%+-]{2,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  function _fmtCommentDate(dateStr, isEn) {
+    const d = new Date(dateStr);
+    if (isNaN(d)) return dateStr;
+    return d.toLocaleString(isEn ? 'en-US' : 'fr-FR', {
+      year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+  }
+
+  function _buildCommentForm(page, isEn, parentId, onPosted) {
+    const form = document.createElement('div');
+    form.className = 'form commentForm';
+    const isAdmin = !!window._isLoggedInAdmin;
+
+    let usernameInput = null;
+    let mailInput = null;
+
+    if (isAdmin) {
+      const adminNote = document.createElement('p');
+      adminNote.className = 'commentAdminNote';
+      adminNote.textContent = isEn ? 'Posting as GC Digital Arts.' : 'Publication en tant que GC Digital Arts.';
+      form.appendChild(adminNote);
+    } else {
+      const usernameGroup = document.createElement('div');
+      usernameGroup.className = 'formGroup';
+      usernameInput = document.createElement('input');
+      usernameInput.className = 'formInput';
+      usernameInput.type = 'text';
+      usernameInput.maxLength = 100;
+      usernameInput.placeholder = isEn ? 'Username' : "Nom d'utilisateur";
+      usernameGroup.appendChild(usernameInput);
+      form.appendChild(usernameGroup);
+
+      const mailGroup = document.createElement('div');
+      mailGroup.className = 'formGroup';
+      mailInput = document.createElement('input');
+      mailInput.className = 'formInput';
+      mailInput.type = 'text';
+      mailInput.maxLength = 150;
+      mailInput.placeholder = isEn ? 'Email address' : 'Adresse mail';
+      mailGroup.appendChild(mailInput);
+      form.appendChild(mailGroup);
+
+      const privacyNote = document.createElement('p');
+      privacyNote.className = 'commentPrivacyNote';
+      privacyNote.textContent = isEn
+        ? 'Your email address will not be published.'
+        : 'Votre adresse mail ne sera pas publiée.';
+      form.appendChild(privacyNote);
+    }
+
+    const msgGroup = document.createElement('div');
+    msgGroup.className = 'formGroup';
+    const msgInput = document.createElement('textarea');
+    msgInput.className = 'formTextarea commentFormInput';
+    msgInput.maxLength = 2000;
+    msgInput.placeholder = isEn ? 'Your comment…' : 'Votre commentaire…';
+    msgGroup.appendChild(msgInput);
+    form.appendChild(msgGroup);
+
+    const errorMsg = document.createElement('p');
+    errorMsg.className = 'errorMessage';
+    errorMsg.style.display = 'none';
+
+    const btnPost = document.createElement('div');
+    btnPost.className = 'btnMedium btnOff';
+    btnPost.innerHTML = `<div class="btnLabel"><span class="btnText">${isEn ? 'Post' : 'Envoyer'}</span></div>`;
+    form.appendChild(btnPost);
+    form.appendChild(errorMsg);
+
+    function validate() {
+      const msgValid = msgInput.value.trim().length > 0;
+      let valid = msgValid;
+      if (!isAdmin) {
+        const nameValid = usernameInput.value.trim().length >= 2;
+        const mailValid = _MAIL_REGEX.test(mailInput.value.trim());
+        valid = valid && nameValid && mailValid;
+      }
+      btnPost.classList.toggle('btnOff', !valid);
+    }
+    msgInput.addEventListener('input', validate);
+    if (!isAdmin) {
+      usernameInput.addEventListener('input', validate);
+      mailInput.addEventListener('input', validate);
+    }
+
+    btnPost.addEventListener('click', () => {
+      if (btnPost.classList.contains('btnOff')) return;
+      btnPost.classList.add('btnOff');
+      errorMsg.style.display = 'none';
+      const payload = { page_id: page.id, parent_id: parentId || null, message: msgInput.value.trim() };
+      if (!isAdmin) {
+        payload.username = usernameInput.value.trim();
+        payload.mail = mailInput.value.trim();
+      }
+      fetch('controller/comment_post.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+        .then(r => r.json())
+        .then(json => {
+          if (json.success) {
+            onPosted?.();
+          } else {
+            errorMsg.textContent = isEn ? 'An error occurred, please try again.' : 'Une erreur est survenue, réessayez.';
+            errorMsg.style.display = 'block';
+            btnPost.classList.remove('btnOff');
+          }
+        })
+        .catch(() => {
+          errorMsg.textContent = isEn ? 'Technical error, please try again.' : 'Erreur technique, réessayez.';
+          errorMsg.style.display = 'block';
+          btnPost.classList.remove('btnOff');
+        });
+    });
+
+    return form;
+  }
+
+  function _buildCommentNode(c, page, isEn, depth) {
+    const node = document.createElement('div');
+    node.className = 'commentItem' + (depth > 0 ? ' commentItem--reply' : '');
+
+    const header = document.createElement('div');
+    header.className = 'commentItemHeader';
+    const author = document.createElement('span');
+    author.className = 'commentItemAuthor' + (+c.is_admin ? ' commentItemAuthor--admin' : '');
+    author.textContent = c.username;
+    const date = document.createElement('span');
+    date.className = 'commentItemDate';
+    date.textContent = _fmtCommentDate(c.created_at, isEn);
+    header.appendChild(author);
+    header.appendChild(date);
+
+    const text = document.createElement('p');
+    text.className = 'commentItemMessage';
+    text.textContent = c.message;
+
+    const actions = document.createElement('div');
+    actions.className = 'commentItemActions';
+    const btnReply = document.createElement('button');
+    btnReply.type = 'button';
+    btnReply.className = 'linkClickText commentReplyBtn';
+    btnReply.textContent = isEn ? 'Answer' : 'Répondre';
+    actions.appendChild(btnReply);
+
+    node.appendChild(header);
+    node.appendChild(text);
+    node.appendChild(actions);
+
+    const replyFormHolder = document.createElement('div');
+    replyFormHolder.className = 'commentReplyFormHolder';
+    replyFormHolder.style.display = 'none';
+    node.appendChild(replyFormHolder);
+
+    btnReply.addEventListener('click', () => {
+      const isOpen = replyFormHolder.style.display !== 'none';
+      replyFormHolder.style.display = isOpen ? 'none' : 'block';
+      replyFormHolder.innerHTML = '';
+      if (!isOpen) {
+        replyFormHolder.appendChild(_buildCommentForm(page, isEn, c.id, () => {
+          _reloadPublicComments(page, isEn);
+        }));
+      }
+    });
+
+    if (c.replies && c.replies.length) {
+      const repliesWrap = document.createElement('div');
+      repliesWrap.className = 'commentReplies';
+      repliesWrap.style.display = 'none';
+      c.replies.forEach(r => repliesWrap.appendChild(_buildCommentNode(r, page, isEn, depth + 1)));
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'commentRepliesToggle';
+      const label = isEn
+        ? (c.reply_count === 1 ? '1 reply' : `${c.reply_count} replies`)
+        : (c.reply_count === 1 ? '1 réponse' : `${c.reply_count} réponses`);
+      toggle.textContent = '▸ ' + label;
+      toggle.addEventListener('click', () => {
+        const open = repliesWrap.style.display !== 'none';
+        repliesWrap.style.display = open ? 'none' : 'block';
+        toggle.textContent = (open ? '▸ ' : '▾ ') + label;
+      });
+      node.appendChild(toggle);
+      node.appendChild(repliesWrap);
+    }
+
+    return node;
+  }
+
+  function _reloadPublicComments(page, isEn) {
+    const list = document.getElementById('pageViewCommentsList');
+    if (!list) return;
+    fetch(`controller/comments_public.php?page_id=${encodeURIComponent(page.id)}`)
+      .then(r => r.json())
+      .then(json => {
+        list.innerHTML = '';
+        if (!json.success || !json.comments.length) {
+          const empty = document.createElement('p');
+          empty.className = 'adminPlaceholder';
+          empty.textContent = isEn ? 'No comments yet.' : 'Aucun commentaire pour le moment.';
+          list.appendChild(empty);
+          return;
+        }
+        json.comments.forEach(c => list.appendChild(_buildCommentNode(c, page, isEn, 0)));
+      })
+      .catch(() => {});
+  }
+
+  function _buildCommentsSection(page, isEn) {
+    const section = document.createElement('div');
+    section.className = 'pageViewComments';
+
+    const title = document.createElement('h3');
+    title.className = 'pageViewCommentsTitle';
+    title.textContent = isEn ? 'Comments' : 'Commentaires';
+    section.appendChild(title);
+
+    const formHolder = document.createElement('div');
+    formHolder.appendChild(_buildCommentForm(page, isEn, null, () => _reloadPublicComments(page, isEn)));
+    section.appendChild(formHolder);
+
+    const list = document.createElement('div');
+    list.className = 'pageViewCommentsList';
+    list.id = 'pageViewCommentsList';
+    section.appendChild(list);
+
+    _reloadPublicComments(page, isEn);
+
+    return section;
+  }
+
   function _renderMain(main, page, isEn) {
     main.innerHTML = '';
     main.appendChild(_buildCover(page));
@@ -490,6 +726,9 @@
       if (block.block_type === 'media')   body.appendChild(_buildMediaBlock(block));
       if (block.block_type === 'gallery') body.appendChild(_buildGalleryBlock(block));
     });
+    if (page.type === 'blog' && +page.comments_enabled) {
+      body.appendChild(_buildCommentsSection(page, isEn));
+    }
     main.appendChild(body);
   }
 

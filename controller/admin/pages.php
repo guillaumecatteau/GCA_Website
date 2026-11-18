@@ -11,7 +11,8 @@ switch ("$method:$sub") {
     case 'GET:list':
         $type        = $_GET['type'] ?? '';
         $visibleOnly = ($_GET['visible_only'] ?? '') === '1';
-        echo json_encode(['success' => true, 'pages' => getAllPages($type, $visibleOnly)]);
+        $withTags    = ($_GET['with_tags'] ?? '') === '1';
+        echo json_encode(['success' => true, 'pages' => getAllPages($type, $visibleOnly, $withTags)]);
         break;
 
     case 'GET:get':
@@ -24,7 +25,7 @@ switch ("$method:$sub") {
     case 'GET:get_by_slug':
         $slug = trim($_GET['slug'] ?? '');
         $p    = $slug ? getPageBySlug($slug) : false;
-        if ($p && !$p['is_visible'] && !ADMIN_DEV_MODE) $p = false;
+        if ($p && !$p['is_visible'] && !isDevMode()) $p = false;
         echo json_encode($p ? ['success' => true, 'page' => $p] : ['success' => false, 'code' => 'NOT_FOUND']);
         break;
 

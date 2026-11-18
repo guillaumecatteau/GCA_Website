@@ -102,6 +102,16 @@
   align-items: center;
   gap: 2rem;
   padding: 1.5rem 1.5rem;
+
+  // Le backdrop-filter:blur() hérité de glass-block génère une vibration visuelle
+  // désagréable au scroll (recalcul du flou à chaque frame, superposé au flou déjà
+  // appliqué au niveau global par #backgBlur + au motif de trame #backgMotif qui
+  // passent SOUS ce bloc). On retire donc le flou PROPRE à .basicBlock : la scène déjà
+  // bluré par #backgBlur reste visible en transparence, et le fond semi-opaque
+  // rgba(8,8,11,.6) ci-dessous masque suffisamment le motif de trame pour conserver
+  // l'aspect visuel actuel sans recalcul de flou coûteux à chaque frame de scroll.
+  backdrop-filter: none;
+  background-color: rgba(8, 8, 11, 0.6);
 }
 
 .blockTitle {
@@ -303,8 +313,12 @@
   transition: gap 1s ease-out;
   margin-bottom: 1rem;
   z-index: $z-nav;
+  // Contexte 3D requis pour un rendu stable du flip des lettres (cf. .mainLogoText) —
+  // sans perspective, le navigateur n'a pas de référence de profondeur cohérente.
+  perspective: 500px;
 
   > span {
+    display: inline-block;
     color: $color-text-muted;
     font-family: $font-body;
     font-size: 32px;
@@ -314,6 +328,10 @@
     opacity: 0;
     transition: color $transition-fast;
     transform-origin: right center;
+    // Évite le flicker/bond au passage par l'angle "de profil" (90deg) pendant le flip —
+    // cf. Interface desktop : bug des lettres qui sautent de quelques pixels.
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 }
 
@@ -328,8 +346,10 @@
   transition: gap 1s ease-out;
   margin-bottom: 2rem;
   z-index: $z-nav;
+  perspective: 500px;
 
   > span {
+    display: inline-block;
     color: $color-text-muted;
     font-family: $font-body;
     font-size: 32px;
@@ -339,6 +359,8 @@
     opacity: 0;
     transition: color $transition-fast;
     transform-origin: right center;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 }
 
@@ -361,8 +383,10 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
+  perspective: 500px;
 
   > span {
+    display: inline-block;
     font-family: $font-body;
     font-size: $font-size-md;
     font-weight: 200;
@@ -371,6 +395,8 @@
     opacity: 0;
     transition: color $transition-fast;
     transform-origin: right center;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     color: $color-text-muted;
   }
 }
@@ -388,14 +414,102 @@
   z-index: -100;
 }
 
-.homeTitle {
+// ── Groupe titre + sous-titre — mis à l'échelle comme UN SEUL bloc rigide (cf.
+//    vue/home-hero.js, _applyHeroScale()). Le positionnement ET la mise à l'échelle sont
+//    ENTIÈREMENT pilotés par JS via "transform" (translate(-50%,-50%) + translateY(offset)
+//    + scale(ratio)) — AUCUNE valeur de taille/position ci-dessous (title/subtitle) n'est
+//    plus exprimée en vh/% : ce sont des PX FIXES calculés une fois pour une hauteur de
+//    référence (1080px), cf. home-hero.js REFERENCE_HEIGHT. C'est le SEUL scale() du groupe
+//    qui porte toute la réactivité à la hauteur de fenêtre, garantissant que lettres,
+//    espacement, distance titre/sous-titre gardent TOUJOURS le même ratio entre eux ET avec
+//    le logo de la scène 3D (qui suit la même hauteur de fenêtre) — et reste IMMUNISÉ au
+//    zoom navigateur (le ratio appliqué compense explicitement le devicePixelRatio, cf.
+//    home-hero.js : ne JAMAIS recalculer une taille depuis du vh/% CSS ici, uniquement depuis
+//    ce scale() unique).
+.homeHeroGroup {
   position: absolute;
-  top: 57.5%;
+  top: 50%;
+  left: 50%;
+  // Repli CSS pur (AVANT que home-hero.js n'applique le transform précis compensé
+  // zoom/largeur) : centrage + décalage vertical déjà corrects dès le tout premier paint,
+  // via --home-title-offset-vh posée en inline style SSR (cf. templates/pages/home.php,
+  // ex: "7.5vh") — élimine le bond visible qui se produisait auparavant (transform vide
+  // tant que le JS n'avait pas tourné, laissant le groupe positionné par son coin
+  // supérieur-gauche au centre de l'écran au lieu d'être réellement centré — cf. bug
+  // rapporté "le titre saute d'un coup au chargement"). home-hero.js réécrit ensuite cette
+  // même propriété "transform" avec la valeur exacte (scale compensé zoom + plafond de
+  // largeur) — un inline style JS remplace intégralement ce repli, sans conflit.
+  transform: translate(-50%, -50%) translateY(var(--home-title-offset-vh, 0)) scale(1);
+  @include flex-column;
+  align-items: center;
+  z-index: $z-nav;
 }
 
-// ---------------------------------------------------------------------------
-// Formulaires
-// ---------------------------------------------------------------------------
+.homeTitle {
+  // Espacement des lettres réglable depuis Settings — override du "gap: 24px" hérité de
+  // .titleMain (même mécanisme d'espacement inter-lettres que les autres titres du site,
+  // pas de letter-spacing CSS : sans effet entre spans en display:flex). PX fixe à l'échelle
+  // de référence (cf. .homeHeroGroup ci-dessus) : met à l'échelle AVEC le groupe entier.
+  gap: var(--home-title-letter-spacing, 24px);
+  margin-bottom: 0;
+  > span { font-size: var(--home-title-size, 32px); }
+}
+
+.homeSubtitle {
+  // Distance titre → sous-titre — PX fixe à l'échelle de référence (cf. .homeHeroGroup).
+  // Le sous-titre est donc TOUJOURS positionné RELATIVEMENT au titre (jamais en absolu) :
+  // ce réglage ne définit QUE l'écart (gap) entre les deux, cf. demande explicite.
+  margin-top: var(--home-subtitle-distance, 48px);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  z-index: $z-nav;
+  perspective: 500px;
+
+  > span {
+    display: inline-block;
+    font-family: $font-body;
+    font-size: var(--home-subtitle-size, 18px);
+    font-weight: 200;
+    text-transform: uppercase;
+    opacity: 0;
+    transform-origin: right center;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    // La couleur suit en temps réel le ColorMapLead de la scène 3D (cf. vue/home-hero.js) —
+    // transition courte pour lisser les mises à jour périodiques sans à-coup visible.
+    transition: color 0.4s linear;
+  }
+}
+
+// Texte de bienvenue — élément AUTONOME, totalement indépendant du groupe titre/sous-titre
+// (cf. demande explicite : "ajoute un paramètre dans les settings pour définir la position
+// du welcome text... il faut pouvoir choisir sa hauteur vis-à-vis de la hauteur de la
+// page"). Position verticale = simple pourcentage de la hauteur de section, posé en inline
+// style SSR (cf. templates/pages/home.php) — une valeur "top: X%" est NATURELLEMENT
+// immunisée au zoom navigateur (même principe que les vh, cf. home-hero.js) et ne nécessite
+// AUCUN calcul JS (contrairement à l'ancienne approche : milieu calculé entre le sous-titre
+// et l'icône de scroll, qui dépendait de deux éléments positionnés indépendamment l'un de
+// l'autre et recalculée à chaque frame — simplifiée ici en un réglage direct et autonome).
+// Centrage horizontal inchangé (marges auto).
+.homeWelcomeText {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: fit-content;
+  margin: 0 auto;
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-size: 15px;
+  font-weight: 200;
+  font-style: normal;
+  text-align: center;
+  z-index: $z-nav;
+  opacity: 0;
+  transition: opacity $transition-medium;
+}
 .formContainer {
   width: 100%;
   height: 100%;
@@ -565,7 +679,16 @@ form {
   .titleTop > span { font-size: 1.25rem; }
   .title { gap: 10px; }
   .title > span { font-size: 1.25rem; }
-  .homeTitle { top: 65%; }
+  // Texte de bienvenue — desktop + tablette uniquement (cf. demande explicite), jamais
+  // affiché sur mobile.
+  .homeWelcomeText { display: none; }
+  // .homeHeroGroup n'a plus de override ici : sa position/échelle est entièrement pilotée
+  // par JS (cf. vue/home-hero.js, _applyHeroScale()) sur TOUS les formats — un "top: 65%"
+  // codé en dur ici écrasait auparavant un ancien système basé sur une variable CSS
+  // --home-title-offset, rendant le réglage de l'admin tool sans effet et incohérent par
+  // rapport au desktop/tablette (cf. Titre et sous-titre de l'accueil). Le nouveau système
+  // (scale() unique calculé depuis window.innerHeight + compensation zoom explicite) est
+  // identique sur les 3 formats par construction : rien à redéfinir ici.
 }
 
 // Keyframes consolidés dans vue/assets/scss/components/_animations.scss

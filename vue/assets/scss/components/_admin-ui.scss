@@ -13,7 +13,7 @@
 // déborder librement sans être rogné par un ancêtre en overflow non-visible.
 // ---------------------------------------------------------------------------
 .adminToolContent,
-.usersManagementContent,
+.settingsContent,
 .tagsContent,
 .mediasContent,
 .pagesContent,
@@ -462,6 +462,14 @@
   }
 }
 
+.formRangeValue {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+}
+
 // ---------------------------------------------------------------------------
 // Color picker
 // ---------------------------------------------------------------------------
@@ -511,16 +519,6 @@
   text-align: center;
 }
 
-// Alias existant pour la compatibilité users.php
-.entryIdContainer,
-.entryNameContainer,
-.entryFirstNameContainer,
-.entryMailContainer,
-.entrySubscriptionContainer,
-.entryRoleContainer {
-  @extend .entryColContainer;
-}
-
 // ---------------------------------------------------------------------------
 // Formulaire inline d'entrée de liste (edit en ligne)
 // Override de .entryUserForm pour être adaptable à tous les panels
@@ -545,6 +543,23 @@
   }
 }
 
+.formGroupInline {
+  display: flex;
+  // BUGFIX : .formGroup (règle de base, cf. _navigation.scss) pose flex-direction:column
+  // via le mixin flex-column. Comme cette règle ne redéfinissait jamais flex-direction,
+  // la valeur "column" héritée restait active ici : en column + flex-wrap:wrap, les
+  // enfants (dont le bouton "Ajouter") se répartissaient en NOUVELLES COLONNES dès que
+  // la hauteur de .formGroup (114px par défaut) débordait, les éjectant visuellement
+  // très loin à droite du panel (cf. bug rapporté "le bouton Ajouter n'apparaît pas").
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+
+  > .formInput { flex: 1 1 150px; }
+}
+
 // ---------------------------------------------------------------------------
 // Section de panel avec titre (bloc visuellement séparé dans un sideBlock)
 // ---------------------------------------------------------------------------
@@ -563,4 +578,366 @@
   color: $color-text-faint;
   padding-bottom: 4px;
   border-bottom: solid 1px $color-border;
+}
+
+// ---------------------------------------------------------------------------
+// Modération des commentaires (admin tool) — cf. Redéfinition des commentaires.
+// ---------------------------------------------------------------------------
+.commentEntry {
+  @include flex-column;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: solid 1px $color-border;
+  border-radius: $radius-sm;
+  margin-bottom: 0.75rem;
+}
+
+.commentEntryTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.commentEntryActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.commentEntryMessage {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  white-space: pre-wrap;
+}
+
+.commentEntryEditBox {
+  @include flex-column;
+  gap: 0.5rem;
+
+  textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Settings (admin tool) — densité resserrée + composants dédiés (cf. Settings admin
+// tool : droite = accès/mode/liens sociaux/sauvegarde/backup, gauche = contenu).
+// ---------------------------------------------------------------------------
+
+// .basicBlock (cf. _navigation.scss) utilise gap:2rem par défaut — trop aéré pour une
+// page aussi dense en formulaires. Override scopé à .settingsContent UNIQUEMENT (la
+// règle partagée .basicBlock reste inchangée pour les autres pages admin). 16px = gap
+// "entre groupes distincts" exigé par la règle d'espacement de Settings (cf. plus bas).
+.settingsContent .basicBlock {
+  gap: 1rem; // 16px
+}
+
+// ---------------------------------------------------------------------------
+// SCROLL UNIQUE DE PAGE (Settings uniquement) — BUGFIX : .basicGrid impose une hauteur
+// fixe (calc(100% - 180px)) et .mainBlock/.sideBlock sont chacun en overflow-y:auto (cf.
+// _navigation.scss / règle ci-dessus) : sur Settings, dont le contenu dépasse largement
+// la hauteur du viewport, cela créait DEUX scrollbars indépendantes (gauche/droite), le
+// reste de la page ne scrollant alors plus du tout.
+//
+// ATTENTION (bug vécu) : NE JAMAIS poser ce scroll sur .pageContainer (layout racine,
+// partagé par TOUTES les pages admin) — .pageContainer est position:fixed, donc un
+// overflow-y:auto dessus EST la seule façon de le rendre scrollable (un ancêtre encore
+// plus externe n'aurait aucun effet, le fixed s'en affranchit), mais poser overflow-y
+// (quel que soit la valeur, y compris "auto") sur CET élément force le navigateur à
+// recalculer overflow-x à "auto" également si overflow-x valait "visible" (règle CSS :
+// un axe "visible" devient "auto" dès que l'autre ne l'est plus) — hors .btnBackToAdmin
+// (cf. _admintool.scss) s'appuie PRÉCISÉMENT sur overflow-x:visible pour s'afficher en
+// dehors des limites de .basicGrid (right négatif). Avec overflow-x:auto, le bouton
+// retour n'est plus rogné à proprement parler, mais nécessite un scroll horizontal pour
+// être atteint — invisible en pratique (cf. bug rapporté "l'admin tool a perdu son
+// bouton de retour à la home"). D'où le scope STRICT à #cntSETTINGS uniquement
+// ci-dessous (jamais .pageContainer), AVEC une marge droite compensant la distance
+// d'échappement du bouton retour (cf. .btnBackToAdmin, right: calc(-38px - 1rem), soit
+// 54px — on prend 72px de marge pour rester large) afin qu'il reste entièrement dans la
+// zone visible sans le moindre scroll horizontal.
+.settingsContent {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: visible; // computed en "auto" de toute façon (cf. ci-dessus), compensé par le padding-right
+  padding-right: 72px;
+}
+
+.settingsContent .basicGrid {
+  height: auto;
+  align-items: start;
+}
+
+.settingsContent .mainBlock,
+.settingsContent .sideBlock {
+  height: auto;
+  overflow: visible;
+}
+
+// ---------------------------------------------------------------------------
+// Règle d'espacement interne Settings (densité des boxes) :
+//  - 8px entre éléments d'un même groupe logique (intitulé + curseur + valeur, etc.)
+//  - 16px entre groupes distincts (cf. gap de .basicBlock ci-dessus)
+//  - 32px avant le bouton terminal d'une box (ex: "Vérifier", "Sauvegarder", "Ajouter",
+//    "Télécharger la sauvegarde") — implémenté en 16px de margin-top supplémentaire sur
+//    le bouton terminal, cumulé au gap de 16px déjà posé par le flex-column parent.
+// .formGroup (cf. _navigation.scss) impose par défaut une hauteur FIXE de 114px et un
+// gap:0 — jamais adapté à des groupes de contenu variable (slider + valeur, champ +
+// label...). Override scopé à Settings UNIQUEMENT : plus aucun usage de hauteur fixe.
+// ---------------------------------------------------------------------------
+.settingsContent .formGroup {
+  height: fit-content;
+  gap: 0.5rem; // 8px
+}
+
+.settingsTerminalGap {
+  margin-top: 1rem; // +16px, cumulé aux 16px de gap du parent flex-column = 32px
+}
+
+// Champs révélés après validation du gate (mail/mot de passe/bouton Sauvegarder) —
+// BUGFIX : aucune règle ne ciblait .settingsAccessFields, qui se retrouvait donc en
+// display:flex SANS flex-direction (row par défaut), faisant chevaucher mail/mot de
+// passe/bouton horizontalement par-dessus la box "Mode du site" en dessous.
+.settingsAccessFields {
+  width: 100%;
+  @include flex-column;
+  align-items: flex-start;
+  gap: 1rem; // 16px entre groupes distincts
+}
+
+// Sélecteurs de date (jour/mois/année) sur une seule ligne — .formInput est en
+// display:block + width:100% par défaut (cf. ci-dessus), d'où l'empilement vertical sans
+// cet override.
+.settingsDateSelectors {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+
+  > .formInput {
+    width: auto;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+// Entrée "sous-titre défilant" restructurée (cf. Task 6) : champs FR/EN sur une ligne,
+// actions (monter/descendre/supprimer) regroupées en bas à droite. .entryBlock a par
+// défaut height:40px (cf. _navigation.scss, pensé pour une seule ligne) — override local
+// pour s'adapter aux deux lignes de contenu.
+.heroSubtitleEntry.entryBlock {
+  height: fit-content;
+  align-items: stretch;
+  padding: 0.85rem 1rem;
+  border-radius: $radius-sm;
+  gap: 0.5rem;
+}
+
+.heroSubtitleEntryFields {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+
+  > .formInput { flex: 1 1 150px; width: auto; }
+}
+
+.heroSubtitleEntryActions {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+// Liste des liens sociaux — une entrée par réseau (checkbox + nom, puis l'URL en dessous).
+// Gap entre réseaux = 16px (groupes distincts), gap interne à un réseau = 8px (cf. règle
+// d'espacement Settings ci-dessus).
+.socialLinksEditor {
+  width: 100%;
+  @include flex-column;
+  gap: 1rem; // 16px
+}
+
+.socialLinkEntry {
+  width: 100%;
+  @include flex-column;
+  gap: 0.5rem; // 8px
+}
+
+// ---------------------------------------------------------------------------
+// .cursorGroup — composant RÉUTILISABLE pour tout curseur (range) de l'admin tool
+// (cf. demande : généralisation du pattern déjà utilisé par l'éditeur de scène —
+// .seRow, cf. _scene-editor.scss — à Settings et au reste de l'admin tool).
+// Structure : intitulé, puis le curseur, puis un champ numérique synchronisé
+// bidirectionnellement (glisser le curseur met à jour le champ, taper une valeur dans le
+// champ met à jour le curseur — borné aux mêmes min/max, cf. _wireCursorGroup() dans
+// vue/admintool.js). Hauteur basée sur le contenu (jamais de hauteur fixe), gap de 8px
+// entre les 3 sous-éléments (cf. règle d'espacement Settings).
+// ---------------------------------------------------------------------------
+.cursorGroup {
+  width: 100%;
+  height: fit-content;
+  @include flex-column;
+  align-items: flex-start;
+  gap: 0.5rem; // 8px
+}
+
+.cursorGroupLabel {
+  display: block;
+  width: 100%;
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  font-weight: 200;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: $color-text-faint;
+}
+
+.cursorGroupTrack {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+
+  .cursorRange {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .cursorValue {
+    flex: 0 0 auto;
+    width: 70px;
+    text-align: center;
+    padding: 4px 6px;
+    background: transparent;
+    border: solid 1px rgba(128, 128, 128, 0.5);
+    border-radius: $radius-sm;
+    color: $color-text-muted;
+    font-family: $font-body;
+    font-size: $font-size-xs;
+    outline: none;
+    transition: border-color $transition-fast;
+    // Masque les flèches natives de l'input number — l'utilisateur dispose déjà du
+    // curseur pour les incréments larges, le champ sert à la saisie d'une valeur précise.
+    -moz-appearance: textfield;
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    &:focus,
+    &:hover { border-color: $color-text-primary; }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Chronologie d'intro — tableau Desktop/Tablette/Mobile (cf. Settings admin tool →
+// "Lancement du site"). Même convention d'espacement que le reste de Settings : 8px au
+// sein d'un même groupe (titre + tableau), 16px avant/après (géré par le gap de
+// .basicBlock, cf. ci-dessus). Colonnes non applicables à un élément = input disabled
+// (opacity réduite, cf. règle générique ci-dessous), jamais masquées (garde la grille
+// alignée visuellement entre toutes les lignes).
+// ---------------------------------------------------------------------------
+.introTimelineBlock {
+  width: 100%;
+  @include flex-column;
+  align-items: flex-start;
+  gap: 0.5rem; // 8px entre le libellé et le tableau
+}
+
+.introTimelineTable {
+  width: 100%;
+  @include flex-column;
+  gap: 0.4rem;
+}
+
+.introTimelineRow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr repeat(3, 90px);
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.introTimelineRow--header {
+  padding-bottom: 0.2rem;
+}
+
+.introTimelineRowLabel {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  font-weight: 200;
+  color: $color-text-muted;
+}
+
+.introTimelineCol {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  font-weight: 200;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  color: $color-text-faint;
+}
+
+.introTimelineInput.formInput {
+  width: 100%;
+  text-align: center;
+  padding: 4px 6px;
+  -moz-appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  // Élément non applicable à ce device (cf. $applicable, templates/admin/settings.php) —
+  // grisé, non interactif, mais toujours visible pour garder la grille alignée.
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Section Accueil — deux colonnes (Titre / Sous-titre), cf. demande explicite. En
+// dessous de $breakpoint-tablet (une seule colonne dispo), on repasse en empilement
+// vertical simple pour rester lisible.
+// ---------------------------------------------------------------------------
+.heroSectionColumns {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.heroSectionColumn {
+  @include flex-column;
+  align-items: flex-start;
+  gap: 1rem; // 16px entre curseurs d'une même colonne (groupes distincts)
+}
+
+.heroSectionColumnTitle {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  font-weight: 200;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: $color-text-faint;
+  padding-bottom: 4px;
+  border-bottom: solid 1px $color-border;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .heroSectionColumns {
+    grid-template-columns: 1fr;
+  }
 }

@@ -149,6 +149,56 @@ function searchMedias(array $filters): array
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+// ─── Section Gallerie (home) — cf. Section Gallerie ────────────────────────────
+// Réutilise le modèle de tags déjà en place pour les pages Expertise ("tags liés",
+// cf. getPageRelatedTags/pages_related_tags) : un média est considéré "associé" à
+// une expertise si l'un de ses tags catégorie correspond à l'un des tags liés de
+// cette expertise — aucune nouvelle relation à gérer depuis l'admin médias.
+
+/** Médias affichés dans la galerie, les plus récents en premier, filtrables par expertise. */
+function getGalleryMedias(?int $expertiseId = null): array
+{
+    global $bdd;
+    $conditions = ['m.show_in_gallery = 1'];
+    $params = [];
+    if ($expertiseId) {
+        $conditions[] = "EXISTS (
+            SELECT 1 FROM medias_tags mt
+            JOIN pages_related_tags prt ON prt.tag_id = mt.tag_id
+            WHERE mt.media_id = m.id AND prt.page_id = :eid
+        )";
+        $params[':eid'] = $expertiseId;
+    }
+    $where = 'WHERE ' . implode(' AND ', $conditions);
+    $stmt = $bdd->prepare(
+        "SELECT m.id, m.type, m.file_path, m.description_fr, m.description_en, m.alt_text,
+                m.year, m.project_id, m.uploaded_at,
+                p.title_fr AS project_title_fr, p.title_en AS project_title_en, p.slug AS project_slug
+         FROM medias m
+         LEFT JOIN pages p ON p.id = m.project_id
+         $where
+         ORDER BY COALESCE(m.year, YEAR(m.uploaded_at)) DESC, m.uploaded_at DESC"
+    );
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/** Pages Expertise visibles possédant au moins un média galerie — utilisées comme filtres (icônes). */
+function getGalleryFilters(): array
+{
+    global $bdd;
+    $stmt = $bdd->query(
+        "SELECT DISTINCT p.id, p.title_fr, p.title_en, p.expertise_icon_path
+         FROM pages p
+         JOIN pages_related_tags prt ON prt.page_id = p.id
+         JOIN medias_tags mt ON mt.tag_id = prt.tag_id
+         JOIN medias m ON m.id = mt.media_id AND m.show_in_gallery = 1
+         WHERE p.type = 'expertise' AND p.is_visible = 1
+         ORDER BY p.id ASC"
+    );
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 /**
  * Enregistre un fichier uploadé et crée l'entrée en base.
  * $file = $_FILES['field']

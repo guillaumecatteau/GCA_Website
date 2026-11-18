@@ -110,20 +110,11 @@ const EYEBTN_PASSWORD_CONNEXION = document.getElementById(
   "passwordEyeConnexion"
 );
 const BTN_LOGIN_CONNEXION = document.getElementById("btnLoginConnexion");
-const BTN_REGISTER_CONNEXION = document.getElementById("btnRegisterConnexion");
-const BTN_FORGOTTENPASSWORD_CONNEXION = document.getElementById(
-  "btnForgottenConnexion"
-);
-const REMEMBER_CHECKBOX_CONNEXION = document.getElementById(
-  "rememberMeConnexion"
-);
 const MESSAGE_LOGIN_SUCCES = document.getElementById("messageLoginSuccess");
 const MESSAGE_LOGIN_ERROR = document.getElementById("messageLoginError");
 const MESSAGE_LOGIN_TECHNICALERROR = document.getElementById(
   "messageLoginTechnicalError"
 );
-// ///////////////// EDIT USER INFOS //////////////////////
-const BTN_EDITEUSERINFOS = document.getElementById("btnEditeUserInfos");
 function connexionCheck() {
   let validMail = false;
   let validPassword = false;
@@ -171,52 +162,6 @@ function connexionCheck() {
   });
 }
 
-// ///////////////// MOT DE PASSE OUBLIÉ //////////////////////
-const FORM_FORGOT_PASSWORD = document.getElementById("formForgotPassword");
-const INPUT_MAIL_FORGOTPASSWORD = document.getElementById("inputMailForgotPassword");
-const BTN_SEND_FORGOTPASSWORD = document.getElementById("btnSendForgotPassword");
-const BTN_CANCEL_FORGOTPASSWORD = document.getElementById("btnCancelForgotPassword");
-const MSG_FORGOTPASSWORD = document.getElementById("msgForgotPassword");
-
-function forgotPasswordCheck() {
-  INPUT_MAIL_FORGOTPASSWORD.addEventListener("input", () => {
-    const valid = /^[a-zA-Z0-9._%+-]{2,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(INPUT_MAIL_FORGOTPASSWORD.value.trim());
-    BTN_SEND_FORGOTPASSWORD.classList.toggle("btnOff", !valid);
-  });
-
-  BTN_FORGOTTENPASSWORD_CONNEXION.addEventListener("click", () => {
-    FORM_CONNEXION.style.display = "none";
-    FORM_FORGOT_PASSWORD.style.display = "flex";
-  });
-
-  BTN_CANCEL_FORGOTPASSWORD.addEventListener("click", (e) => {
-    e.preventDefault();
-    FORM_FORGOT_PASSWORD.style.display = "none";
-    FORM_CONNEXION.style.display = "flex";
-    MSG_FORGOTPASSWORD.style.display = "none";
-  });
-
-  BTN_SEND_FORGOTPASSWORD.addEventListener("click", async (e) => {
-    e.preventDefault();
-    if (BTN_SEND_FORGOTPASSWORD.classList.contains("btnOff")) return;
-
-    const formData = new FormData();
-    formData.append("mail", INPUT_MAIL_FORGOTPASSWORD.value.trim());
-
-    try {
-      const response = await fetch("controller/forgot_password.php", {
-        method: "POST",
-        body: formData,
-      });
-      const result = await response.json();
-      MSG_FORGOTPASSWORD.textContent = result.message;
-      MSG_FORGOTPASSWORD.style.display = "block";
-    } catch (error) {
-      MSG_FORGOTPASSWORD.textContent = "Erreur technique ! Réessayez.";
-      MSG_FORGOTPASSWORD.style.display = "block";
-    }
-  });
-}
 async function loginFetch() {
   const formData = new FormData();
   formData.append("mail", INPUT_MAIL_CONNEXION.value.trim());
@@ -231,18 +176,7 @@ async function loginFetch() {
     const result = await response.json();
 
     if (result.success) {
-      switch (result.code) {
-        case "LOGIN_ADMIN":
-          turnOnLine();
-          handleAdminLoginSuccess(result.firstname, result.name);
-          break;
-        case "LOGIN_SUCCESS":
-          turnOnLine();
-          handleLoginSuccess(result.firstname, result.name);
-          break;
-        default:
-          console.warn("Code de succès inattendu :", result.code);
-      }
+      handleLoginSuccess();
     } else {
       switch (result.code) {
         case "INVALID_CREDENTIALS":
@@ -256,33 +190,11 @@ async function loginFetch() {
     handleLoginTechnicalError();
   }
 }
-function handleLoginSuccess(firstname, name) {
-  NAME_USERLOG.forEach((element) => {
-    element.innerText = firstname + " " + name;
-  });
+function handleLoginSuccess() {
   BTN_LOGIN_CONNEXION.classList.add("btnOff");
   BTN_LOGIN_CONNEXION.removeEventListener("click", loginFetch);
   MESSAGE_LOGIN_SUCCES.style.display = "flex";
-  displayUserLog();
-  activateUserProfile()
-  titleDisplay(MESSAGE_LOGIN_SUCCES);
-  setTimeout(() => {
-    titleHide(MESSAGE_LOGIN_SUCCES);
-    accessHome();
-  }, 3000);
-  setTimeout(() => {
-    MESSAGE_LOGIN_SUCCES.style.display = "none";
-  }, 5000);
-}
-function handleAdminLoginSuccess(firstname, name) {
-  NAME_ADMINLOG.forEach((element) => {
-    element.innerText = firstname + " " + name;
-  });
-  BTN_LOGIN_CONNEXION.classList.add("btnOff");
-  BTN_LOGIN_CONNEXION.removeEventListener("click", loginFetch);
-  MESSAGE_LOGIN_SUCCES.style.display = "flex";
-  displayAdminLog();
-  activateAdminTool()
+  window._setAdminLoggedIn?.(true);
   titleDisplay(MESSAGE_LOGIN_SUCCES);
   setTimeout(() => {
     titleHide(MESSAGE_LOGIN_SUCCES);
@@ -323,7 +235,6 @@ function handleLoginTechnicalError() {
 function resetLoginForm() {
   INPUT_MAIL_CONNEXION.value = "";
   INPUT_PASSWORD_CONNEXION.value = "";
-  REMEMBER_CHECKBOX_CONNEXION.checked = false;
 }
 // ///////////////// LOGOUT //////////////////////
 async function logoutFetch() {
@@ -333,12 +244,8 @@ async function logoutFetch() {
     });
     const result = await response.json();
     if (result.success) {
-      deactivateUserProfile()
-      deactivateAdminTool()
-      hideAdminLog();
-      hideUserLog();
-      turnOffLine();
-      accessHome()
+      window._setAdminLoggedIn?.(false);
+      accessHome();
     } else {
       console.error("Erreur lors de la déconnexion :", result.message);
     }
@@ -346,208 +253,6 @@ async function logoutFetch() {
     console.error("Erreur réseau lors de la déconnexion :", error);
   }
 }
-// ///////////////// REGISTER //////////////////////
-const FORM_REGISTER = document.getElementById("formRegister");
-const INPUT_NAME_REGISTER = document.getElementById("inputNameRegister");
-const ICONVALID_NAME_REGISTER = document.getElementById("nameValidRegister");
-const ICONERROR_NAME_REGISTER = document.getElementById("nameProhibedRegister");
-const ERRORTEXT_NAME_REGISTER = document.getElementById(
-  "nameErrorTextRegister"
-);
-const INPUT_FIRSTNAME_REGISTER = document.getElementById(
-  "inputFirstnameRegister"
-);
-const ICONVALID_FIRSTNAME_REGISTER = document.getElementById(
-  "firstnameValidRegister"
-);
-const ICONERROR_FIRSTNAME_REGISTER = document.getElementById(
-  "firstnameProhibedRegister"
-);
-const ERRORTEXT_FIRSTNAME_REGISTER = document.getElementById(
-  "firstnameErrorTextRegister"
-);
-const INPUT_MAIL_REGISTER = document.getElementById("inputMailRegister");
-const ICONVALID_MAIL_REGISTER = document.getElementById("mailValidRegister");
-const ICONERROR_MAIL_REGISTER = document.getElementById("mailProhibedRegister");
-const ERRORTEXT_MAIL_REGISTER = document.getElementById(
-  "mailErrorTextRegister"
-);
-const INPUT_PASSWORD_REGISTER = document.getElementById(
-  "inputPasswordRegister"
-);
-const ICONVALID_PASSWORD_REGISTER = document.getElementById(
-  "passwordValidRegister"
-);
-const ICONERROR_PASSWORD_REGISTER = document.getElementById(
-  "passwordProhibedRegister"
-);
-const ERRORTEXT_PASSWORD_REGISTER = document.getElementById(
-  "passwordErrorTextRegister"
-);
-const EYEBTN_PASSWORD_REGISTER = document.getElementById("passwordEyeRegister");
-const BTN_REGISTER_REGISTER = document.getElementById("btnRegisterRegister");
-const NEWSLETTER_CHECKBOX_REGISTER = document.getElementById("mailingRegister");
-const MESSAGE_REGISTER_SUCCES = document.getElementById(
-  "messageRegisterSucces"
-);
-const MESSAGE_REGISTER_ERROR = document.getElementById("messageRegisterError");
-const MESSAGE_REGISTER_ERROR_MAIL = document.getElementById(
-  "messageRegisterErrorMail"
-);
-function registerCheck() {
-  let validName = false;
-  let validFirstname = false;
-  let validMail = false;
-  let validPassword = false;
-
-  function updateRegisterButtonState() {
-    if (
-      validName &&
-      validFirstname &&
-      validMail &&
-      validPassword
-    ) {
-      BTN_REGISTER_REGISTER.classList.remove("btnOff");
-    } else {
-      BTN_REGISTER_REGISTER.classList.add("btnOff");
-    }
-  }
-
-  BTN_REGISTER_REGISTER.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (!BTN_REGISTER_REGISTER.classList.contains("btnOff")) {
-      registerFetch();
-    }
-  });
-
-  nameCheck(
-    INPUT_NAME_REGISTER,
-    ICONVALID_NAME_REGISTER,
-    ICONERROR_NAME_REGISTER,
-    ERRORTEXT_NAME_REGISTER,
-    (isValid) => {
-      validName = isValid;
-      updateRegisterButtonState();
-    }
-  );
-
-  firstnameCheck(
-    INPUT_FIRSTNAME_REGISTER,
-    ICONVALID_FIRSTNAME_REGISTER,
-    ICONERROR_FIRSTNAME_REGISTER,
-    ERRORTEXT_FIRSTNAME_REGISTER,
-    (isValid) => {
-      validFirstname = isValid;
-      updateRegisterButtonState();
-    }
-  );
-
-  mailCheck(
-    INPUT_MAIL_REGISTER,
-    ICONVALID_MAIL_REGISTER,
-    ICONERROR_MAIL_REGISTER,
-    ERRORTEXT_MAIL_REGISTER,
-    (isValid) => {
-      validMail = isValid;
-      updateRegisterButtonState();
-    }
-  );
-
-  passwordCheck(
-    INPUT_PASSWORD_REGISTER,
-    ICONVALID_PASSWORD_REGISTER,
-    ICONERROR_PASSWORD_REGISTER,
-    ERRORTEXT_PASSWORD_REGISTER,
-    (isValid) => {
-      validPassword = isValid;
-      updateRegisterButtonState();
-    }
-  );
-
-  EYEBTN_PASSWORD_REGISTER.addEventListener("click", function (e) {
-    e.preventDefault();
-    togglePasswordVisibility(EYEBTN_PASSWORD_REGISTER);
-  });
-}
-async function registerFetch() {
-  const formData = new FormData();
-  formData.append("name", INPUT_NAME_REGISTER.value.trim());
-  formData.append("firstname", INPUT_FIRSTNAME_REGISTER.value.trim());
-  formData.append("mail", INPUT_MAIL_REGISTER.value.trim());
-  formData.append("password", INPUT_PASSWORD_REGISTER.value.trim());
-  formData.append(
-    "newsletter",
-    NEWSLETTER_CHECKBOX_REGISTER.checked ? "1" : "0"
-  );
-
-  try {
-    const response = await fetch("controller/register.php", {
-      method: "POST",
-      body: formData,
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      handleRegisterSuccess();
-    } else if (result.code === "EMAIL_EXISTS") {
-      handleRegisterMailError();
-    } else {
-      handleRegisterError();
-    }
-  } catch (error) {
-    handleRegisterError();
-  }
-}
-function handleRegisterSuccess() {
-  BTN_REGISTER_REGISTER.classList.add("btnOff");
-  BTN_REGISTER_REGISTER.removeEventListener("click", registerFetch);
-  MESSAGE_REGISTER_SUCCES.style.display = "flex";
-  titleDisplay(MESSAGE_REGISTER_SUCCES);
-  setTimeout(() => {
-    titleHide(MESSAGE_REGISTER_SUCCES);
-    accessConnexion();
-  }, 3000);
-  setTimeout(() => {
-    MESSAGE_REGISTER_SUCCES.style.display = "none";
-  }, 5000);
-}
-function handleRegisterMailError() {
-  BTN_REGISTER_REGISTER.classList.add("btnOff");
-  MESSAGE_REGISTER_ERROR_MAIL.style.display = "flex";
-  titleDisplay(MESSAGE_REGISTER_ERROR_MAIL);
-  setTimeout(() => {
-    titleHide(MESSAGE_REGISTER_ERROR_MAIL);
-  }, 3000);
-  setTimeout(() => {
-    BTN_REGISTER_REGISTER.classList.remove("btnOff");
-  }, 4000);
-  setTimeout(() => {
-    MESSAGE_REGISTER_ERROR_MAIL.style.display = "none";
-  }, 5000);
-}
-function handleRegisterError() {
-  BTN_REGISTER_REGISTER.classList.add("btnOff");
-  MESSAGE_REGISTER_ERROR.style.display = "flex";
-  titleDisplay(MESSAGE_REGISTER_ERROR);
-  setTimeout(() => {
-    titleHide(MESSAGE_REGISTER_ERROR);
-  }, 3000);
-  setTimeout(() => {
-    BTN_REGISTER_REGISTER.classList.remove("btnOff");
-  }, 4000);
-  setTimeout(() => {
-    MESSAGE_REGISTER_ERROR.style.display = "none";
-  }, 5000);
-}
-function resetRegisterForm() {
-  INPUT_NAME_REGISTER.value = "";
-  INPUT_FIRSTNAME_REGISTER.value = "";
-  INPUT_MAIL_REGISTER.value = "";
-  INPUT_PASSWORD_REGISTER.value = "";
-  NEWSLETTER_CHECKBOX_REGISTER.checked = false;
-}
-
 // ///////////////// CONTACT (section Contact de la home) //////////////////////
 const FORM_CONTACT = document.getElementById("formContact");
 const INPUT_NAME_CONTACT = document.getElementById("inputNameContact");

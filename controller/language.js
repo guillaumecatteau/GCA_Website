@@ -32,7 +32,16 @@
         : el.dataset._langFrPlaceholder);
     });
 
-    document.querySelectorAll('#lang, #langTablet').forEach(sel => { sel.value = lang; });
+    document.querySelectorAll('#lang, #langTablet, #langMobile').forEach(sel => { sel.value = lang; });
+
+    // Switch FR/EN (desktop/tablette/mobile, cf. templates/partials/topbar.php +
+    // nav-mobile.php, vue/assets/scss/layout/_main-nav.scss) — le <select> associé à chaque
+    // instance reste la source de vérité fonctionnelle, ce bouton n'en est que la
+    // représentation visuelle (knob glissant).
+    ['languageSwitchDesktopBtn', 'languageSwitchTabletBtn', 'languageSwitchMobileBtn'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.setAttribute('aria-checked', lang === 'en' ? 'true' : 'false');
+    });
 
     document.dispatchEvent(new CustomEvent('languagechange', { detail: { lang } }));
 
@@ -43,8 +52,26 @@
     let saved = 'fr';
     try { saved = localStorage.getItem(LANG_KEY) || 'fr'; } catch (_) {}
     applyLanguage(saved);
-    document.querySelectorAll('#lang, #langTablet').forEach(sel => {
+    document.querySelectorAll('#lang, #langTablet, #langMobile').forEach(sel => {
       sel.addEventListener('change', e => applyLanguage(e.target.value));
+    });
+
+    // Switch FR/EN — un simple clic bascule la langue (toggle), pilote le <select> caché
+    // associé pour réutiliser toute la logique ci-dessus sans duplication. Même mécanisme
+    // sur les 3 formats (desktop/tablette/mobile, cf. Interface desktop/tablette : "Remplace
+    // le langage selector par le switch FR/EN mis en place dans le menu burger mobile").
+    [
+      { btnId: 'languageSwitchDesktopBtn', selId: 'lang' },
+      { btnId: 'languageSwitchTabletBtn', selId: 'langTablet' },
+      { btnId: 'languageSwitchMobileBtn', selId: 'langMobile' },
+    ].forEach(({ btnId, selId }) => {
+      const btn = document.getElementById(btnId);
+      const sel = document.getElementById(selId);
+      if (btn && sel) {
+        btn.addEventListener('click', () => {
+          applyLanguage(sel.value === 'en' ? 'fr' : 'en');
+        });
+      }
     });
   }
 

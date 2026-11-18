@@ -35,7 +35,10 @@ function _navLabelReveal(labelEl, delay = 28) {
     const id = setTimeout(() => {
       // Génération périmée (une animation plus récente a déjà pris le relais) : no-op
       if (_labelAnimState.get(labelEl) !== state) return;
-      span.style.transition = `opacity 0.3s ease, transform 0.35s cubic-bezier(0.34,2,0.64,1)`;
+      // Easing sans overshoot (ancien cubic-bezier(0.34,2,0.64,1) dépassait la cible puis
+      // revenait en arrière — perçu comme un bond de quelques pixels sur les dernières
+      // lettres). easeOutQuint se rapproche de la cible sans jamais la dépasser.
+      span.style.transition = `opacity 0.3s ease, transform 0.35s cubic-bezier(0.22,1,0.36,1)`;
       span.style.opacity    = '1';
       span.style.transform  = 'rotateY(0deg)';
     }, delay * i);
@@ -66,6 +69,37 @@ function _navLabelHide(labelEl, reverse = false, delay = 20) {
     }, delay * i);
     state.timers.push(id);
   });
+}
+
+/**
+ * Révèle/cache les labels d'une liste de .sectionNavItem en cascade : l'item situé à
+ * `originIndex` (ex: l'item survolé par le curseur, ou l'item actif) est traité en premier,
+ * puis les autres suivent par vagues successives dans l'ordre croissant de distance à cet
+ * item — crée un effet d'ondulation partant du point d'origine plutôt qu'un
+ * affichage/masquage simultané de tous les labels.
+ * @param {Element[]} items        liste de .sectionNavItem (ordre = ordre visuel vertical)
+ * @param {number}    originIndex  index de départ de la cascade
+ * @param {'reveal'|'hide'} mode
+ * @param {number}    stepDelay    ms entre deux vagues de la cascade
+ */
+function _navLabelCascade(items, originIndex, mode, stepDelay) {
+  if (!items || items.length === 0) return;
+  const ordered = items
+    .map((item, i) => ({ item, dist: Math.abs(i - originIndex) }))
+    .sort((a, b) => a.dist - b.dist);
+  ordered.forEach(({ item }, seq) => {
+    const label = item.querySelector('.sectionNavLabel');
+    setTimeout(() => {
+      if (mode === 'reveal') _navLabelReveal(label);
+      else _navLabelHide(label, true);
+    }, stepDelay * seq);
+  });
+}
+function _navLabelCascadeReveal(items, originIndex, stepDelay = 90) {
+  _navLabelCascade(items, originIndex, 'reveal', stepDelay);
+}
+function _navLabelCascadeHide(items, originIndex, stepDelay = 70) {
+  _navLabelCascade(items, originIndex, 'hide', stepDelay);
 }
 
 /**
@@ -124,6 +158,10 @@ class SectionScroller {
     // Label hover zone state — géré par navigation.js
     this._labelHoverActive = false;
     this._prevActiveIndex  = undefined;
+    // Pendant la séquence d'apparition initiale de la home, le label actif ne doit PAS se
+    // masquer automatiquement après son délai habituel (1.6s) — il doit rester visible
+    // jusqu'à la fin de toute la séquence d'intro (géré par navigation.js/displayHome).
+    this._suppressActiveAutoHide = false;
 
     this._onWheel      = this._onWheel.bind(this);
     this._onTouchStart = this._onTouchStart.bind(this);
@@ -131,12 +169,18 @@ class SectionScroller {
     this._touchStartY  = 0;
 
     // Scroll interne de la section active — délai d'immobilité à l'extrémité
-    // avant d'autoriser le changement de section (évite un scroll intempestif)
+    // avant d'autoriser le changement de section (évite un scroll intempestif).
+    // Réglable depuis l'écran Settings de l'admin tool (cf. vue/breakpoints.js,
+    // window._scrollSettings) — lu dynamiquement via le getter ci-dessous plutôt que figé
+    // à la construction, pour refléter immédiatement un changement de réglage.
     this._edgeHoldStart = null;
     this._edgeHoldDir   = 0;
-    this._edgeHoldDelay = 2000;
     this._onResize      = this._onResize.bind(this);
   }
+
+  get _edgeHoldDelay() { return window._scrollSettings?.edgeHoldDelay ?? 2000; }
+  get _wheelThreshold() { return window._scrollSettings?.wheelThreshold ?? 10; }
+  get _swipeThreshold() { return window._scrollSettings?.swipeThreshold ?? 50; }
 
   // ── Cycle de vie ───────────────────────────────────────────────────────────
 
@@ -169,12 +213,16 @@ class SectionScroller {
   // Une section peut contenir 1 ou 2 zones scrollables indépendantes (ex: bio
   // = mainBlock + sideBlock d'un .basicGrid). On cible directement ces
   // conteneurs connus plutôt que le wrapper de section lui-même.
+  // Sur mobile, c'est la section ELLE-MÊME qui scrolle (titre + contenu ensemble, cf.
+  // Interface mobile) : les wraps internes n'y sont plus scrollables indépendamment.
   _getSectionWraps(section) {
+    if (window.isMobileMode?.()) return [section];
     return Array.from(section.querySelectorAll('.mainBlock, .sideBlock, .sectionCardsGrid, .sectionContactLayout'));
   }
 
   // Le wrap concerné par un événement pointeur donné (survolé), sinon le premier trouvé
   _getScrollWrap(section, eventTarget) {
+    if (window.isMobileMode?.()) return section;
     const wraps = this._getSectionWraps(section);
     if (!wraps.length) return null;
     if (eventTarget) {
@@ -211,15 +259,46 @@ class SectionScroller {
     bar.style.height = `${wrapRect.height}px`;
   }
 
-  // Fondu progressif de 64px en haut/bas selon la position de scroll
+  // Fondu progressif en haut/bas selon la position de scroll — hauteur du fondu réglable
+  // (cf. _maskFadePx : sur mobile, elle doit correspondre à la hauteur du container du
+  // bouton burger plutôt qu'à la valeur fixe 64px utilisée sur desktop/tablette).
+  get _maskFadePx() {
+    if (window.isMobileMode?.()) {
+      const burgerContainer = document.querySelector('.burgerContainer');
+      if (burgerContainer) {
+        const h = burgerContainer.getBoundingClientRect().height;
+        if (h > 0) return h;
+      }
+    }
+    return 64;
+  }
+
   _computeMask(atTop, atBottom) {
     if (atTop && atBottom) return '';
+    const fade = `${this._maskFadePx}px`;
     const stops = [];
     stops.push(atTop ? 'black 0%' : 'transparent 0%');
-    if (!atTop) stops.push('black 64px');
-    if (!atBottom) stops.push('black calc(100% - 64px)');
+    if (!atTop) stops.push(`black ${fade}`);
+    if (!atBottom) stops.push(`black calc(100% - ${fade})`);
     stops.push(atBottom ? 'black 100%' : 'transparent 100%');
     return `linear-gradient(to bottom, ${stops.join(', ')})`;
+  }
+
+  // Révèle/masque l'icône "scroll down" d'une section : elle ne doit apparaître QUE quand
+  // tout le contenu scrollable de cette section (1 ou 2 wraps, cf. _getSectionWraps) a été
+  // entièrement parcouru jusqu'en bas — sur mobile en particulier, elle flottait auparavant
+  // en permanence par-dessus le contenu au lieu de n'apparaître qu'une fois la section
+  // réellement terminée (cf. Interface mobile).
+  _syncScrollDownIndicator(section) {
+    if (!section) return;
+    const indicator = section.querySelector(':scope > .scrollDownIndicator');
+    if (!indicator) return;
+    const wraps = this._getSectionWraps(section);
+    const allAtBottom = wraps.length === 0 || wraps.every((w) => {
+      const scrollable = w.scrollHeight > w.clientHeight + 1;
+      return !scrollable || (w.scrollTop + w.clientHeight >= w.scrollHeight - 1);
+    });
+    indicator.classList.toggle('scrollDownIndicator--visible', allAtBottom);
   }
 
   _refreshWrap(wrap) {
@@ -233,6 +312,7 @@ class SectionScroller {
       bar.style.display          = 'none';
       wrap.style.maskImage       = '';
       wrap.style.webkitMaskImage = '';
+      this._syncScrollDownIndicator(wrap.closest('.section'));
       return;
     }
 
@@ -249,11 +329,14 @@ class SectionScroller {
     const topPct   = (wrap.scrollTop / wrap.scrollHeight) * 100;
     thumb.style.height = `${thumbPct}%`;
     thumb.style.top    = `${topPct}%`;
+
+    this._syncScrollDownIndicator(wrap.closest('.section'));
   }
 
   _refreshSection(section) {
     if (!section) return;
     this._getSectionWraps(section).forEach(w => this._refreshWrap(w));
+    this._syncScrollDownIndicator(section);
   }
 
   /** Recalcule le scroll interne de toutes les sections (à appeler après un chargement de contenu dynamique). */
@@ -304,6 +387,11 @@ class SectionScroller {
     // aucun retour visuel pendant les ~700ms de chargement de la section.
     this._updateNav(toIdx);
     this._applyBackdrop(toIdx);
+    // Idem pour les boutons actifs mobile/tablette (cf. vue/navigation.js) — auparavant
+    // uniquement mis à jour à la fin de la transition (via l'évènement 'sectionChange',
+    // _dispatchChange ci-dessous), ce qui créait un décalage perceptible par rapport au
+    // clic (cf. Interface tablette).
+    window._updateMobileActiveButton?.(this.sections[toIdx]?.dataset.section);
 
     setTimeout(() => {
       from.classList.remove(exitClass);
@@ -333,11 +421,24 @@ class SectionScroller {
       item.classList.toggle('sectionNavItem--active', i === activeIndex);
     });
 
+    clearTimeout(this._activeLabelAutoHideTimer);
+
     // Animer les labels via transitions CSS directes (pas de staggerReveal)
-    // pour éviter les conflits avec le transform rotateY des spans
+    // pour éviter les conflits avec le transform rotateY des spans.
+    // L'intitulé actif n'est plus jamais affiché en permanence (cf. Interface desktop) :
+    // il n'est révélé que le temps d'une confirmation visuelle brève après un changement de
+    // section, puis masqué comme n'importe quel autre — seule l'icône active reste
+    // identifiable en permanence, via sa lueur pulsante (cf. components/_sections.scss).
     const activeItem = this.navItems[activeIndex];
     if (activeItem) {
       _navLabelReveal(activeItem.querySelector('.sectionNavLabel'));
+      if (!this._labelHoverActive && !this._suppressActiveAutoHide) {
+        this._activeLabelAutoHideTimer = setTimeout(() => {
+          if (!this._labelHoverActive) {
+            _navLabelHide(activeItem.querySelector('.sectionNavLabel'), true);
+          }
+        }, 1600);
+      }
     }
 
     // Cacher le label de l'ancien actif si on n'est pas en zone hover
@@ -433,13 +534,23 @@ class SectionScroller {
     }
     if (now - this._edgeHoldStart < this._edgeHoldDelay) return true; // délai pas encore écoulé
 
+    // Sur mobile, le passage à la section SUIVANTE n'est autorisé que si l'icône de scroll
+    // de la section courante est entièrement affichée (cf. Interface mobile) — garde-fou
+    // supplémentaire au cas où le contenu aurait changé de hauteur entre-temps.
+    if (dir > 0 && window.isMobileMode?.()) {
+      const indicator = section.querySelector(':scope > .scrollDownIndicator');
+      if (indicator && !indicator.classList.contains('scrollDownIndicator--visible')) {
+        return true;
+      }
+    }
+
     this._edgeHoldStart = null;
     return false; // délai écoulé : le scroll peut déclencher le changement de section
   }
 
   _onWheel(e) {
     if (this.animating) return;
-    if (Math.abs(e.deltaY) < 10) return;
+    if (Math.abs(e.deltaY) < this._wheelThreshold) return;
     e.preventDefault();
     const dir = e.deltaY > 0 ? 1 : -1;
     if (this._handleInternalScroll(dir, e.deltaY, e.target)) return;
@@ -454,7 +565,7 @@ class SectionScroller {
   _onTouchEnd(e) {
     if (this.animating) return;
     const delta = this._touchStartY - e.changedTouches[0].clientY;
-    if (Math.abs(delta) < 50) return;
+    if (Math.abs(delta) < this._swipeThreshold) return;
     const dir = delta > 0 ? 1 : -1;
     if (this._handleInternalScroll(dir, delta, this._touchTarget)) return;
     this.navigate(dir);

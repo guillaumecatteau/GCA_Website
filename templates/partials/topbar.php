@@ -9,52 +9,44 @@
   </a>
   <div class="topBarDesktop">
     <div class="connexionBox" id="connexionBoxDesktop">
-      <a class="btnUserLog" id="btnUserLogDesktop" style="display: none">
-        <span class="icon iconUser"></span>
-        <span class="btnUserLogText" id="userNameDesktop"><?php if (isset($_SESSION['user'])): ?><?= htmlspecialchars($_SESSION['user']['firstname']) . ' ' . htmlspecialchars($_SESSION['user']['name']) ?><?php endif; ?></span>
-      </a>
-      <a class="btnAdminLog" id="btnAdminLogDesktop" style="display: none">
-        <span class="icon iconUser"></span>
-        <span class="btnUserLogText" id="adminNameDesktop"><?php if (isset($_SESSION['user'])): ?><?= htmlspecialchars($_SESSION['user']['firstname']) . ' ' . htmlspecialchars($_SESSION['user']['name']) ?><?php endif; ?></span>
-      </a>
-      <!-- Accès direct admin tool — dev: toujours visible, supprimer display:none avant mise en prod -->
-      <a class="btnDirectAdmin" id="btnDirectAdmin" title="Admin tool">
+      <!-- Accès direct admin tool — visible en mode Dev, ou une fois connecté en mode Production
+           (cf. vue/breakpoints.js, vue/navigation.js : window._devMode / window._isLoggedInAdmin) -->
+      <a class="btnDirectAdmin" id="btnDirectAdmin" title="Admin tool" style="display:none">
         <span class="icon iconAdmin"></span>
       </a>
-      <button type="button" class="btnShareDesktop btnShare" id="btnShareDesktop" title="Partager / Share">
-        <span class="icon iconShare"></span>
-      </button>
-      <a class="btnConnexion" id="btnConnexionDesktop">
-        <span class="icon iconConnect" id="btnConnexionIconDesktop"></span>
-      </a>
     </div>
+    <!-- Recherche du site — juste à gauche du sélecteur de langue (cf. Recherche du site) -->
+    <button type="button" class="btnSearchDesktop" id="btnSearchDesktop" title="Recherche / Search">
+      <span class="icon iconSearch"></span>
+    </button>
     <div class="languageSelector" id="languageSelectorDesktop">
-      <select id="lang">
+      <select id="lang" class="languageSwitchMobileNative" aria-hidden="true" tabindex="-1">
         <option value="fr">FR</option>
         <option value="en">EN</option>
       </select>
+      <button type="button" class="languageSwitchBtn" id="languageSwitchDesktopBtn" role="switch" aria-checked="false" aria-label="FR / EN">
+        <span class="languageSwitchOption" data-lang="fr">FR</span>
+        <span class="languageSwitchOption" data-lang="en">EN</span>
+        <span class="languageSwitchKnob"></span>
+      </button>
     </div>
   </div>
   <div class="topBarContent">
     <nav class="tabletMenuTop" id="menuTabletTop">
-      <div class="connexionBoxTablet" id="connexionBoxTablet">
-        <a class="btnUserLog" id="btnUserLogTablet" style="display: none">
-          <span class="icon iconUser"></span>
-          <span class="btnUserLogText" id="userNameTablet"><?php if (isset($_SESSION['user'])): ?><?= htmlspecialchars($_SESSION['user']['firstname']) . ' ' . htmlspecialchars($_SESSION['user']['name']) ?><?php endif; ?></span>
-        </a>
-        <a class="btnAdminLog" id="btnAdminLogTablet" style="display: none">
-          <span class="icon iconUser"></span>
-          <span class="btnUserLogText" id="adminNameTablet"><?php if (isset($_SESSION['user'])): ?><?= htmlspecialchars($_SESSION['user']['firstname']) . ' ' . htmlspecialchars($_SESSION['user']['name']) ?><?php endif; ?></span>
-        </a>
-        <a class="btnConnexion" id="btnConnexionTablet">
-          <span class="icon iconConnect" id="btnConnexionIconTablet"></span>
-        </a>
-      </div>
+      <!-- Recherche du site — même position relative que le desktop, à gauche du sélecteur de langue -->
+      <button type="button" class="btnSearchTablet" id="btnSearchTablet" title="Recherche / Search">
+        <span class="icon iconSearch"></span>
+      </button>
       <div class="languageSelector" id="languageSelectorTablet">
-        <select id="langTablet">
+        <select id="langTablet" class="languageSwitchMobileNative" aria-hidden="true" tabindex="-1">
           <option value="fr">FR</option>
           <option value="en">EN</option>
         </select>
+        <button type="button" class="languageSwitchBtn" id="languageSwitchTabletBtn" role="switch" aria-checked="false" aria-label="FR / EN">
+          <span class="languageSwitchOption" data-lang="fr">FR</span>
+          <span class="languageSwitchOption" data-lang="en">EN</span>
+          <span class="languageSwitchKnob"></span>
+        </button>
       </div>
     </nav>
   </div>

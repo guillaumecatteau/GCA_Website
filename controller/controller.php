@@ -7,18 +7,46 @@ $action = $_GET['action'] ?? '';
 switch ($action) {
 
     // ── Auth ──────────────────────────────────────────────────────────────
-    case 'register':    require_once 'register.php';    break;
     case 'login':       require_once 'login.php';       break;
     case 'logout':      require_once 'logout.php';      break;
+    case 'admin_status': require_once 'admin_status.php'; break;
 
     // ── Scene editor ──────────────────────────────────────────────────────
     case 'scene_states':
         require_once 'save_scene_states.php';
         break;
 
-    // ── Admin : Users ─────────────────────────────────────────────────────
-    case 'admin_users':
-        require_once 'admin/users.php';
+    // ── Admin : Settings (identifiants admin + mode dev/production) ────────
+    case 'admin_settings':
+        require_once 'admin/settings.php';
+        break;
+
+    // ── Admin : Sous-titres Accueil ─────────────────────────────────────────
+    case 'admin_home_subtitles':
+        require_once 'admin/home_subtitles.php';
+        break;
+
+    // ── Admin : Sauvegarde base de données (téléchargement direct d'un .sql) ─
+    // Réponse binaire, PAS du JSON — admin/backup.php redéfinit les en-têtes
+    // (Content-Type/Content-Disposition) avant toute sortie, aucun souci de
+    // buffering puisque rien n'a encore été émis à ce stade.
+    case 'admin_backup':
+        require_once 'admin/backup.php';
+        break;
+
+    // ── Public : Sous-titres Accueil ────────────────────────────────────────
+    case 'home_subtitles_public':
+        require_once 'home_subtitles_public.php';
+        break;
+
+    // ── Public : Section Gallerie ───────────────────────────────────────────
+    case 'gallery_public':
+        require_once 'gallery_public.php';
+        break;
+
+    // ── Public : Recherche du site ──────────────────────────────────────────
+    case 'search_public':
+        require_once 'search_public.php';
         break;
 
     // ── Admin : Tags ──────────────────────────────────────────────────────
@@ -46,7 +74,10 @@ switch ($action) {
         require_once 'admin/comments.php';
         break;
 
-    // ── Public : Comments (poster) ────────────────────────────────────────
+    // ── Public : Comments (lister / poster) ───────────────────────────────
+    case 'comments_public':
+        require_once 'comments_public.php';
+        break;
     case 'comment_post':
         require_once 'comment_post.php';
         break;

@@ -21,10 +21,10 @@
     <!-- ── Colonne latérale (1/4) : boutons de navigation + retour home ── -->
     <div class="adminToolSidebar">
       <div class="userMenuContainer">
-        <div class="btnMedium btnLarge" id="btnUsersManagement">
+        <div class="btnMedium btnLarge" id="btnSettingsManagement">
           <div class="btnLabel">
-            <span class="icon iconUsersManagement"></span>
-            <span class="btnText" lang="FR" data-en="Users">Utilisateurs</span>
+            <span class="icon iconSettings"></span>
+            <span class="btnText" lang="FR" data-en="Settings">Settings</span>
           </div>
         </div>
         <div class="btnMedium btnLarge" id="btnTagsManagement">
@@ -41,32 +41,32 @@
         </div>
         <div class="btnMedium btnLarge" id="btnPagesManagement">
           <div class="btnLabel">
-            <span class="icon iconPortfolio"></span>
+            <span class="icon iconPages"></span>
             <span class="btnText" lang="FR" data-en="Pages">Pages</span>
           </div>
         </div>
         <div class="btnMedium btnLarge" id="btnExperiencesManagement">
           <div class="btnLabel">
-            <span class="icon iconContentCreation"></span>
+            <span class="icon iconWorks"></span>
             <span class="btnText" lang="FR" data-en="Experiences">Expériences</span>
           </div>
         </div>
         <div class="btnMedium btnLarge" id="btnCommentsManagement">
           <div class="btnLabel">
-            <span class="icon iconCommentsManagement"></span>
+            <span class="icon iconComments"></span>
             <span class="btnText" lang="FR" data-en="Comments">Commentaires</span>
-          </div>
-        </div>
-        <div class="btnMedium btnLarge" id="btnMessagesManagement">
-          <div class="btnLabel">
-            <span class="icon iconCommentsManagement"></span>
-            <span class="btnText" lang="FR" data-en="Messages">Messagerie</span>
           </div>
         </div>
         <div class="btnMedium btnLarge" id="btnSceneEditor">
           <div class="btnLabel">
             <span class="icon icon3d"></span>
             <span class="btnText" lang="FR" data-en="Scene editor">Éditeur scène</span>
+          </div>
+        </div>
+        <div class="btnMedium btnLarge" id="btnAdminLogout">
+          <div class="btnLabel">
+            <span class="icon iconConnect"></span>
+            <span class="btnText" lang="FR" data-en="Log out">Déconnexion</span>
           </div>
         </div>
       </div>

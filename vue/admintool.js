@@ -1,502 +1,701 @@
 // ////////////////////////////////////////////////////////////////////////////////////////////////
-// /////////////////////////////// USERS MANAGEMENT ///////////////////////////////////////////////
+// /////////////////////////////// SETTINGS MANAGEMENT ////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////////////////////////////
-// Référencé directement par vue/navigation.js (activateUsersManagement/deactivateUsersManagement) —
-// contrairement aux autres boutons admin, qui font leur propre getElementById local.
-const BTN_USERSMANAGEMENT = document.getElementById("btnUsersManagement");
-const USER_LIST_CONTAINER = document.getElementById("usersListContainer");
-const USER_FILTERS = document.getElementById("userEntryFilters");
-const USER_TEMPLATE = document.getElementById("userEntryTemplate");
-const FILTER_ID           = document.getElementById("userFilterId");
-const FILTER_NAME         = document.getElementById("userFilterName");
-const FILTER_FIRSTNAME    = document.getElementById("userFilterFirstname");
-const FILTER_EMAIL        = document.getElementById("userFilteremail");
-const FILTER_SUBSCRIPTION = document.getElementById("subscription");
-const FILTER_ROLE         = document.getElementById("userFilterRole");
-// ///////////////////// ENTRIES FILTERS /////////////////////////////////////
-let currentSortField = "id";
-let sortAsc = true;
-let usersData = [];
-function sortUsers(data, field, asc) {
-  const sorted = data.slice(); // clone
-  sorted.sort((a, b) => {
-    let valA = a[field];
-    let valB = b[field];
+// Remplace l'ancienne gestion des utilisateurs (cf. Redéfinition des utilisateurs). Un seul
+// utilisateur (l'admin) existe désormais ; ses identifiants sont stockés hors base
+// (cf. model/model_admin.php) et ne sont affichés/éditables qu'après validation de la double
+// condition (date de naissance + prénom du premier chat).
 
-    // Date au format string
-    if (field === "subscription") {
-      valA = valA || "";
-      valB = valB || "";
-    }
+let _settingsInited = false;
 
-    if (typeof valA === "string") valA = valA.toLowerCase();
-    if (typeof valB === "string") valB = valB.toLowerCase();
+function _settingsVerifyGate() {
+  const day = document.getElementById('settingsGateDay').value;
+  const month = document.getElementById('settingsGateMonth').value;
+  const year = document.getElementById('settingsGateYear').value;
+  const catName = document.getElementById('settingsGateCatName').value.trim();
+  const errorEl = document.getElementById('settingsGateError');
+  const fieldsEl = document.getElementById('settingsAccessFields');
 
-    if (valA < valB) return asc ? -1 : 1;
-    if (valA > valB) return asc ? 1 : -1;
-    return 0;
-  });
-  return sorted;
-}
-function setupFilters() {
-  const filters = [
-    { el: FILTER_ID,           field: "id" },
-    { el: FILTER_NAME,         field: "name" },
-    { el: FILTER_FIRSTNAME,    field: "firstname" },
-    { el: FILTER_EMAIL,        field: "mail" },
-    { el: FILTER_SUBSCRIPTION, field: "subscription" },
-    { el: FILTER_ROLE,         field: "role" },
-  ];
+  errorEl.style.display = 'none';
 
-  filters.forEach(({ el, field }) => {
-    el.style.cursor = "pointer";
-    el.addEventListener("click", () => {
-      if (currentSortField === field) {
-        sortAsc = !sortAsc;
-      } else {
-        currentSortField = field;
-        sortAsc = true;
-      }
-      renderList(currentSortField, sortAsc);
-    });
-  });
-}
-// ///////////////////// LIST DISPLAY /////////////////////////////////////
-function clearList() {
-  return new Promise((resolve) => {
-    const entries = Array.from(
-      USER_LIST_CONTAINER.querySelectorAll(".entryBlock")
-    );
-    entries.forEach((entry) => {
-      if (
-        entry.classList.contains("entryFilters") ||
-        entry.id === "userEntryTemplate"
-      )
-        return;
-      entry.style.opacity = "0";
-    });
-    // Suppression au bout de 300ms et résolution de la promesse
-    setTimeout(() => {
-      entries.forEach((entry) => {
-        if (
-          !entry.classList.contains("entryFilters") &&
-          entry.id !== "userEntryTemplate"
-        ) {
-          entry.remove();
-        }
-      });
-      resolve(); // FIN de la promesse, liste vidée
-    }, 300);
-  });
-}
-const listSpeed = 50;
-async function renderList(sortField, asc) {
-  await clearList();
-  currentSortField = sortField;
-  sortAsc = asc;
-  const sortedUsers = sortUsers(userData, sortField, asc);
-  for (let i = 0; i < sortedUsers.length; i++) {
-    const user = sortedUsers[i];
-    const entry = createUserEntry(user);
-    entry.style.opacity = "0";
-    USER_LIST_CONTAINER.appendChild(entry);
-    entry.offsetHeight; 
-    entry.style.opacity = "1";
-    await new Promise((resolve) => setTimeout(resolve, listSpeed));
-  }
-}
-function loadUsers() {
-  fetch("controller/controller.php?action=admin_users&sub=list")
-    .then((res) => res.json())
-    .then((json) => {
-      if (json.success) {
-        userData = json.data;
-        renderList(currentSortField, sortAsc);
-      } else {
-        alert("Erreur chargement utilisateurs : " + json.message);
-      }
-    })
-    .catch(() => alert("Erreur réseau lors du chargement des utilisateurs"));
-}
-// ///////////////////// LIST GENERATION /////////////////////////////////////
-function toggleEntryEdition(entry) {
-  const iconSettings = entry.querySelector("#btnEntrySettingsIcon");
-  const form = entry.querySelector("#formUpdateUser");
-  const btnSave = entry.querySelector("#btnSaveUser");
-  const inputs = form.querySelectorAll("input");
-
-  const isOpen = entry.classList.toggle("active");
-
-  if (isOpen) {
-    iconSettings.classList.add("active");
-
-    // Remplir les champs
-    form.inputUpdateName.value =
-      entry.querySelector("#userInfoName").textContent;
-    form.inputUpdateFirstName.value =
-      entry.querySelector("#userInfoFirstname").textContent;
-    form.inputUpdateMail.value =
-      entry.querySelector("#userInfoMail").textContent;
-    form.inputUpdateIsAdmin.checked =
-      entry.querySelector("#userInfoIsAdmin").textContent.toLowerCase() ===
-      "admin";
-    // Stocker les valeurs initiales
-    entry._initialValues = {
-      name: form.inputUpdateName.value,
-      firstname: form.inputUpdateFirstName.value,
-      mail: form.inputUpdateMail.value,
-      isAdmin: form.inputUpdateIsAdmin.checked,
-    };
-    // Fonction de vérification des changements
-    function checkForChanges() {
-      const name = form.inputUpdateName.value.trim();
-      const firstname = form.inputUpdateFirstName.value.trim();
-      const mail = form.inputUpdateMail.value.trim();
-      const isAdmin = form.inputUpdateIsAdmin.checked;
-      const hasChanged =
-        name !== entry._initialValues.name ||
-        firstname !== entry._initialValues.firstname ||
-        mail !== entry._initialValues.mail ||
-        isAdmin !== entry._initialValues.isAdmin;
-      const isValid =
-        name.length >= 2 &&
-        firstname.length >= 2 &&
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail);
-      const shouldEnableSave = hasChanged && isValid;
-      btnSave.classList.toggle("btnOn", shouldEnableSave);
-      btnSave.classList.toggle("btnOff", !shouldEnableSave);
-    }
-    inputs.forEach((input) => {
-      input.addEventListener("input", checkForChanges);
-    });
-    // Vérification initiale (au cas où un champ serait pré-rempli différemment)
-    checkForChanges();
-  } else {
-    iconSettings.classList.remove("active");
-    inputs.forEach((input) => {
-      input.removeEventListener("input", checkForChanges);
-    });
-    btnSave.classList.remove("btnOn");
-    btnSave.classList.add("btnOff");
-  }
-}
-function showEntryMessage(entry, messageBoxId) {
-  const boxUpdate = entry.querySelector("#entryBtnBoxContentUpdate");
-  const boxMessage = entry.querySelector(`#${messageBoxId}`);
-
-  if (!boxUpdate || !boxMessage) return;
-
-  boxUpdate.style.display = "none";
-  boxMessage.style.display = "flex";
-
-  setTimeout(() => {
-    boxMessage.style.display = "none";
-    boxUpdate.style.display = "flex";
-  }, 2000);
-}
-function createUserEntry(user) {
-  const entry = USER_TEMPLATE.cloneNode(true);
-  entry.id = "";
-  entry.style.display = "flex";
-  entry.querySelector("#userInfoID").textContent = user.id;
-  entry.querySelector("#userInfoName").textContent = user.name;
-  entry.querySelector("#userInfoFirstname").textContent = user.firstname;
-  entry.querySelector("#userInfoMail").textContent = user.mail;
-  entry.querySelector("#userInfoSubscription").textContent =
-    user.subscription || "";
-  entry.querySelector("#userInfoRole").textContent = user.role || "user";
-  const form = entry.querySelector("#formUpdateUser");
-  form.querySelector("#inputUpdateName").value = user.name;
-  form.querySelector("#inputUpdateFirstName").value = user.firstname;
-  form.querySelector("#inputUpdateMail").value = user.mail;
-  form.querySelector("#inputUpdateRole").value = user.role || "user";
-  const btnSettings = entry.querySelector("#btnUserEntrySettings");
-  btnSettings.addEventListener("click", () => toggleEntryEdition(entry));
-  const btnSave = entry.querySelector("#btnSaveUser");
-  const btnDelete = entry.querySelector("#btnDeleteUser");
-  const boxUpdate = entry.querySelector("#boxUpdateUser");
-  const contentUpdate = entry.querySelector("#entryBtnBoxContentUpdate");
-  const contentComplete = entry.querySelector(
-    "#entryBtnBoxContentUpdateComplete"
-  );
-  const contentError = entry.querySelector("#entryBtnBoxContentUpdateError");
-  const contentDelete = entry.querySelector("#entryBtnBoxContentDelete");
-  const inputName = form.querySelector("#inputUpdateName");
-  const inputFirstName = form.querySelector("#inputUpdateFirstName");
-  const inputMail = form.querySelector("#inputUpdateMail");
-  const initialValues = {
-    name: inputName.value.trim(),
-    firstname: inputFirstName.value.trim(),
-    mail: inputMail.value.trim(),
-  };
-  function validateInputs() {
-    const name = inputName.value.trim();
-    const firstname = inputFirstName.value.trim();
-    const mail = inputMail.value.trim();
-    const nameValid = name.length >= 2;
-    const firstNameValid = firstname.length >= 2;
-    const mailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail);
-    // Active le bouton uniquement si valide ET modifié
-    const isModified =
-      name !== initialValues.name ||
-      firstname !== initialValues.firstname ||
-      mail !== initialValues.mail;
-
-    if (nameValid && firstNameValid && mailValid && isModified) {
-      btnSave.classList.remove("btnOff");
-    } else {
-      btnSave.classList.add("btnOff");
-    }
-  }
-  inputName.addEventListener("input", validateInputs);
-  inputFirstName.addEventListener("input", validateInputs);
-  inputMail.addEventListener("input", validateInputs);
-  btnSave.classList.add("btnOff");
-  if (btnSettings) {
-    btnSettings.addEventListener("click", () => {
-      const isAlreadyOpen = entry.classList.contains("entryUserOpen");
-      const allEntries = USER_LIST_CONTAINER.querySelectorAll(".entryBlock");
-      allEntries.forEach((e) => {
-        if (e !== entry) e.classList.remove("entryUserOpen");
-      });
-      entry.classList.toggle("entryUserOpen", !isAlreadyOpen);
-    });
-  }
-  function resetMessages() {
-    contentUpdate.style.display = "";
-    contentComplete.style.display = "none";
-    contentError.style.display = "none";
-    contentDelete.style.display = "none";
-  }
-  btnSave.addEventListener("click", () => {
-    resetMessages();
-    const updatedUser = {
-      id: user.id,
-      name: form.querySelector("#inputUpdateName").value.trim(),
-      firstname: form.querySelector("#inputUpdateFirstName").value.trim(),
-      mail: form.querySelector("#inputUpdateMail").value.trim(),
-      role: form.querySelector("#inputUpdateRole").value,
-    };
-    btnSave.classList.add("btnOff");
-    fetch("controller/controller.php?action=admin_users&sub=update", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedUser),
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.success) {
-          // Met à jour les données locales
-          user.name = updatedUser.name;
-          user.firstname = updatedUser.firstname;
-          user.mail = updatedUser.mail;
-          user.isAdmin = updatedUser.isAdmin;
-          // Mise à jour visuelle
-          entry.querySelector("#userInfoName").textContent = user.name;
-          entry.querySelector("#userInfoFirstname").textContent =
-            user.firstname;
-          entry.querySelector("#userInfoMail").textContent = user.mail;
-          entry.querySelector("#userInfoRole").textContent = user.role;
-          // Affiche le message temporaire
-          showEntryMessage(entry, "entryBtnBoxContentUpdateComplete");
-          btnSave.classList.add("btnOff");
-        } else {
-          // Message d’erreur temporaire
-          showEntryMessage(entry, "entryBtnBoxContentUpdateError");
-          btnSave.classList.remove("btnOff");
-        }
-      })
-      .catch(() => {
-        // Message d’erreur temporaire
-        showEntryMessage(entry, "entryBtnBoxContentUpdateError");
-        btnSave.classList.remove("btnOff");
-      });
-  });
-  btnDelete.addEventListener("click", () => {
-    resetMessages();
-    contentUpdate.style.display = "none";
-    contentDelete.style.display = "flex";
-  });
-  const btnDeleteDeny = entry.querySelector("#btnDeleteEntryDeny");
-  const btnDeleteValidate = entry.querySelector("#btnDeleteEntryValidation");
-  btnDeleteDeny.addEventListener("click", () => {
-    resetMessages();
-    contentUpdate.style.display = "flex"; //restaure proprement
-    contentDelete.style.display = "none";
-  });
-  btnDeleteValidate.addEventListener("click", () => {
-    btnDelete.classList.add("btnOff");
-    btnSave.classList.add("btnOff");
-    fetch("controller/controller.php?action=admin_users&sub=delete", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: user.id }),
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.success) {
-          // Message temporaire de suppression avant disparition
-          showEntryMessage(entry, "entryBtnBoxContentDelete");
-          entry.style.opacity = "0";
-
-          setTimeout(() => {
-            entry.remove();
-            usersData = usersData.filter((u) => u.id !== user.id);
-          }, 300);
-        } else {
-          resetMessages();
-          alert("Erreur lors de la suppression");
-        }
-      })
-      .catch(() => {
-        resetMessages();
-        alert("Erreur lors de la suppression");
-      });
-  });
-  return entry;
-}
-// ///////////////////// SEARCH USERS /////////////////////////////////////
-const formSearchUser = document.getElementById("formSearchUser");
-const ENTRY_BTN_BOX_SEARCH = document.getElementById("entryBtnBoxSearchUser");
-const ENTRY_BTN_BOX_SEARCH_COMPLETE = document.getElementById(
-  "entryBtnBoxSearchUserComplete"
-);
-const ENTRY_BTN_BOX_SEARCH_NO_RESULT = document.getElementById(
-  "entryBtnBoxSearchUserNoResult"
-);
-const ENTRY_BTN_BOX_SEARCH_ERROR = document.getElementById(
-  "entryBtnBoxSearchUserError"
-);
-function getSearchFilters() {
-  return {
-  idFrom:       document.getElementById('inputSearchUserIdA').value.trim(),
-  idTo:         document.getElementById('inputSearchUserIdB').value.trim(),
-  name:         document.getElementById('inputSearchUserName').value.trim(),
-  firstname:    document.getElementById('inputSearchUserFirstname').value.trim(),
-  mail:         document.getElementById('inputSearchUserMail').value.trim(),
-  subscription: document.getElementById('inputSearchUserSubscription').value,
-  role:         document.getElementById('inputSearchRole').value,
-  newsletter:   document.getElementById('inputSearchNewsletter').checked ? 1 : '',
-  };
-}
-function showSearchMessage(type) {
-  ENTRY_BTN_BOX_SEARCH.style.display = "none";
-  ENTRY_BTN_BOX_SEARCH_COMPLETE.style.display = "none";
-  ENTRY_BTN_BOX_SEARCH_NO_RESULT.style.display = "none";
-  ENTRY_BTN_BOX_SEARCH_ERROR.style.display = "none";
-
-  let boxToShow;
-  switch (type) {
-    case "success":
-      boxToShow = ENTRY_BTN_BOX_SEARCH_COMPLETE;
-      break;
-    case "noresult":
-      boxToShow = ENTRY_BTN_BOX_SEARCH_NO_RESULT;
-      break;
-    case "error":
-      boxToShow = ENTRY_BTN_BOX_SEARCH_ERROR;
-      break;
-  }
-
-  if (boxToShow) {
-    boxToShow.style.display = "flex";
-    setTimeout(() => {
-      boxToShow.style.display = "none";
-      ENTRY_BTN_BOX_SEARCH.style.display = "flex";
-    }, 2000);
-  }
-}
-async function handleUserSearch() {
-  const filters = getSearchFilters();
-  try {
-    const response = await fetch("controller/controller.php?action=admin_users&sub=search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(filters),
-    });
-
-    if (!response.ok) throw new Error("Réponse réseau incorrecte");
-
-    const data = await response.json();
-
-    if (data.success) {
-      if (data.data && data.data.length > 0) {
-        userData = data.data; // ✅ mise à jour
-        showSearchMessage("success");
-        renderList(currentSortField, sortAsc);
-      } else {
-        showSearchMessage("noresult");
-      }
-    } else {
-      showSearchMessage("error");
-    }
-  } catch (error) {
-    // console.error("Erreur fetch ou JSON :", error);
-    showSearchMessage("error");
-  }
-}
-document.getElementById("btnUsersSearch").addEventListener("click", handleUserSearch);
-// ///////////////////// USERLIST UPLOAD /////////////////////////////////////
-const BTN_UPLOADUSERLIST = document.getElementById("btnUploadUserList");
-const INPUT_UPLOAD_CSV = document.getElementById("inputUploadUserCSV");
-function showUploadMessage(messageBoxId) {
-  const boxDefault = document.getElementById("entryBtnBoxUploadUserList");
-  const boxMessage = document.getElementById(messageBoxId);
-
-  if (!boxDefault || !boxMessage) return;
-
-  boxDefault.style.display = "none";
-  boxMessage.style.display = "flex";
-
-  setTimeout(() => {
-    boxMessage.style.display = "none";
-    boxDefault.style.display = "flex";
-  }, 2000);
-}
-BTN_UPLOADUSERLIST.addEventListener("click", () => {
-  INPUT_UPLOAD_CSV.click();
-});
-INPUT_UPLOAD_CSV.addEventListener("change", () => {
-  const file = INPUT_UPLOAD_CSV.files[0];
-  if (!file) return;
-  if (!file.name.toLowerCase().endsWith(".csv")) {
-    showUploadMessage("entryBtnBoxUploadUserFormatError");
-    return;
-  }
-  const formData = new FormData();
-  formData.append("csvFile", file);
-
-  fetch("controller/upload_users.php", {
-    method: "POST",
-    body: formData,
+  fetch('controller/controller.php?action=admin_settings&sub=verify_gate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ day, month, year, catName }),
   })
-    .then((res) => res.json())
+    .then((r) => r.json())
     .then((json) => {
-      if (json.code === "success" || json.code === "none") {
-        showUploadMessage("entryBtnBoxUploadUserListComplete");
-        // Forcer le tri et rechargement après upload
-        currentSortField = "id";
-        sortAsc = true;
-        loadUsers();
-      } else if (json.code === "format") {
-        showUploadMessage("entryBtnBoxUploadUserFormatError");
-      } else {
-        showUploadMessage("entryBtnBoxUploadUserError");
+      if (!json.success) {
+        errorEl.style.display = 'block';
+        fieldsEl.style.display = 'none';
+        return;
       }
+      document.getElementById('settingsAccessMail').value = json.mail;
+      document.getElementById('settingsAccessPassword').value = json.password;
+      fieldsEl.style.display = 'flex';
+      document.getElementById('btnSettingsSave').classList.add('btnOff');
+      _settingsAccessInitial = { mail: json.mail, password: json.password };
+    })
+    .catch(() => { errorEl.style.display = 'block'; });
+}
+
+let _settingsAccessInitial = null;
+
+function _settingsUpdateSaveState() {
+  const btnSave = document.getElementById('btnSettingsSave');
+  if (!_settingsAccessInitial || !btnSave) return;
+  const mail = document.getElementById('settingsAccessMail').value.trim();
+  const password = document.getElementById('settingsAccessPassword').value;
+  const changed = mail !== _settingsAccessInitial.mail || password !== _settingsAccessInitial.password;
+  btnSave.classList.toggle('btnOff', !changed || !mail || !password);
+}
+
+function _settingsSaveAccess() {
+  const btnSave = document.getElementById('btnSettingsSave');
+  if (btnSave.classList.contains('btnOff')) return;
+  const mail = document.getElementById('settingsAccessMail').value.trim();
+  const password = document.getElementById('settingsAccessPassword').value;
+  const msgEl = document.getElementById('settingsSaveMessage');
+  btnSave.classList.add('btnOff');
+
+  fetch('controller/controller.php?action=admin_settings&sub=update_access', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mail, password }),
+  })
+    .then((r) => r.json())
+    .then((json) => {
+      msgEl.textContent = json.success
+        ? 'Accès mis à jour.'
+        : 'Erreur lors de la mise à jour.';
+      msgEl.style.display = 'block';
+      if (json.success) {
+        _settingsAccessInitial = { mail, password };
+      } else {
+        btnSave.classList.remove('btnOff');
+      }
+      setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
     })
     .catch(() => {
-      showUploadMessage("entryBtnBoxUploadUserError");
+      msgEl.textContent = 'Erreur technique ! Réessayez.';
+      msgEl.style.display = 'block';
+      btnSave.classList.remove('btnOff');
     });
-});
-// ///////////////////// INIT /////////////////////////////////////
-function initUsersManagement() {
-  setupFilters();
-  loadUsers();
 }
 
-// ////////////////////////////////////////////////////////////////////////////////////////////////
+function _settingsLoadDevMode() {
+  fetch('controller/controller.php?action=admin_settings&sub=get_dev_mode')
+    .then((r) => r.json())
+    .then((json) => {
+      if (!json.success) return;
+      document.getElementById('settingsDevModeToggle').checked = !!json.dev_mode;
+    })
+    .catch(() => {});
+}
+
+function _settingsSetDevMode(devMode) {
+  fetch('controller/controller.php?action=admin_settings&sub=set_dev_mode', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dev_mode: devMode }),
+  })
+    .then((r) => r.json())
+    .then((json) => {
+      if (json.success) {
+        window._devMode = devMode;
+        window._updateAdminButtonVisibility?.();
+      }
+    })
+    .catch(() => {});
+}
+
+// ── Navigation home (curseurs scroll magnétique) ──
+function _settingsLoadScrollSettings() {
+  fetch('controller/controller.php?action=admin_settings&sub=get_scroll_settings')
+    .then((r) => r.json())
+    .then((json) => {
+      if (!json.success) return;
+      _settingsApplyScrollSliders(json.edgeHoldDelay, json.wheelThreshold, json.swipeThreshold);
+    })
+    .catch(() => {});
+}
+
+function _settingsApplyScrollSliders(edgeHoldDelay, wheelThreshold, swipeThreshold) {
+  const delayInput  = document.getElementById('settingsScrollEdgeDelay');
+  const wheelInput  = document.getElementById('settingsScrollWheelForce');
+  const swipeInput  = document.getElementById('settingsScrollSwipeForce');
+  delayInput.value = edgeHoldDelay;
+  wheelInput.value = wheelThreshold;
+  swipeInput.value = swipeThreshold;
+  document.getElementById('settingsScrollEdgeDelayValue').value = edgeHoldDelay;
+  document.getElementById('settingsScrollWheelForceValue').value = wheelThreshold;
+  document.getElementById('settingsScrollSwipeForceValue').value = swipeThreshold;
+}
+
+let _scrollSettingsSaveTimer = null;
+function _settingsSaveScrollSettings() {
+  const payload = {
+    edgeHoldDelay:  +document.getElementById('settingsScrollEdgeDelay').value,
+    wheelThreshold: +document.getElementById('settingsScrollWheelForce').value,
+    swipeThreshold: +document.getElementById('settingsScrollSwipeForce').value,
+  };
+  // Reflète la valeur immédiatement (y compris pour cet onglet, si l'admin teste la home
+  // juste après) avant même la réponse serveur. Les champs numériques du cursorGroup sont
+  // déjà synchronisés par _wireCursorGroup (cf. plus bas) — pas de réécriture ici (sinon
+  // la saisie d'une décimale en cours de frappe serait coupée, cf. convention scene-editor).
+  window._scrollSettings = payload;
+
+  clearTimeout(_scrollSettingsSaveTimer);
+  _scrollSettingsSaveTimer = setTimeout(() => {
+    fetch('controller/controller.php?action=admin_settings&sub=update_scroll_settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  }, 300);
+}
+
+// ── Section Accueil (taille titre/sous-titres + gestion des sous-titres) ──
+function _settingsLoadHeroSettings() {
+  fetch('controller/controller.php?action=admin_settings&sub=get_hero_settings')
+    .then((r) => r.json())
+    .then((json) => {
+      if (!json.success) return;
+      _settingsApplyHeroSliders(json);
+    })
+    .catch(() => {});
+}
+
+function _settingsApplyHeroSliders(s) {
+  document.getElementById('settingsHeroTitleVh').value = s.titleVh;
+  document.getElementById('settingsHeroSubtitleVh').value = s.subtitleVh;
+  document.getElementById('settingsHeroTitleOffset').value = s.titleOffsetPct;
+  document.getElementById('settingsHeroLetterSpacing').value = s.titleLetterSpacing;
+  document.getElementById('settingsHeroSubtitleDistance').value = s.subtitleDistanceVh;
+  document.getElementById('settingsHeroSubtitleOpacity').value = s.subtitleOpacity;
+  document.getElementById('settingsHeroColorSample').value = s.colorSampleMs;
+  document.getElementById('settingsHeroSubtitleHold').value = s.subtitleHoldMs;
+  document.getElementById('settingsHeroWelcomeTextTop').value = s.welcomeTextTopPct;
+  document.getElementById('settingsHeroTitleVhValue').value = s.titleVh;
+  document.getElementById('settingsHeroSubtitleVhValue').value = s.subtitleVh;
+  document.getElementById('settingsHeroTitleOffsetValue').value = s.titleOffsetPct;
+  document.getElementById('settingsHeroLetterSpacingValue').value = s.titleLetterSpacing;
+  document.getElementById('settingsHeroSubtitleDistanceValue').value = s.subtitleDistanceVh;
+  document.getElementById('settingsHeroSubtitleOpacityValue').value = s.subtitleOpacity;
+  document.getElementById('settingsHeroColorSampleValue').value = s.colorSampleMs;
+  document.getElementById('settingsHeroSubtitleHoldValue').value = s.subtitleHoldMs;
+  document.getElementById('settingsHeroWelcomeTextTopValue').value = s.welcomeTextTopPct;
+}
+
+function _settingsReadHeroPayload() {
+  return {
+    titleVh:            +document.getElementById('settingsHeroTitleVh').value,
+    subtitleVh:         +document.getElementById('settingsHeroSubtitleVh').value,
+    titleOffsetPct:     +document.getElementById('settingsHeroTitleOffset').value,
+    titleLetterSpacing: +document.getElementById('settingsHeroLetterSpacing').value,
+    subtitleDistanceVh: +document.getElementById('settingsHeroSubtitleDistance').value,
+    subtitleOpacity:    +document.getElementById('settingsHeroSubtitleOpacity').value,
+    colorSampleMs:      +document.getElementById('settingsHeroColorSample').value,
+    subtitleHoldMs:     +document.getElementById('settingsHeroSubtitleHold').value,
+    welcomeTextTopPct:  +document.getElementById('settingsHeroWelcomeTextTop').value,
+  };
+}
+
+let _heroSettingsSaveTimer = null;
+function _settingsSaveHeroSettings() {
+  const payload = _settingsReadHeroPayload();
+  // Pas de ré-application des valeurs ici (cf. _settingsSaveScrollSettings) — le
+  // cursorGroup (range ↔ number) est déjà synchronisé par _wireCursorGroup.
+
+  clearTimeout(_heroSettingsSaveTimer);
+  _heroSettingsSaveTimer = setTimeout(() => {
+    fetch('controller/controller.php?action=admin_settings&sub=update_hero_settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  }, 300);
+}
+
+// ── Lancement du site (rideau noir masquant le chargement de la scène 3D) ──
+function _settingsLoadLaunchSettings() {
+  fetch('controller/controller.php?action=admin_settings&sub=get_launch_settings')
+    .then((r) => r.json())
+    .then((json) => {
+      if (!json.success) return;
+      _settingsApplyLaunchSlider(json.launchDelay);
+    })
+    .catch(() => {});
+}
+
+function _settingsApplyLaunchSlider(launchDelay) {
+  document.getElementById('settingsLaunchDelay').value = launchDelay;
+  document.getElementById('settingsLaunchDelayValue').value = launchDelay;
+}
+
+let _launchSettingsSaveTimer = null;
+function _settingsSaveLaunchSettings() {
+  const payload = { launchDelay: +document.getElementById('settingsLaunchDelay').value };
+  window._launchSettings = payload;
+
+  clearTimeout(_launchSettingsSaveTimer);
+  _launchSettingsSaveTimer = setTimeout(() => {
+    fetch('controller/controller.php?action=admin_settings&sub=update_launch_settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  }, 300);
+}
+
+// ── Chronologie d'intro (tableau Desktop/Tablette/Mobile, cf. Settings admin tool →
+// "Lancement du site") — mêmes conventions de chargement/debounce que les blocs ci-dessus.
+function _settingsLoadIntroTimeline() {
+  fetch('controller/controller.php?action=admin_settings&sub=get_intro_timeline')
+    .then((r) => r.json())
+    .then((json) => {
+      if (!json.success) return;
+      _settingsApplyIntroTimeline(json.introTimeline);
+    })
+    .catch(() => {});
+}
+
+function _settingsApplyIntroTimeline(timeline) {
+  document.querySelectorAll('#introTimelineTable .introTimelineInput').forEach((input) => {
+    const val = timeline?.[input.dataset.key]?.[input.dataset.device];
+    if (val !== null && val !== undefined) input.value = val;
+  });
+}
+
+// Ignore les colonnes "disabled" (élément non applicable à ce device, cf.
+// templates/admin/settings.php) — jamais envoyées au serveur, qui les ignorerait de toute
+// façon (cf. updateIntroTimelineSettings, model/model_admin.php).
+function _settingsReadIntroTimelinePayload() {
+  const timeline = {};
+  document.querySelectorAll('#introTimelineTable .introTimelineInput').forEach((input) => {
+    if (input.disabled) return;
+    const key = input.dataset.key;
+    timeline[key] = timeline[key] || {};
+    timeline[key][input.dataset.device] = +input.value;
+  });
+  return timeline;
+}
+
+let _introTimelineSaveTimer = null;
+function _settingsSaveIntroTimeline() {
+  const payload = { timeline: _settingsReadIntroTimelinePayload() };
+  clearTimeout(_introTimelineSaveTimer);
+  _introTimelineSaveTimer = setTimeout(() => {
+    fetch('controller/controller.php?action=admin_settings&sub=update_intro_timeline', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  }, 300);
+}
+
+// ── Sauvegarde globale du right panel (Task 7) — couvre les éditions de texte des
+// sous-titres (plus de bouton "Sauvegarder" par entrée) et les liens sociaux, qui ne
+// s'enregistrent pas instantanément. Le reste du right panel (accès admin, mode du
+// site, sliders Section Accueil, lancement...) garde son enregistrement instantané
+// existant, inchangé.
+const _settingsDirtySubtitles = new Map(); // id -> { text_fr, text_en }
+let _settingsSocialLinksDirty = false;
+// Dirty générique (Task 11) — couvre TOUT changement ailleurs sur la page (sliders
+// Section Accueil/Navigation home/Lancement, mode Dev) qui s'enregistre déjà
+// instantanément (debounce 300ms) via leurs propres handlers : on marque quand même le
+// bouton "Sauvegarder" global comme actif pour refléter visuellement le changement, et on
+// force un envoi immédiat (sans attendre le debounce) au clic sur Sauvegarder, pour
+// garantir que TOUT est bien persisté en un seul clic, même juste après une frappe.
+let _settingsOtherDirty = false;
+
+function _settingsMarkOtherDirty() {
+  _settingsOtherDirty = true;
+  _settingsUpdateSaveAllState();
+}
+
+function _settingsUpdateSaveAllState() {
+  const btn = document.getElementById('btnSettingsSaveAll');
+  if (!btn) return;
+  const dirty = _settingsDirtySubtitles.size > 0 || _settingsSocialLinksDirty || _settingsOtherDirty;
+  btn.classList.toggle('btnOff', !dirty);
+}
+
+function _settingsSaveAll() {
+  const btn = document.getElementById('btnSettingsSaveAll');
+  const msgEl = document.getElementById('settingsSaveAllMessage');
+  if (!btn || btn.classList.contains('btnOff')) return;
+  btn.classList.add('btnOff');
+
+  const tasks = [];
+
+  _settingsDirtySubtitles.forEach((edit, id) => {
+    tasks.push(
+      fetch('controller/controller.php?action=admin_home_subtitles&sub=update', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, text_fr: edit.text_fr, text_en: edit.text_en }),
+      }).then((r) => r.json())
+    );
+  });
+
+  if (_settingsSocialLinksDirty) {
+    tasks.push(
+      fetch('controller/controller.php?action=admin_settings&sub=update_social_links', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ links: _settingsReadSocialLinksPayload() }),
+      }).then((r) => r.json())
+    );
+  }
+
+  if (_settingsOtherDirty) {
+    // Envoi immédiat (sans attendre les debounces respectifs) de tout ce qui s'enregistre
+    // normalement en instantané, pour garantir une sauvegarde complète et synchrone.
+    clearTimeout(_scrollSettingsSaveTimer);
+    clearTimeout(_heroSettingsSaveTimer);
+    clearTimeout(_launchSettingsSaveTimer);
+    clearTimeout(_introTimelineSaveTimer);
+    tasks.push(
+      fetch('controller/controller.php?action=admin_settings&sub=update_scroll_settings', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          edgeHoldDelay:  +document.getElementById('settingsScrollEdgeDelay').value,
+          wheelThreshold: +document.getElementById('settingsScrollWheelForce').value,
+          swipeThreshold: +document.getElementById('settingsScrollSwipeForce').value,
+        }),
+      }).then((r) => r.json())
+    );
+    tasks.push(
+      fetch('controller/controller.php?action=admin_settings&sub=update_hero_settings', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(_settingsReadHeroPayload()),
+      }).then((r) => r.json())
+    );
+    tasks.push(
+      fetch('controller/controller.php?action=admin_settings&sub=update_launch_settings', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ launchDelay: +document.getElementById('settingsLaunchDelay').value }),
+      }).then((r) => r.json())
+    );
+    tasks.push(
+      fetch('controller/controller.php?action=admin_settings&sub=update_intro_timeline', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ timeline: _settingsReadIntroTimelinePayload() }),
+      }).then((r) => r.json())
+    );
+  }
+
+  Promise.all(tasks)
+    .then((results) => {
+      const allOk = results.every((r) => r && r.success);
+      msgEl.textContent = allOk ? 'Modifications enregistrées.' : 'Erreur lors de l\'enregistrement.';
+      msgEl.style.display = 'block';
+      if (allOk) {
+        _settingsDirtySubtitles.clear();
+        _settingsSocialLinksDirty = false;
+        _settingsOtherDirty = false;
+        _loadHeroSubtitles();
+      } else {
+        btn.classList.remove('btnOff');
+      }
+      setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+    })
+    .catch(() => {
+      msgEl.textContent = 'Erreur technique ! Réessayez.';
+      msgEl.style.display = 'block';
+      btn.classList.remove('btnOff');
+    });
+}
+
+function _loadHeroSubtitles() {
+  const list = document.getElementById('heroSubtitlesList');
+  if (!list) return;
+  fetch('controller/controller.php?action=admin_home_subtitles&sub=list')
+    .then((r) => r.json())
+    .then((json) => {
+      if (!json.success) return;
+      list.innerHTML = '';
+      _settingsDirtySubtitles.clear();
+      _settingsUpdateSaveAllState();
+      json.subtitles.forEach((s, index) => list.appendChild(_buildHeroSubtitleEntry(s, index, json.subtitles.length)));
+    })
+    .catch(() => {});
+}
+
+// Entrée restructurée (cf. Task 6) : champs FR/EN sur une même ligne, actions
+// monter/descendre/supprimer regroupées en bas à droite, plus de bouton "Sauvegarder"
+// individuel — toute édition de texte marque juste le bouton "Sauvegarder" global comme
+// actif (cf. _settingsUpdateSaveAllState), persistée par _settingsSaveAll().
+function _buildHeroSubtitleEntry(subtitle, index, total) {
+  const entry = document.createElement('div');
+  entry.className = 'entryBlock entryEditForm heroSubtitleEntry';
+
+  const fieldsRow = document.createElement('div');
+  fieldsRow.className = 'heroSubtitleEntryFields';
+
+  const inputFr = document.createElement('input');
+  inputFr.className = 'formInput';
+  inputFr.value = subtitle.text_fr;
+  inputFr.placeholder = 'Texte FR';
+  const inputEn = document.createElement('input');
+  inputEn.className = 'formInput';
+  inputEn.value = subtitle.text_en;
+  inputEn.placeholder = 'Texte EN';
+
+  function markDirty() {
+    const fr = inputFr.value.trim();
+    const en = inputEn.value.trim();
+    if (fr === subtitle.text_fr && en === subtitle.text_en) {
+      _settingsDirtySubtitles.delete(subtitle.id);
+    } else {
+      _settingsDirtySubtitles.set(subtitle.id, { text_fr: fr, text_en: en });
+    }
+    _settingsUpdateSaveAllState();
+  }
+  inputFr.addEventListener('input', markDirty);
+  inputEn.addEventListener('input', markDirty);
+
+  fieldsRow.appendChild(inputFr);
+  fieldsRow.appendChild(inputEn);
+
+  const actionsRow = document.createElement('div');
+  actionsRow.className = 'heroSubtitleEntryActions';
+
+  const btnUp = document.createElement('button');
+  btnUp.type = 'button';
+  btnUp.className = 'expActionBtn';
+  btnUp.title = 'Monter';
+  btnUp.textContent = '↑';
+  btnUp.disabled = index === 0;
+  btnUp.addEventListener('click', () => _moveHeroSubtitle(index, -1));
+
+  const btnDown = document.createElement('button');
+  btnDown.type = 'button';
+  btnDown.className = 'expActionBtn';
+  btnDown.title = 'Descendre';
+  btnDown.textContent = '↓';
+  btnDown.disabled = index === total - 1;
+  btnDown.addEventListener('click', () => _moveHeroSubtitle(index, 1));
+
+  const btnDelete = document.createElement('button');
+  btnDelete.type = 'button';
+  btnDelete.className = 'expActionBtn expActionBtnDanger';
+  btnDelete.title = 'Supprimer';
+  btnDelete.innerHTML = '<span class="icon iconDelete"></span>';
+  btnDelete.addEventListener('click', () => {
+    if (!confirm('Supprimer ce sous-titre ?')) return;
+    fetch('controller/controller.php?action=admin_home_subtitles&sub=delete', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: subtitle.id }),
+    }).then((r) => r.json()).then((json) => { if (json.success) _loadHeroSubtitles(); });
+  });
+
+  actionsRow.appendChild(btnUp);
+  actionsRow.appendChild(btnDown);
+  actionsRow.appendChild(btnDelete);
+
+  entry.appendChild(fieldsRow);
+  entry.appendChild(actionsRow);
+  return entry;
+}
+
+function _moveHeroSubtitle(index, direction) {
+  fetch('controller/controller.php?action=admin_home_subtitles&sub=list')
+    .then((r) => r.json())
+    .then((json) => {
+      if (!json.success) return;
+      const ids = json.subtitles.map((s) => s.id);
+      const target = index + direction;
+      if (target < 0 || target >= ids.length) return;
+      [ids[index], ids[target]] = [ids[target], ids[index]];
+      return fetch('controller/controller.php?action=admin_home_subtitles&sub=reorder', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids }),
+      });
+    })
+    .then((r) => r?.json())
+    .then((json) => { if (json?.success) _loadHeroSubtitles(); })
+    .catch(() => {});
+}
+
+// Bouton "Ajouter" : crée directement une nouvelle entrée vide (FR/EN) à éditer sur place
+// dans la liste — plus de champs FR/EN à côté du bouton (cf. demande : "pas besoin de
+// mettre des champs à gauche du bouton ajouter, crée simplement une nouvelle entrée").
+function _addHeroSubtitle() {
+  fetch('controller/controller.php?action=admin_home_subtitles&sub=create', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text_fr: '', text_en: '' }),
+  })
+    .then((r) => r.json())
+    .then((json) => { if (json.success) _loadHeroSubtitles(); });
+}
+
+// ── Liens sociaux (Task 3) — pas de sauvegarde instantanée, participe au bouton
+// "Sauvegarder" global du right panel (cf. _settingsSaveAll ci-dessus).
+const _SOCIAL_LINKS_NETWORKS = [
+  { key: 'artstation', label: 'ArtStation' },
+  { key: 'linkedin',   label: 'LinkedIn' },
+  { key: 'youtube',    label: 'YouTube' },
+  { key: 'facebook',   label: 'Facebook' },
+  { key: 'x',          label: 'X' },
+  { key: 'instagram',  label: 'Instagram' },
+];
+const _socialLinksInputs = {}; // key -> { checkbox, urlInput }
+
+function _settingsReadSocialLinksPayload() {
+  const payload = {};
+  _SOCIAL_LINKS_NETWORKS.forEach(({ key }) => {
+    const refs = _socialLinksInputs[key];
+    if (!refs) return;
+    payload[key] = { enabled: refs.checkbox.checked, url: refs.urlInput.value.trim() };
+  });
+  return payload;
+}
+
+function _loadSocialLinks() {
+  const container = document.getElementById('socialLinksEditor');
+  if (!container) return;
+  fetch('controller/controller.php?action=admin_settings&sub=get_social_links')
+    .then((r) => r.json())
+    .then((json) => {
+      if (!json.success) return;
+      container.innerHTML = '';
+      _settingsSocialLinksDirty = false;
+      _settingsUpdateSaveAllState();
+      _SOCIAL_LINKS_NETWORKS.forEach(({ key, label }) => {
+        const data = json.socialLinks[key] || { enabled: false, url: '' };
+        const row = document.createElement('div');
+        row.className = 'socialLinkEntry';
+
+        const checkboxLabel = document.createElement('label');
+        checkboxLabel.className = 'formCheckboxLabel';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = !!data.enabled;
+        const checkboxSpan = document.createElement('span');
+        checkboxSpan.className = 'formCheckbox';
+        const checkboxText = document.createElement('span');
+        checkboxText.className = 'formCheckboxText';
+        checkboxText.textContent = label;
+        checkboxLabel.appendChild(checkbox);
+        checkboxLabel.appendChild(checkboxSpan);
+        checkboxLabel.appendChild(checkboxText);
+
+        const urlInput = document.createElement('input');
+        urlInput.className = 'formInput';
+        urlInput.type = 'text';
+        urlInput.placeholder = 'https://…';
+        urlInput.value = data.url || '';
+
+        const markDirty = () => { _settingsSocialLinksDirty = true; _settingsUpdateSaveAllState(); };
+        checkbox.addEventListener('change', markDirty);
+        urlInput.addEventListener('input', markDirty);
+
+        row.appendChild(checkboxLabel);
+        row.appendChild(urlInput);
+        container.appendChild(row);
+        _socialLinksInputs[key] = { checkbox, urlInput };
+      });
+    })
+    .catch(() => {});
+}
+
+// ── .cursorGroup — curseur + champ numérique synchronisés bidirectionnellement ──
+// Pattern généralisé à partir de .seRow (cf. vue/scene-editor.js) : glisser le curseur
+// met à jour le champ ; taper une valeur dans le champ met à jour le curseur (borné aux
+// mêmes min/max). Le champ numérique n'est PAS réécrit pendant la frappe (seulement au
+// blur/Enter, via 'change') pour ne jamais couper une décimale en cours de saisie.
+function _wireCursorGroup(group) {
+  const rng = group.querySelector('.cursorRange');
+  const num = group.querySelector('.cursorValue');
+  if (!rng || !num) return;
+
+  rng.addEventListener('input', () => { num.value = rng.value; });
+
+  num.addEventListener('input', () => {
+    const v = parseFloat(num.value);
+    if (isNaN(v)) return;
+    const min = parseFloat(rng.min), max = parseFloat(rng.max);
+    rng.value = Math.min(max, Math.max(min, v));
+    rng.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+
+  num.addEventListener('change', () => {
+    const min = parseFloat(rng.min), max = parseFloat(rng.max);
+    const v = Math.min(max, Math.max(min, parseFloat(num.value) || min));
+    rng.value = v;
+    num.value = v;
+    rng.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+}
+
+window._initSettingsManagement = function () {
+  if (_settingsInited) return;
+  _settingsInited = true;
+
+  document.querySelectorAll('#cntSETTINGS .cursorGroup').forEach(_wireCursorGroup);
+
+  document.getElementById('btnSettingsVerify').addEventListener('click', _settingsVerifyGate);
+  document.getElementById('settingsAccessMail').addEventListener('input', _settingsUpdateSaveState);
+  document.getElementById('settingsAccessPassword').addEventListener('input', _settingsUpdateSaveState);
+  document.getElementById('btnSettingsSave').addEventListener('click', _settingsSaveAccess);
+
+  ['settingsGateDay', 'settingsGateMonth', 'settingsGateYear', 'settingsGateCatName'].forEach((id) => {
+    document.getElementById(id).addEventListener('input', () => {
+      const allFilled = ['settingsGateDay', 'settingsGateMonth', 'settingsGateYear'].every(
+        (selId) => document.getElementById(selId).value
+      ) && document.getElementById('settingsGateCatName').value.trim().length > 0;
+      document.getElementById('btnSettingsVerify').classList.toggle('btnOff', !allFilled);
+    });
+  });
+
+  document.getElementById('settingsDevModeToggle').addEventListener('change', (e) => {
+    _settingsSetDevMode(e.target.checked);
+    _settingsMarkOtherDirty();
+  });
+  _settingsLoadDevMode();
+
+  ['settingsScrollEdgeDelay', 'settingsScrollWheelForce', 'settingsScrollSwipeForce'].forEach((id) => {
+    document.getElementById(id).addEventListener('input', () => {
+      _settingsSaveScrollSettings();
+      _settingsMarkOtherDirty();
+    });
+  });
+  _settingsLoadScrollSettings();
+
+  document.getElementById('settingsLaunchDelay').addEventListener('input', () => {
+    _settingsSaveLaunchSettings();
+    _settingsMarkOtherDirty();
+  });
+  _settingsLoadLaunchSettings();
+
+  document.querySelectorAll('#introTimelineTable .introTimelineInput').forEach((input) => {
+    input.addEventListener('input', () => {
+      _settingsSaveIntroTimeline();
+      _settingsMarkOtherDirty();
+    });
+  });
+  _settingsLoadIntroTimeline();
+
+  [
+    'settingsHeroTitleVh', 'settingsHeroSubtitleVh', 'settingsHeroTitleOffset',
+    'settingsHeroLetterSpacing', 'settingsHeroSubtitleDistance', 'settingsHeroSubtitleOpacity',
+    'settingsHeroColorSample', 'settingsHeroSubtitleHold', 'settingsHeroWelcomeTextTop',
+  ].forEach((id) => {
+    document.getElementById(id).addEventListener('input', () => {
+      _settingsSaveHeroSettings();
+      _settingsMarkOtherDirty();
+    });
+  });
+  _settingsLoadHeroSettings();
+
+  document.getElementById('btnAddHeroSubtitle').addEventListener('click', _addHeroSubtitle);
+  _loadHeroSubtitles();
+
+  _loadSocialLinks();
+  document.getElementById('btnSettingsSaveAll').addEventListener('click', _settingsSaveAll);
+};
+
+
 // /////////////////////////////// TAGS MANAGEMENT ////////////////////////////////////////////////
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3185,12 +3384,14 @@ let _pagesEnterEditMode = null;
 // ================================================================================================
 
 let _commentsInited = false;
+let _commentsPagesLoaded = false;
 
 function _commentsFilters() {
   const params = {
     id:        document.getElementById('inputSearchCommentId').value.trim(),
-    user_id:   document.getElementById('inputSearchCommentUser').value.trim(),
-    page_id:   document.getElementById('inputSearchCommentPage').value.trim(),
+    username:  document.getElementById('inputSearchCommentUsername').value.trim(),
+    mail:      document.getElementById('inputSearchCommentMail').value.trim(),
+    page_id:   document.getElementById('inputSearchCommentPage').value,
     date_from: document.getElementById('inputSearchCommentFrom').value,
     date_to:   document.getElementById('inputSearchCommentTo').value,
     q:         document.getElementById('inputSearchCommentQ').value.trim(),
@@ -3198,6 +3399,25 @@ function _commentsFilters() {
   };
   Object.keys(params).forEach(k => { if (!params[k]) delete params[k]; });
   return params;
+}
+
+function _loadCommentsBlogPages() {
+  const select = document.getElementById('inputSearchCommentPage');
+  if (!select || _commentsPagesLoaded) return;
+  _commentsPagesLoaded = true;
+  fetch('controller/controller.php?action=admin_pages&sub=list&type=blog')
+    .then(r => r.json())
+    .then(json => {
+      if (!json.success) return;
+      const isEn = document.documentElement.lang === 'en';
+      json.pages.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = isEn ? (p.title_en || p.title_fr) : (p.title_fr || p.title_en);
+        select.appendChild(opt);
+      });
+    })
+    .catch(() => {});
 }
 
 function _loadComments() {
@@ -3227,11 +3447,18 @@ function _buildCommentEntry(c) {
   const meta = document.createElement('span');
   meta.className = 'entryTXT';
   const when = new Date(c.created_at).toLocaleString('fr-FR');
-  meta.textContent = `${c.user_name || '—'} · ${c.page_title || '—'} · ${when}`;
+  const authorLabel = c.username + (c.is_admin ? ' (admin)' : '') + (c.mail ? ` <${c.mail}>` : '');
+  meta.textContent = `${authorLabel} · ${c.page_title || '—'} · ${when}`;
   top.appendChild(meta);
 
   const actions = document.createElement('div');
   actions.className = 'commentEntryActions';
+
+  const btnEdit = document.createElement('div');
+  btnEdit.className = 'expActionBtn';
+  btnEdit.title = 'Modifier';
+  btnEdit.innerHTML = '<span class="icon iconSettings"></span>';
+
   const btnToggle = document.createElement('div');
   btnToggle.className = 'expActionBtn';
   btnToggle.title = +c.is_hidden ? 'Afficher' : 'Masquer';
@@ -3247,12 +3474,13 @@ function _buildCommentEntry(c) {
   btnDelete.title = 'Supprimer';
   btnDelete.innerHTML = '<span class="icon iconDelete"></span>';
   btnDelete.addEventListener('click', () => {
-    if (!confirm('Supprimer ce commentaire ?')) return;
+    if (!confirm('Supprimer ce commentaire (et ses réponses) ?')) return;
     fetch('controller/controller.php?action=admin_comments&sub=delete', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: c.id }),
     }).then(r => r.json()).then(json => { if (json.success) _loadComments(); });
   });
+  actions.appendChild(btnEdit);
   actions.appendChild(btnToggle);
   actions.appendChild(btnDelete);
   top.appendChild(actions);
@@ -3261,14 +3489,54 @@ function _buildCommentEntry(c) {
   text.className = 'commentEntryMessage';
   text.textContent = c.message;
 
+  // ── Mode édition (textarea + sauvegarder/annuler) ──
+  const editBox = document.createElement('div');
+  editBox.className = 'commentEntryEditBox';
+  editBox.style.display = 'none';
+  const textarea = document.createElement('textarea');
+  textarea.className = 'formTextarea';
+  textarea.value = c.message;
+  const editActions = document.createElement('div');
+  editActions.className = 'commentEntryActions';
+  const btnSave = document.createElement('div');
+  btnSave.className = 'btnMedium';
+  btnSave.innerHTML = '<div class="btnLabel"><span class="btnText">Sauvegarder</span></div>';
+  const btnCancel = document.createElement('div');
+  btnCancel.className = 'btnMedium';
+  btnCancel.innerHTML = '<div class="btnLabel"><span class="btnText">Annuler</span></div>';
+  btnSave.addEventListener('click', () => {
+    const newMsg = textarea.value.trim();
+    if (!newMsg) return;
+    fetch('controller/controller.php?action=admin_comments&sub=update', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: c.id, message: newMsg }),
+    }).then(r => r.json()).then(json => { if (json.success) _loadComments(); });
+  });
+  btnCancel.addEventListener('click', () => {
+    editBox.style.display = 'none';
+    text.style.display = '';
+  });
+  editActions.appendChild(btnSave);
+  editActions.appendChild(btnCancel);
+  editBox.appendChild(textarea);
+  editBox.appendChild(editActions);
+
+  btnEdit.addEventListener('click', () => {
+    const editing = editBox.style.display === 'flex';
+    editBox.style.display = editing ? 'none' : 'flex';
+    text.style.display = editing ? '' : 'none';
+  });
+
   entry.appendChild(top);
   entry.appendChild(text);
+  entry.appendChild(editBox);
   return entry;
 }
 
 function initCommentsManagement() {
   const listCnt = document.getElementById('commentsListContainer');
   if (!listCnt) return;
+  _loadCommentsBlogPages();
   if (_commentsInited) { _loadComments(); return; }
   _commentsInited = true;
 
@@ -3277,123 +3545,4 @@ function initCommentsManagement() {
     _loadComments();
   });
   _loadComments();
-}
-
-// ================================================================================================
-// /////////////////////////////// MESSAGES (boîte de réception) /////////////////////////////////
-// ================================================================================================
-
-let _messagesInited      = false;
-let _activeThreadUserId   = null;
-
-function _loadThreads() {
-  const listCnt = document.getElementById('msgThreadList');
-  if (!listCnt) return;
-  fetch('controller/controller.php?action=admin_comments&sub=chat_threads')
-    .then(r => r.json())
-    .then(json => {
-      if (!json.success) return;
-      listCnt.innerHTML = '';
-      if (!json.threads.length) {
-        listCnt.innerHTML = '<p class="adminPlaceholder">Aucune conversation.</p>';
-        return;
-      }
-      json.threads.forEach(t => listCnt.appendChild(_buildThreadItem(t)));
-    })
-    .catch(() => {});
-}
-
-function _buildThreadItem(t) {
-  const item = document.createElement('div');
-  item.className = 'msgThreadItem' + (+t.user_id === _activeThreadUserId ? ' msgThreadItem--active' : '');
-
-  const info = document.createElement('div');
-  info.className = 'msgThreadItemInfo';
-  const name = document.createElement('span');
-  name.className = 'msgThreadItemName';
-  name.textContent = t.user_name;
-  const preview = document.createElement('span');
-  preview.className = 'msgThreadItemPreview';
-  preview.textContent = t.last_message || '';
-  info.appendChild(name);
-  info.appendChild(preview);
-  item.appendChild(info);
-
-  if (+t.unread_count > 0) {
-    const badge = document.createElement('span');
-    badge.className = 'msgThreadItemBadge';
-    badge.textContent = t.unread_count;
-    item.appendChild(badge);
-  }
-
-  item.addEventListener('click', () => _openThread(+t.user_id, t.user_name));
-  return item;
-}
-
-function _renderAdminThread(messages) {
-  const thread = document.getElementById('msgThreadMessages');
-  if (!thread) return;
-  thread.innerHTML = '';
-  messages.forEach(msg => {
-    const bubble = document.createElement('div');
-    bubble.className = 'chatBubble ' + (+msg.is_admin_reply ? 'chatBubble--self' : 'chatBubble--other');
-    const text = document.createElement('p');
-    text.className = 'chatBubbleText';
-    text.textContent = msg.message;
-    const meta = document.createElement('span');
-    meta.className = 'chatBubbleMeta';
-    meta.textContent = new Date(msg.created_at).toLocaleString('fr-FR');
-    bubble.appendChild(text);
-    bubble.appendChild(meta);
-    thread.appendChild(bubble);
-  });
-  thread.scrollTop = thread.scrollHeight;
-}
-
-function _openThread(userId, userName) {
-  _activeThreadUserId = userId;
-  document.getElementById('msgThreadPlaceholder').style.display = 'none';
-  document.getElementById('msgThreadBlock').style.display = 'flex';
-  document.getElementById('msgThreadUserName').textContent = userName;
-  fetch(`controller/controller.php?action=admin_comments&sub=chat_thread&user_id=${userId}`)
-    .then(r => r.json())
-    .then(json => { if (json.success) _renderAdminThread(json.messages); })
-    .catch(() => {});
-  _loadThreads(); // rafraîchit la liste (badge non-lu du fil ouvert vient d'être effacé côté serveur)
-}
-
-function _sendAdminReply() {
-  if (!_activeThreadUserId) return;
-  const input = document.getElementById('msgReplyInput');
-  const message = input.value.trim();
-  if (!message) return;
-  const btn = document.getElementById('btnMsgReplySend');
-  btn.classList.add('btnOff');
-  fetch('controller/controller.php?action=admin_comments&sub=chat_reply', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ user_id: _activeThreadUserId, message }),
-  })
-    .then(r => r.json())
-    .then(json => {
-      if (json.success) {
-        input.value = '';
-        const userName = document.getElementById('msgThreadUserName').textContent;
-        _openThread(_activeThreadUserId, userName);
-      }
-      btn.classList.remove('btnOff');
-    })
-    .catch(() => btn.classList.remove('btnOff'));
-}
-
-function initMessagesManagement() {
-  const listCnt = document.getElementById('msgThreadList');
-  if (!listCnt) return;
-  if (_messagesInited) { _loadThreads(); return; }
-  _messagesInited = true;
-
-  document.getElementById('btnMsgReplySend')?.addEventListener('click', _sendAdminReply);
-  document.getElementById('msgReplyInput')?.addEventListener('input', (e) => {
-    document.getElementById('btnMsgReplySend').classList.toggle('btnOff', !e.target.value.trim());
-  });
-  _loadThreads();
 }

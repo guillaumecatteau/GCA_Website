@@ -2,37 +2,31 @@ document.addEventListener("DOMContentLoaded", () => {
   // TITLES
   TL_HOME = document.querySelector(".homeTitle");
   TL_CONNEXION = document.querySelector(".connexionTitle");
-  TL_REGISTER = document.querySelector(".registerTitle");
-  TL_USERPROFILE = document.querySelector(".userProfileTitle");
   TL_ADMINTOOL = document.querySelector(".adminToolTitle");
-  TL_USERSMANAGEMENT = document.querySelector(".usersManagementTitle");
+  TL_SETTINGS = document.querySelector(".settingsTitle");
   TL_SCENEEDITOR = document.querySelector(".sceneEditorTitle");
   TL_TAGS = document.querySelector(".tagsTitle");
   TL_MEDIAS = document.querySelector(".mediasTitle");
   TL_PAGES = document.querySelector(".pagesTitle");
   TL_EXPERIENCES = document.querySelector(".experiencesTitle");
   TL_COMMENTS = document.querySelector(".commentsTitle");
-  TL_MESSAGES = document.querySelector(".messagesTitle");
   TL_ANALYTICS = document.querySelector(".analyticsTitle");
   TL_PAGEVIEW = document.querySelector(".pageViewCategoryTitle");
-  TL_RESETPASSWORD = document.querySelector(".resetPasswordTitle");
+  TL_SEARCH = document.querySelector(".searchTitle");
   // CONTENTS
   CNT_HOME = document.getElementById("cntHOME");
   CNT_CONNEXION = document.getElementById("cntCONNEXION");
-  CNT_REGISTER = document.getElementById("cntREGISTER");
-  CNT_USERPROFILE = document.getElementById("cntUSERPROFILE");
   CNT_ADMINTOOL = document.getElementById("cntADMINTOOL");
-  CNT_USERSMANAGEMENT = document.getElementById("cntUSERSMANAGEMENT");
+  CNT_SETTINGS = document.getElementById("cntSETTINGS");
   CNT_SCENEEDITOR = document.getElementById("cntSCENEEDITOR");
   CNT_TAGS = document.getElementById("cntTAGS");
   CNT_MEDIAS = document.getElementById("cntMEDIAS");
   CNT_PAGES = document.getElementById("cntPAGES");
   CNT_EXPERIENCES = document.getElementById("cntEXPERIENCES");
   CNT_COMMENTS = document.getElementById("cntCOMMENTS");
-  CNT_MESSAGES = document.getElementById("cntMESSAGES");
   CNT_ANALYTICS = document.getElementById("cntANALYTICS");
   CNT_PAGEVIEW = document.getElementById("cntPAGEVIEW");
-  CNT_RESETPASSWORD = document.getElementById("cntRESETPASSWORD");
+  CNT_SEARCH = document.getElementById("cntSEARCH");
   CNT_SECTIONNAV = document.getElementById("sectionNav");
   // BUTTONS & BACKGROUND
   BG_HOME = document.getElementById("backgroundHome");
@@ -83,16 +77,29 @@ function titleHide(title) {
   });
 }
 
-function displayContent(content, delay) {
+function displayContent(content, delay, onDone) {
   const elementContainer = [...content.children].filter(
     (element) => !element.classList.contains("title")
   );
   const elements = elementContainer.flatMap((container) =>
     [...container.children].filter(
-      (child) => child.tagName === "DIV" || child.tagName === "FORM" || child.matches('.btnBackToAdmin, .btnPageBack')
+      (child) =>
+        (child.tagName === "DIV" || child.tagName === "FORM" || child.matches('.btnBackToAdmin, .btnPageBack')) &&
+        // #homeHeroGroup gère lui-même son opacité/position (cf. vue/home-hero.js,
+        // _applyHeroScale()) via un "transform" inline (translate + scale, immunité zoom) —
+        // l'animation CSS moveInBottomFast/moveOutBottomFast remplace ENTIÈREMENT la
+        // propriété "transform" pendant sa durée (comportement standard des keyframes
+        // CSS), écrasant ce centrage/cette échelle et provoquant un saut visuel suivi
+        // d'une disparition au mauvais endroit (cf. bug rapporté). Avant le passage de
+        // .homeTitle/.homeSubtitle en enfants de ce wrapper <div>, ils étaient des <h2>/
+        // <h3> qui ne correspondaient PAS à ce filtre (DIV/FORM uniquement) : exclusion
+        // explicite ici pour restaurer ce même comportement (jamais animé par ce système
+        // générique de transition de page).
+        !child.classList.contains("homeHeroGroup")
     )
   );
   const animationDelay = delay;
+  if (elements.length === 0) { onDone?.(); return; }
   elements.forEach((element, index) => {
     element.classList.remove("moveOutBottomFast");
     element.style.opacity = "0";
@@ -105,6 +112,7 @@ function displayContent(content, delay) {
         () => {
           element.classList.remove("moveInBottomFast");
           element.style.opacity = "1";
+          if (index === elements.length - 1) onDone?.();
         },
         { once: true }
       );
@@ -118,7 +126,10 @@ function hideContent(content, delay) {
   );
   const elements = elementContainer.flatMap((container) =>
     [...container.children].filter(
-      (child) => child.tagName === "DIV" || child.tagName === "FORM" || child.matches('.btnBackToAdmin, .btnPageBack')
+      (child) =>
+        (child.tagName === "DIV" || child.tagName === "FORM" || child.matches('.btnBackToAdmin, .btnPageBack')) &&
+        // cf. displayContent() ci-dessus pour l'explication complète de cette exclusion.
+        !child.classList.contains("homeHeroGroup")
     )
   );
 
@@ -196,6 +207,9 @@ function activatePortfolioSection() {
 function activateBioSection() {
   _activateSectionButtons([BTN_BIO_SECTION_TABLET, BTN_BIO_SECTION_MOBILE], "bio");
 }
+function activateGallerySection() {
+  _activateSectionButtons([BTN_GALLERY_SECTION_TABLET, BTN_GALLERY_SECTION_MOBILE], "gallery");
+}
 function activateBlogSection() {
   _activateSectionButtons([BTN_BLOG_SECTION_TABLET, BTN_BLOG_SECTION_MOBILE], "blog");
 }
@@ -207,15 +221,80 @@ function _homeSectionTitleEl(sectionId) {
   if (!sectionId || sectionId === 'landing') return null;
   return CNT_HOME.querySelector(`.section[data-section="${sectionId}"] > h2.title`);
 }
+// Chargement progressif du contenu dynamique d'une section home — une section n'est
+// chargée que la première fois qu'elle devient active (cf. demande : seule la home/landing
+// est prioritaire au lancement, le reste se charge au fil de la navigation).
+let _bioTimelineLoaded = false;
+let _portfolioCarouselLoaded = false;
+function _ensureHomeSectionLoaded(sectionId) {
+  if (sectionId === 'bio' && !_bioTimelineLoaded) {
+    _bioTimelineLoaded = true;
+    window._loadBioTimeline?.();
+    return;
+  }
+  if (sectionId === 'portfolio' && !_portfolioCarouselLoaded) {
+    _portfolioCarouselLoaded = true;
+    window._initPortfolioCarousel?.();
+    return;
+  }
+  if (sectionId === 'gallery') {
+    window._initGallerySection?.();
+    return;
+  }
+  window._loadHomeCardsForSection?.(sectionId);
+}
+// Bouton actif du menu burger mobile/tablette (section actuellement affichée sur la home) —
+// reçoit le glow externe pulsant (cf. .btnMobile--active / .btnTablet--active,
+// _main-nav.scss). Un seul point de vérité, mis à jour à chaque changement de section (cf.
+// _onSectionChange plus bas) et à l'affichage initial de la home.
+const _MOBILE_SECTION_BTN_MAP = {
+  landing: 'btnHomeMobile',
+  presentation: 'btnPresentationMobile',
+  expertise: 'btnExpertiseMobile',
+  portfolio: 'btnPortfolioSectionMobile',
+  bio: 'btnBioSectionMobile',
+  gallery: 'btnGallerySectionMobile',
+  blog: 'btnBlogSectionMobile',
+  contact: 'btnContactSectionMobile',
+};
+const _TABLET_SECTION_BTN_MAP = {
+  landing: 'btnHomeTablet',
+  presentation: 'btnPresentationTablet',
+  expertise: 'btnExpertiseTablet',
+  portfolio: 'btnPortfolioSectionTablet',
+  bio: 'btnBioSectionTablet',
+  gallery: 'btnGallerySectionTablet',
+  blog: 'btnBlogSectionTablet',
+  contact: 'btnContactSectionTablet',
+};
+function _updateMobileActiveButton(sectionId) {
+  document.querySelectorAll('.btnMobile--active').forEach((b) => b.classList.remove('btnMobile--active'));
+  document.querySelectorAll('.btnTablet--active').forEach((b) => b.classList.remove('btnTablet--active'));
+  const id = _MOBILE_SECTION_BTN_MAP[sectionId];
+  const btn = id && document.getElementById(id);
+  if (btn) btn.classList.add('btnMobile--active');
+  const tabletId = _TABLET_SECTION_BTN_MAP[sectionId];
+  const tabletBtn = tabletId && document.getElementById(tabletId);
+  if (tabletBtn) tabletBtn.classList.add('btnTablet--active');
+}
+// Exposé pour SectionScroller._transition (vue/scroll.js) : l'ancien point d'entrée unique,
+// l'évènement 'sectionChange', ne se déclenche qu'à la TOUTE FIN de la transition de scroll
+// (cf. _dispatchChange, appelé après this.duration) — l'état actif mobile/tablette accusait
+// donc un retard perceptible par rapport au clic, contrairement à l'icône desktop
+// (#sectionNav, mise à jour immédiatement via _updateNav()). Appelé désormais directement et
+// immédiatement depuis _transition(), au même instant que _updateNav() (cf. Interface
+// tablette : "un bouton doit être actif dès qu'on clique dessus").
+window._updateMobileActiveButton = _updateMobileActiveButton;
+
 function displayHome() {
   window.GCABackground?.setPage('home');
   CNT_HOME.style.display = "flex";
   CNT_SECTIONNAV.style.display = "flex";
-  displayContent(CNT_HOME, 50);
-  // Cards dynamiques des sections Expertises / Portfolio / Blog
-  window._loadHomeCards?.();
-  // Timeline Expérience / Formation de la section bio
-  window._loadBioTimeline?.();
+  // Chargement progressif : seule la section réellement affichée (landing en priorité, ou la
+  // section ciblée par un deep-link) déclenche son chargement de contenu dynamique — les autres
+  // ne sont chargées qu'au moment où l'utilisateur les atteint (cf. _ensureHomeSectionLoaded,
+  // branché sur l'évènement 'sectionChange' plus bas). Maximise la vitesse de lancement du site :
+  // seuls l'interface et la section d'accueil sont prioritaires au chargement initial.
   // Formulaire de contact (section Contact) — lié une seule fois, cf. form_validation.js
   window.contactCheck?.();
   // Init du scroll magnétique sur les sections de la home — repositionné
@@ -228,18 +307,33 @@ function displayHome() {
     : 0;
   _homeScroller = new SectionScroller(CNT_HOME, CNT_SECTIONNAV);
   _homeScroller.current = _targetIdx;
+  // Le label actif ne doit pas se masquer tout seul pendant la séquence d'intro (cf. plus
+  // bas, _onIntroPartDone le fera lui-même une fois celle-ci terminée).
+  _homeScroller._suppressActiveAutoHide = true;
   _homeScroller.init();
   // Permet aux modules de contenu dynamique (cards, timeline bio...) de
   // recalculer le scroll interne + la scrollbar une fois leur rendu terminé
   window._refreshSectionScrollUI = () => _homeScroller?.refreshAll();
-  if (_targetIdx === 0) { titleDisplay(TL_HOME); hideBackBlurMask(); }
+  if (_targetIdx === 0) {
+    hideBackBlurMask();
+    // Révélation du titre principal planifiée via la chronologie d'intro configurable (cf.
+    // Settings admin tool, vue/intro-timeline.js) — seul le MOMENT de l'appel change, jamais
+    // titleDisplay() lui-même. Le cas d'un deep-link direct vers une sous-section (branche
+    // "else" ci-dessous) reste immédiat : l'intro est déjà court-circuitée dans ce cas
+    // (cf. controller/start.js, chemin "Deep link").
+    window._introTimeline?.schedule('mainTitle', () => titleDisplay(TL_HOME));
+  }
   else { titleDisplay(_homeSectionTitleEl(_targetSection)); displayBackBlurMask(); }
+  _ensureHomeSectionLoaded(_targetIdx === 0 ? 'landing' : _targetSection);
+  _updateMobileActiveButton(_targetIdx === 0 ? 'landing' : _targetSection);
 
   // Mise à jour du slug + titre de section quand on scrolle — le flou d'arrière-plan est
   // désormais déclenché immédiatement au clic (SectionScroller._applyBackdrop), pas ici.
   let _prevSectionId = _targetIdx === 0 ? 'landing' : _targetSection;
   const _onSectionChange = (e) => {
     window._updateHomeSection?.(e.detail.sectionId);
+    _ensureHomeSectionLoaded(e.detail.sectionId);
+    _updateMobileActiveButton(e.detail.sectionId);
     if (e.detail.sectionId !== _prevSectionId) {
       const prevTitle = _prevSectionId === 'landing' ? TL_HOME : _homeSectionTitleEl(_prevSectionId);
       const nextTitle = e.detail.sectionId === 'landing' ? TL_HOME : _homeSectionTitleEl(e.detail.sectionId);
@@ -258,45 +352,156 @@ function displayHome() {
   };
   // Icônes section puis icônes sociales desktop en stagger continu
   const _sectionItems = Array.from(CNT_SECTIONNAV.querySelectorAll('.sectionNavItem'));
-  const _socialItems  = Array.from(document.querySelectorAll('#socialLinksDesktop .btnSocialLateral'));
-  staggerReveal(_sectionItems, { delay: 60 });
-  staggerReveal(_socialItems,  { delay: 60, startAt: _sectionItems.length });
-  // Afficher le label de la section active après que les items soient apparus
-  setTimeout(() => {
-    const activeItem = CNT_SECTIONNAV.querySelector('.sectionNavItem--active');
-    if (activeItem) _navLabelReveal(activeItem.querySelector('.sectionNavLabel'));
-  }, _sectionItems.length * 60 + 200);
+  const _socialItems  = Array.from(document.querySelectorAll('#socialLinksDesktop .socialLinksDesktopItem'));
+  // Pré-masquage immédiat (avant planification via la chronologie d'intro) — ces éléments
+  // sont opacity:1 par défaut en CSS tant qu'aucune révélation stagger n'a tourné (cf.
+  // .sectionNavItem/.socialLinksDesktopItem), donc sans ce pré-masquage ils resteraient
+  // visibles en pleine opacité pendant toute l'attente du délai "lateralIcons" configuré.
+  _sectionItems.forEach((el) => { el.style.opacity = '0'; });
+  _socialItems.forEach((el) => { el.style.opacity = '0'; });
 
-  // ── Zone hover : afficher/cacher les labels des sections inactives ──────────
-  let _labelHideTimer = null;
-
-  const _onNavEnter = () => {
-    if (_homeScroller) _homeScroller._labelHoverActive = true;
-    clearTimeout(_labelHideTimer);
-    // Révéler les labels des items non-actifs
-    CNT_SECTIONNAV.querySelectorAll('.sectionNavItem:not(.sectionNavItem--active)').forEach((item) => {
-      _navLabelReveal(item.querySelector('.sectionNavLabel'));
+  // ── Séquence d'apparition initiale ──────────────────────────────────────────
+  // Au lancement du site, TOUS les intitulés de section doivent devenir visibles (chacun dès
+  // que SA PROPRE icône a terminé son apparition — jamais pendant, sinon conflit visuel entre
+  // le flip de l'icône et celui du label) et le rester tant que le reste de l'interface et du
+  // menu d'accueil n'ont pas eux-mêmes terminé leur apparition. Ce n'est qu'une fois les TROIS
+  // séquences suivantes terminées (contenu de la home — dont le dernier élément est l'icône de
+  // scroll — + icônes de section + icônes sociales) que les intitulés jouent leur disparition
+  // en cascade, à partir de la section active.
+  let _introPartsPending = 3;
+  const _onIntroPartDone = () => {
+    _introPartsPending -= 1;
+    if (_introPartsPending === 0) {
+      _homeScroller._suppressActiveAutoHide = false;
+      if (!_homeScroller._labelHoverActive) {
+        _navLabelCascadeHide(_sectionItems, _homeScroller.current);
+      }
+    }
+  };
+  displayContent(CNT_HOME, 50, _onIntroPartDone);
+  // Démarrage de la cascade désormais planifié via la chronologie d'intro configurable
+  // ("lateralIcons", desktop uniquement — schedule() ne fait rien sur tablette/mobile, cf.
+  // vue/intro-timeline.js) au lieu d'un appel immédiat — staggerReveal()/_navLabelReveal()
+  // eux-mêmes restent entièrement inchangés.
+  window._introTimeline?.schedule('lateralIcons', () => {
+    staggerReveal(_sectionItems, {
+      delay: 60,
+      onEach: (el) => _navLabelReveal(el.querySelector('.sectionNavLabel')),
+      onDone: _onIntroPartDone,
     });
+    staggerReveal(_socialItems, { delay: 60, startAt: _sectionItems.length, onDone: _onIntroPartDone });
+  });
+
+  // ── Zone hover : afficher/cacher les labels en cascade à partir du curseur ──
+  // Chaque item déclenche sa propre cascade de révélation (le sien d'abord, puis les
+  // suivants par vagues en s'éloignant de lui dans les deux sens) ; à la sortie de la zone,
+  // la cascade de disparition repart du DERNIER item survolé, dans le même ordre.
+  //
+  // La disparition ne doit JAMAIS se déclencher tant que le curseur reste quelque part dans
+  // la zone globale occupée par l'ensemble des entrées (y compris les minuscules interstices
+  // entre deux items consécutifs) : un mouseleave posé directement sur #sectionNav ne
+  // convient pas, car ce conteneur a pointer-events:none (seuls les items l'ont en pointer-
+  // events:auto, cf. règle .sectionNav ci-dessus) — passer d'un item à l'autre par
+  // l'interstice qui les sépare fait alors "sortir" puis "rentrer" du conteneur aux yeux du
+  // navigateur (le hit-test retombe sur ce qu'il y a derrière), déclenchant un aller-retour
+  // mouseleave/mouseenter parasite qui pouvait, si le curseur s'immobilisait pile dans cet
+  // interstice, faire disparaître les libellés alors que le curseur est toujours visuellement
+  // au milieu de la colonne de nav. On calcule donc plutôt un rectangle englobant l'ensemble
+  // des items (mis à jour à chaque entrée) et on surveille le curseur via mousemove.
+  let _labelHideTimer = null;
+  let _lastHoveredIndex = _homeScroller.current;
+  let _navZoneRect = null;
+
+  function _computeNavZoneRect() {
+    if (!_sectionItems.length) return null;
+    let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+    _sectionItems.forEach((item) => {
+      const r = item.getBoundingClientRect();
+      left   = Math.min(left, r.left);
+      top    = Math.min(top, r.top);
+      right  = Math.max(right, r.right);
+      bottom = Math.max(bottom, r.bottom);
+    });
+    return { left, top, right, bottom };
+  }
+
+  function _isInsideNavZone(x, y) {
+    if (!_navZoneRect) return false;
+    return x >= _navZoneRect.left && x <= _navZoneRect.right
+        && y >= _navZoneRect.top  && y <= _navZoneRect.bottom;
+  }
+
+  const _onItemEnter = (index) => {
+    _homeScroller._labelHoverActive = true;
+    _lastHoveredIndex = index;
+    clearTimeout(_labelHideTimer);
+    _labelHideTimer = null;
+    _resetIdleTimer();
+    _navZoneRect = _computeNavZoneRect();
+    _navLabelCascadeReveal(_sectionItems, index);
   };
 
-  const _onNavLeave = () => {
+  const _onNavZoneMouseMove = (e) => {
+    if (!_homeScroller._labelHoverActive) return;
+    if (_isInsideNavZone(e.clientX, e.clientY)) {
+      clearTimeout(_labelHideTimer);
+      _labelHideTimer = null;
+      return;
+    }
+    if (_labelHideTimer) return; // déjà programmé
     // Debounce : attendre avant de cacher (gère les sorties/entrées rapides)
     _labelHideTimer = setTimeout(() => {
-      if (_homeScroller) _homeScroller._labelHoverActive = false;
-      CNT_SECTIONNAV.querySelectorAll('.sectionNavItem:not(.sectionNavItem--active)').forEach((item) => {
-        _navLabelHide(item.querySelector('.sectionNavLabel'), true);
-      });
+      _homeScroller._labelHoverActive = false;
+      _navLabelCascadeHide(_sectionItems, _lastHoveredIndex);
     }, 500);
   };
 
-  CNT_SECTIONNAV.addEventListener('mouseenter', _onNavEnter);
-  CNT_SECTIONNAV.addEventListener('mouseleave', _onNavLeave);
+  // Un handler distinct par item (fermeture sur son index) — conservé pour un retrait propre
+  // dans _cleanupLabels (les éléments de #sectionNav persistent en DOM d'une visite de la
+  // home à l'autre, display:none seulement ; sans retrait explicite, les listeners
+  // s'accumuleraient à chaque nouvelle navigation vers la home).
+  const _itemEnterHandlers = _sectionItems.map((item, index) => {
+    const handler = () => _onItemEnter(index);
+    item.addEventListener('mouseenter', handler);
+    return { item, handler };
+  });
+  document.addEventListener('mousemove', _onNavZoneMouseMove, { passive: true });
+
+  // ── Inactivité : réaffiche les intitulés après 10s sans interaction ─────────
+  // Repart toujours de la section active, puis suit le même effet de cascade. Se referme
+  // de lui-même après quelques secondes si l'utilisateur ne survole pas la nav entre-temps.
+  let _idleTimer = null;
+  let _idleRevealHideTimer = null;
+  const IDLE_DELAY_MS = 10000;
+  function _resetIdleTimer() {
+    clearTimeout(_idleTimer);
+    _idleTimer = setTimeout(() => {
+      if (_homeScroller._labelHoverActive) return;
+      _navLabelCascadeReveal(_sectionItems, _homeScroller.current);
+      clearTimeout(_idleRevealHideTimer);
+      _idleRevealHideTimer = setTimeout(() => {
+        if (!_homeScroller._labelHoverActive) {
+          _navLabelCascadeHide(_sectionItems, _homeScroller.current);
+        }
+      }, 2600);
+    }, IDLE_DELAY_MS);
+  }
+  const _onActivity = () => _resetIdleTimer();
+  ['mousemove', 'keydown', 'wheel', 'touchstart', 'pointerdown'].forEach((evt) => {
+    document.addEventListener(evt, _onActivity, { passive: true });
+  });
+  _resetIdleTimer();
 
   // Stocker les refs pour cleanup propre dans unloadPage
   _homeScroller._cleanupLabels = () => {
     clearTimeout(_labelHideTimer);
-    CNT_SECTIONNAV.removeEventListener('mouseenter', _onNavEnter);
-    CNT_SECTIONNAV.removeEventListener('mouseleave', _onNavLeave);
+    clearTimeout(_idleTimer);
+    clearTimeout(_idleRevealHideTimer);
+    ['mousemove', 'keydown', 'wheel', 'touchstart', 'pointerdown'].forEach((evt) => {
+      document.removeEventListener(evt, _onActivity);
+    });
+    document.removeEventListener('mousemove', _onNavZoneMouseMove);
+    _itemEnterHandlers.forEach(({ item, handler }) => item.removeEventListener('mouseenter', handler));
     CNT_HOME.removeEventListener('sectionChange', _onSectionChange);
     window._homeScrollTo = null;
   };
@@ -330,10 +535,37 @@ function displayPageView(slug) {
 }
 window.accessPageView = accessPageView;
 
-/////////////// CONNEXION ///////////////
-function activateConnexion() {
-  connectBtnIdle();
+/////////////// SEARCH (recherche du site) ///////////////
+function activateSearchNav() {
+  const buttons = [
+    document.getElementById('btnSearchDesktop'),
+    document.getElementById('btnSearchTablet'),
+    document.getElementById('btnSearchMobile'),
+  ].filter(Boolean);
+  buttons.forEach((button) => {
+    button.addEventListener('click', accessSearch);
+    button.addEventListener('touchend', accessSearch);
+  });
 }
+function accessSearch() {
+  if (page !== "search") {
+    displayBackBlurMask();
+    unloadPage();
+    setTimeout(() => { displaySearch(); _setPage("search"); }, 500);
+  }
+}
+window.accessSearch = accessSearch;
+function displaySearch() {
+  window.GCABackground?.setPage('search');
+  CNT_SEARCH.style.display = "flex";
+  titleDisplay(TL_SEARCH);
+  displayContent(CNT_SEARCH, 50);
+  window._focusSearchInput?.();
+}
+
+/////////////// CONNEXION ///////////////
+// Plus de bouton de connexion visible : l'écran n'est accessible que via le code
+// clavier secret saisi sur la home (desktop uniquement, cf. vue/secret-login.js).
 function accessConnexion() {
   if (page !== "connexion") {
     displayBackBlurMask();
@@ -344,6 +576,7 @@ function accessConnexion() {
     }, 500);
   }
 }
+window.accessConnexion = accessConnexion;
 function displayConnexion() {
   window.GCABackground?.setPage('connexion');
   CNT_CONNEXION.style.display = "flex";
@@ -351,95 +584,21 @@ function displayConnexion() {
   displayContent(CNT_CONNEXION, 50);
   setAutofocus(FORM_CONNEXION);
   connexionCheck();
-  forgotPasswordCheck();
-  activateRegister();
 }
-/////////////// REGISTER ///////////////
-function activateRegister() {
-  const buttons = [BTN_REGISTER_CONNEXION];
-  buttons.forEach((button) => {
-    button.addEventListener("click", accessRegister);
-    button.addEventListener("touchend", accessRegister);
-  });
-}
-function accessRegister() {
-  if (page !== "register") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      displayRegister();
-      _setPage("register");
-    }, 500);
+/////////////// ADMIN TOOL (accès direct + logout) ///////////////
+function activateAdminDirectAccess() {
+  const btn = document.getElementById('btnDirectAdmin');
+  if (btn) {
+    btn.addEventListener('click', accessAdminTool);
+    btn.addEventListener('touchend', accessAdminTool);
+  }
+  const logoutBtn = document.getElementById('btnAdminLogout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => window.logoutFetch?.());
+    logoutBtn.addEventListener('touchend', () => window.logoutFetch?.());
   }
 }
-function displayRegister() {
-  window.GCABackground?.setPage('register');
-  CNT_REGISTER.style.display = "flex";
-  titleDisplay(TL_REGISTER);
-  displayContent(CNT_REGISTER, 50);
-  setAutofocus(FORM_REGISTER);
-  registerCheck();
-}
-/////////////// USERPROFILE ///////////////
-function activateUserProfile() {
-  const buttons = BTN_USERLOG;
-  buttons.forEach((button) => {
-    button.addEventListener("click", accessUserProfile);
-    button.addEventListener("touchend", accessUserProfile);
-  });
-}
-function deactivateUserProfile() {
-  const buttons = BTN_USERLOG;
-  buttons.forEach((button) => {
-    button.removeEventListener("click", accessUserProfile);
-    button.removeEventListener("touchend", accessUserProfile);
-  });
-}
-function accessUserProfile() {
-  if (page !== "userProfile") {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => {
-      displayUserProfile();
-      _setPage("userProfile");
-    }, 500);
-  }
-}
-function displayUserProfile() {
-  window.GCABackground?.setPage('userprofile');
-  CNT_USERPROFILE.style.display = "flex";
-  titleDisplay(TL_USERPROFILE);
-  displayContent(CNT_USERPROFILE, 50);
-  window._initUserProfile?.();
-}
-/////////////// RESET PASSWORD (lien reçu par email, hors intro normale) ///////////////
-function accessResetPassword(token) {
-  page = "resetPassword";
-  displayResetPassword(token);
-}
-function displayResetPassword(token) {
-  window.GCABackground?.setPage('resetpassword');
-  CNT_RESETPASSWORD.style.display = "flex";
-  titleDisplay(TL_RESETPASSWORD);
-  displayContent(CNT_RESETPASSWORD, 50);
-  window._initResetPassword?.(token);
-}
-window.accessResetPassword = accessResetPassword;
 /////////////// ADMINTOOL ///////////////
-function activateAdminTool() {
-  const buttons = BTN_ADMINLOG;
-  buttons.forEach((button) => {
-    button.addEventListener("click", accessAdminTool);
-    button.addEventListener("touchend", accessAdminTool);
-  });
-}
-function deactivateAdminTool() {
-  const buttons = BTN_ADMINLOG;
-  buttons.forEach((button) => {
-    button.removeEventListener("click", accessAdminTool);
-    button.removeEventListener("touchend", accessAdminTool);
-  });
-}
 function accessAdminTool() {
   if (!window.isAdminAllowed?.()) { accessHome(); return; }
   if (page !== "adminTool") {
@@ -456,13 +615,12 @@ function displayAdminTool() {
   CNT_ADMINTOOL.style.display = "flex";
   titleDisplay(TL_ADMINTOOL);
   displayContent(CNT_ADMINTOOL, 50);
-  activateUsersManagement();
+  activateSettingsManagement();
   activateTagsManagement();
   activateMediasManagement();
   activatePagesManagement();
   activateExperiencesManagement();
   activateCommentsManagement();
-  activateMessagesManagement();
   activateSceneEditor();
   // Masquer le bouton d'accès à l'admin pendant qu'on y est
   const adminBtn = document.getElementById('btnDirectAdmin');
@@ -597,28 +755,6 @@ function displayCommentsManagement() {
   titleDisplay(TL_COMMENTS);
   displayContent(CNT_COMMENTS, 50);
 }
-/////////////// MESSAGES (boîte de réception) ///////////////
-function activateMessagesManagement() {
-  const btn = document.getElementById('btnMessagesManagement');
-  if (!btn) return;
-  btn.addEventListener('click',    accessMessagesManagement);
-  btn.addEventListener('touchend', accessMessagesManagement);
-}
-function accessMessagesManagement() {
-  if (page !== 'messagesManagement') {
-    displayBackBlurMask();
-    unloadPage();
-    setTimeout(() => { displayMessagesManagement(); _setPage('messagesManagement'); }, 501);
-  }
-}
-function displayMessagesManagement() {
-  window.GCABackground?.setPage('admintool');
-  if (typeof initMessagesManagement === 'function') initMessagesManagement();
-  CNT_MESSAGES.style.display = 'flex';
-  titleDisplay(TL_MESSAGES);
-  displayContent(CNT_MESSAGES, 50);
-}
-window.accessMessagesManagement = accessMessagesManagement;
 /////////////// ANALYTICS ///////////////
 function activateAnalytics() {
   const btn = document.getElementById('btnAnalytics');
@@ -639,40 +775,39 @@ function displayAnalytics() {
   titleDisplay(TL_ANALYTICS);
   displayContent(CNT_ANALYTICS, 50);
 }
-/////////////// USERSMANAGEMENT ///////////////
-function activateUsersManagement() {
-    BTN_USERSMANAGEMENT.addEventListener("click", accessUsersManagement);
-    BTN_USERSMANAGEMENT.addEventListener("touchend", accessUsersManagement);
-  }
-function deactivateUsersManagement() {
-    BTN_USERSMANAGEMENT.removeEventListener("click", accessUsersManagement);
-    BTN_USERSMANAGEMENT.removeEventListener("touchend", accessUsersManagement);
-  };
-
-function accessUsersManagement() {
-  if (page !== "usersManagement") {
+/////////////// SETTINGS (remplace l'ancienne gestion des utilisateurs) ///////////////
+function activateSettingsManagement() {
+  const btn = document.getElementById('btnSettingsManagement');
+  if (!btn) return;
+  btn.addEventListener("click", accessSettingsManagement);
+  btn.addEventListener("touchend", accessSettingsManagement);
+}
+function accessSettingsManagement() {
+  if (page !== "settingsManagement") {
     displayBackBlurMask();
     unloadPage();
-    setTimeout(() => { displayUsersManagement(); _setPage("usersManagement"); }, 501);
+    setTimeout(() => { displaySettingsManagement(); _setPage("settingsManagement"); }, 501);
   }
 }
-function displayUsersManagement() {
-  window.GCABackground?.setPage('usersmanagement');
-  initUsersManagement();
-  CNT_USERSMANAGEMENT.style.display = "flex";
-  titleDisplay(TL_USERSMANAGEMENT);
-  displayContent(CNT_USERSMANAGEMENT, 50);
+function displaySettingsManagement() {
+  window.GCABackground?.setPage('settingsmanagement');
+  window._initSettingsManagement?.();
+  CNT_SETTINGS.style.display = "flex";
+  titleDisplay(TL_SETTINGS);
+  displayContent(CNT_SETTINGS, 50);
 }
 
 /////////////// NAVIGATION ///////////////
 function activateNavigation() {
   activateHome();
-  activateConnexion();
+  activateAdminDirectAccess();
+  activateSearchNav();
   // Miroir tablette/mobile des sections du menu latéral desktop (#sectionNav)
   activatePresentation();
   activateExpertiseSection();
   activatePortfolioSection();
   activateBioSection();
+  activateGallerySection();
   activateBlogSection();
   activateContactSection();
 }
@@ -698,10 +833,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
-
-  // Dev — accès direct à l'admin tool sans authentification
-  const devAdminBtn = document.getElementById('btnDirectAdmin');
-  if (devAdminBtn) devAdminBtn.addEventListener('click', () => accessAdminTool());
 });
 
 // Éjecte vers la home si la fenêtre repasse sous le seuil desktop pendant qu'on est dans
@@ -722,8 +853,9 @@ function unloadPage() {
       // Nettoyage listeners labels hover + scroller
       if (_homeScroller?._cleanupLabels) _homeScroller._cleanupLabels();
       if (_homeScroller) { _homeScroller.destroy(); _homeScroller = null; }
+      window._closeSocialPanel?.();
       // Icônes sociales puis icônes section disparaissent en stagger (ordre inverse de l'apparition), puis on cache la nav
-      const _socialItemsOut = Array.from(document.querySelectorAll('#socialLinksDesktop .btnSocialLateral'));
+      const _socialItemsOut = Array.from(document.querySelectorAll('#socialLinksDesktop .socialLinksDesktopItem'));
       staggerHide(_socialItemsOut, { delay: 40, reverse: true });
       staggerHide(CNT_SECTIONNAV.querySelectorAll('.sectionNavItem'), {
         delay: 40, reverse: true, startAt: _socialItemsOut.length,
@@ -750,6 +882,13 @@ function unloadPage() {
         CNT_PAGEVIEW.style.display = "none";
       }, 501);
       break;
+    case "search":
+      titleHide(TL_SEARCH);
+      hideContent(CNT_SEARCH, 25);
+      setTimeout(() => {
+        CNT_SEARCH.style.display = "none";
+      }, 501);
+      break;
     case "connexion":
       titleHide(TL_CONNEXION);
       hideContent(CNT_CONNEXION, 25);
@@ -757,33 +896,6 @@ function unloadPage() {
         CNT_CONNEXION.style.display = "none";
         resetLoginForm();
         BTN_LOGIN_CONNEXION.removeEventListener("click", loginFetch);
-        FORM_FORGOT_PASSWORD.style.display = "none";
-        FORM_CONNEXION.style.display = "flex";
-        MSG_FORGOTPASSWORD.style.display = "none";
-        INPUT_MAIL_FORGOTPASSWORD.value = "";
-      }, 501);
-      break;
-    case "register":
-      titleHide(TL_REGISTER);
-      hideContent(CNT_REGISTER, 25);
-      setTimeout(() => {
-        CNT_REGISTER.style.display = "none";
-        resetRegisterForm();
-        BTN_REGISTER_REGISTER.removeEventListener("click", registerFetch);
-      }, 501);
-      break;
-    case "userProfile":
-      titleHide(TL_USERPROFILE);
-      hideContent(CNT_USERPROFILE, 25);
-      setTimeout(() => {
-        CNT_USERPROFILE.style.display = "none";
-      }, 501);
-      break;
-    case "resetPassword":
-      titleHide(TL_RESETPASSWORD);
-      hideContent(CNT_RESETPASSWORD, 25);
-      setTimeout(() => {
-        CNT_RESETPASSWORD.style.display = "none";
       }, 501);
       break;
     case "adminTool":
@@ -796,11 +908,10 @@ function unloadPage() {
         if (adminBtn) adminBtn.style.visibility = '';
       }, 501);
       break;
-    case "usersManagement":
-      titleHide(TL_USERSMANAGEMENT);
-      hideContent(CNT_USERSMANAGEMENT, 25);
-      deactivateUsersManagement();
-      setTimeout(() => { CNT_USERSMANAGEMENT.style.display = "none"; }, 501);
+    case "settingsManagement":
+      titleHide(TL_SETTINGS);
+      hideContent(CNT_SETTINGS, 25);
+      setTimeout(() => { CNT_SETTINGS.style.display = "none"; }, 501);
       break;
     case "tagsManagement":
       titleHide(TL_TAGS);
@@ -826,11 +937,6 @@ function unloadPage() {
       titleHide(TL_COMMENTS);
       hideContent(CNT_COMMENTS, 25);
       setTimeout(() => { CNT_COMMENTS.style.display = "none"; }, 501);
-      break;
-    case "messagesManagement":
-      titleHide(TL_MESSAGES);
-      hideContent(CNT_MESSAGES, 25);
-      setTimeout(() => { CNT_MESSAGES.style.display = "none"; }, 501);
       break;
     case "analytics":
       titleHide(TL_ANALYTICS);

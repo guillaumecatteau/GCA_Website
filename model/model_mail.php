@@ -5,31 +5,8 @@
  * Utilise la fonction mail() native de PHP : fonctionne telle quelle une fois le
  * site hébergé chez Infomaniak (SMTP sortant configuré par l'hébergeur pour le
  * domaine). En local (WAMP), mail() n'est generalement pas configuré — l'échec
- * d'envoi est silencieux côté utilisateur (cf. forgot_password.php, qui ne doit
- * jamais révéler si l'email existe), mais loggé côté serveur pour le debug.
+ * d'envoi est loggé côté serveur pour le debug.
  */
-
-function sendResetPasswordEmail(string $toMail, string $toFirstname, string $resetLink): bool
-{
-    $subject = 'Réinitialisation de votre mot de passe — GC Digital Arts';
-
-    $body  = "Bonjour $toFirstname,\n\n";
-    $body .= "Une demande de réinitialisation de mot de passe a été effectuée pour votre compte.\n";
-    $body .= "Cliquez sur le lien ci-dessous pour choisir un nouveau mot de passe (valable 1 heure) :\n\n";
-    $body .= "$resetLink\n\n";
-    $body .= "Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email.\n\n";
-    $body .= "— GC Digital Arts";
-
-    $fromMail = 'no-reply@gcdigitalarts.com';
-    $headers  = "From: GC Digital Arts <$fromMail>\r\n";
-    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
-
-    $sent = @mail($toMail, $subject, $body, $headers);
-    if (!$sent) {
-        error_log("sendResetPasswordEmail: échec d'envoi vers $toMail");
-    }
-    return $sent;
-}
 
 /**
  * sendContactEmail — Transmet un message du formulaire de contact public

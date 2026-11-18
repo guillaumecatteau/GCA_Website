@@ -12,10 +12,15 @@
             <input type="number" id="inputSearchCommentId"   class="formInput" placeholder="ID commentaire" />
           </div>
           <div class="formGroup">
-            <input type="number" id="inputSearchCommentUser" class="formInput" placeholder="ID utilisateur" />
+            <input type="text"   id="inputSearchCommentUsername" class="formInput" placeholder="Nom d'utilisateur" />
           </div>
           <div class="formGroup">
-            <input type="number" id="inputSearchCommentPage" class="formInput" placeholder="ID page" />
+            <input type="text"   id="inputSearchCommentMail" class="formInput" placeholder="Adresse mail" />
+          </div>
+          <div class="formGroup">
+            <select id="inputSearchCommentPage" class="formInput">
+              <option value="" lang="FR" data-en="All blog pages">Toutes les pages blog</option>
+            </select>
           </div>
           <div class="formGroup">
             <input type="date"   id="inputSearchCommentFrom" class="formInput" placeholder="Du" />

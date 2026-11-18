@@ -218,6 +218,17 @@
   padding-top: 0.5rem;
 }
 
+// .btnLarge (450px, cf. _main-nav.scss) est pensé pour un bouton isolé en pleine page, pas
+// pour un panneau latéral de ratio 1fr (cf. .adminToolLayout) : les boutons du menu
+// débordaient largement de leur colonne, donnant l'impression (à tort) que le right panel
+// était bien plus large que prévu — et par contraste que le left panel ne l'était pas assez
+// (cf. Admin tool "Menu"). Dans ce contexte précis, ils doivent plutôt occuper toute la
+// largeur réellement disponible dans la colonne latérale, comme n'importe quel autre right
+// panel du site (cf. .basicGrid / .sideBlock).
+.adminToolSidebar .btnLarge {
+  width: 100%;
+}
+
 // ---------------------------------------------------------------------------
 // Menu utilisateur (sidebar boutons)
 // ---------------------------------------------------------------------------

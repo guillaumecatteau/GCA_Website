@@ -33,10 +33,14 @@
 
 @keyframes rotateInSlow {
   from { transform: rotateY(90deg) var(--scale, scale(1)); opacity: 0; }
-  to   { transform: rotateY(0deg)  var(--scale, scale(1)); opacity: 1; }
+  // var(--subtitle-opacity, 1) : posée uniquement sur #homeSubtitle (cf. vue/home-hero.js,
+  // _applySizing) pour rendre son opacité réglable depuis Settings — tous les autres
+  // titres du site (qui ne posent jamais cette variable) retombent sur le fallback 1,
+  // comportement strictement inchangé pour eux.
+  to   { transform: rotateY(0deg)  var(--scale, scale(1)); opacity: var(--subtitle-opacity, 1); }
 }
 @keyframes rotateOutSlow {
-  from { transform: rotateY(0deg)  var(--scale, scale(1)); opacity: 1; }
+  from { transform: rotateY(0deg)  var(--scale, scale(1)); opacity: var(--subtitle-opacity, 1); }
   to   { transform: rotateY(90deg) var(--scale, scale(1)); opacity: 0; }
 }
 

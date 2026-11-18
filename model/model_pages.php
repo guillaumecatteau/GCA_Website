@@ -6,7 +6,7 @@ require_once __DIR__ . '/model_medias.php';
 
 const PAGE_TYPES = ['projet','expertise','blog'];
 
-function getAllPages(string $type = '', bool $visibleOnly = false): array
+function getAllPages(string $type = '', bool $visibleOnly = false, bool $withTags = false): array
 {
     global $bdd;
     $conditions = [];
@@ -32,7 +32,30 @@ function getAllPages(string $type = '', bool $visibleOnly = false): array
          $where ORDER BY p.updated_at DESC"
     );
     $stmt->execute($params);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Jointure groupée des tags (une requête supplémentaire plutôt que N+1) — utilisé par le
+    // carrousel Portfolio pour afficher les métiers crédités (cf. Section Portfolio).
+    if ($withTags && $pages) {
+        $ids = array_column($pages, 'id');
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $tagStmt = $bdd->prepare(
+            "SELECT pt.page_id, t.id, t.title_fr, t.title_en, t.category
+             FROM tags t JOIN pages_tags pt ON t.id = pt.tag_id
+             WHERE pt.page_id IN ($placeholders)"
+        );
+        $tagStmt->execute($ids);
+        $tagsByPage = [];
+        foreach ($tagStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $tagsByPage[$row['page_id']][] = $row;
+        }
+        foreach ($pages as &$p) {
+            $p['tags'] = $tagsByPage[$p['id']] ?? [];
+        }
+        unset($p);
+    }
+
+    return $pages;
 }
 
 function getPageById(int $id): array|false
@@ -188,6 +211,107 @@ function searchPages(array $filters): array
     );
     $stmt->execute($params);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// ─── Recherche publique (site search) ────────────────────────────────────────
+// Contrairement à searchPages() (ADMIN : titres uniquement, pages invisibles incluses),
+// cette fonction est strictement publique : uniquement les pages visibles, recherche
+// élargie au sous-titre et au contenu des blocs (HTML strippé avant matching/extrait).
+
+function searchPublicContent(string $query): array
+{
+    global $bdd;
+    $query = trim($query);
+    if (mb_strlen($query) < 2) return [];
+
+    $stmt = $bdd->prepare(
+        "SELECT p.id, p.type, p.slug, p.title_fr, p.title_en,
+                p.subtitle_fr, p.subtitle_en, p.thumbnail_id, p.main_visual_id
+         FROM pages p
+         WHERE p.is_visible = 1
+         ORDER BY p.updated_at DESC"
+    );
+    $stmt->execute();
+    $pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (!$pages) return [];
+
+    $results = [];
+    foreach ($pages as $page) {
+        $titleFr    = (string)($page['title_fr'] ?? '');
+        $titleEn    = (string)($page['title_en'] ?? '');
+        $subtitleFr = trim(strip_tags((string)($page['subtitle_fr'] ?? '')));
+        $subtitleEn = trim(strip_tags((string)($page['subtitle_en'] ?? '')));
+
+        $matched = false;
+        foreach ([$titleFr, $titleEn, $subtitleFr, $subtitleEn] as $text) {
+            if ($text !== '' && mb_stripos($text, $query) !== false) { $matched = true; break; }
+        }
+
+        // Recherche dans le contenu texte des blocs (HTML strippé) — construit aussi le
+        // meilleur extrait possible (contexte autour de l'occurrence trouvée).
+        $snippet = '';
+        foreach (getPageBlocks((int)$page['id']) as $block) {
+            if ($block['block_type'] !== 'text') continue;
+            foreach (['content_fr', 'content_en'] as $field) {
+                $plain = trim(strip_tags((string)($block[$field] ?? '')));
+                if ($plain === '' || mb_stripos($plain, $query) === false) continue;
+                $matched = true;
+                $snippet = _buildSearchSnippet($plain, $query);
+                break 2;
+            }
+        }
+
+        if (!$matched) continue;
+
+        if ($snippet === '') {
+            $fallback = $subtitleFr !== '' ? $subtitleFr : $subtitleEn;
+            $snippet  = $fallback !== '' ? _buildSearchSnippet($fallback, $query) : '';
+        }
+
+        $coverPath = null;
+        $cardPath  = null;
+        if (!empty($page['thumbnail_id'])) {
+            $m = getMediaById((int)$page['thumbnail_id']);
+            $cardPath = $m ? $m['file_path'] : null;
+        }
+        if (!empty($page['main_visual_id'])) {
+            $m = getMediaById((int)$page['main_visual_id']);
+            $coverPath = $m ? $m['file_path'] : null;
+        }
+
+        $results[] = [
+            'id'         => (int)$page['id'],
+            'type'       => $page['type'],
+            'slug'       => $page['slug'],
+            'title_fr'   => $titleFr,
+            'title_en'   => $titleEn,
+            'excerpt'    => $snippet,
+            'card_path'  => $cardPath ?? $coverPath,
+            'cover_path' => $coverPath,
+        ];
+
+        // Nombre de résultats volontairement borné — recherche en temps réel, pas de pagination.
+        if (count($results) >= 50) break;
+    }
+
+    return $results;
+}
+
+// Construit un extrait texte brut avec l'occurrence de $query recentrée dans son contexte
+// (utilisé uniquement par searchPublicContent ci-dessus).
+function _buildSearchSnippet(string $text, string $query, int $context = 70): string
+{
+    $pos = mb_stripos($text, $query);
+    if ($pos === false) {
+        $short = mb_substr($text, 0, $context * 2);
+        return $short . (mb_strlen($text) > mb_strlen($short) ? '…' : '');
+    }
+    $start  = max(0, $pos - $context);
+    $length = mb_strlen($query) + $context * 2;
+    $snippet = trim(mb_substr($text, $start, $length));
+    $prefix = $start > 0 ? '…' : '';
+    $suffix = ($start + $length) < mb_strlen($text) ? '…' : '';
+    return $prefix . $snippet . $suffix;
 }
 
 // ─── Blocs de contenu ────────────────────────────────────────────────────────

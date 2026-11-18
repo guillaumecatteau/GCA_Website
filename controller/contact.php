@@ -1,13 +1,11 @@
 <?php
 /**
  * contact.php — Formulaire de contact public (section Contact de la home).
- * Valide les champs côté serveur puis envoie un email via model_mail.php
- * (cf. sendContactEmail, même convention que sendResetPasswordEmail : mail()
- * natif, fonctionnel une fois le site hébergé, silencieux/loggé en local).
+ * Valide les champs côté serveur puis envoie un email via model_mail.php (cf.
+ * sendContactEmail — mail() natif, fonctionnel une fois le site hébergé, loggé en local).
  *
- * Sécurité : tous les champs passent par ProtectInjection() (trim + htmlspecialchars),
- * même convention que les autres formulaires du site (register.php...) — neutralise
- * toute tentative d'injection HTML/JS. Les champs utilisés dans les en-têtes email
+ * Sécurité : tous les champs passent par ProtectInjection() (trim + htmlspecialchars) —
+ * neutralise toute tentative d'injection HTML/JS. Les champs utilisés dans les en-têtes email
  * (nom, prénom, mail, sujet) sont en plus débarrassés des retours à la ligne dans
  * sendContactEmail() pour empêcher l'injection d'en-têtes SMTP.
  */

@@ -26,14 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ce bloc réimplémentait son propre contrôle de rôle sans le bypass ADMIN_DEV_MODE, d'où
     // les "Accès refusé" en sauvegarde/suppression alors que la lecture (GET) fonctionnait.
     require_once __DIR__ . '/admin_check.php';
-    if (!ADMIN_DEV_MODE) {
-        $role = $_SESSION['user']['role'] ?? '';
-        if (!in_array($role, ['vip', 'admin'], true)) {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'code' => 'FORBIDDEN', 'message' => 'Accès refusé.']);
-            exit;
-        }
-    }
+    // admin_check.php a déjà vérifié l'accès (dev mode ou admin connecté) plus haut.
 
     $body = file_get_contents('php://input');
     $data = json_decode($body, true);

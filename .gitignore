@@ -1,0 +1,4 @@
+# Identifiants admin (mail + mot de passe chiffré) générés automatiquement au premier accès —
+# cf. model/model_admin.php. Ne doit jamais être versionné.
+database/admin_settings.json
+database/admin_settings.json.bak

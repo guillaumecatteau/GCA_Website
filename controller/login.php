@@ -1,51 +1,34 @@
 <?php
+/**
+ * login.php — Connexion admin (utilisateur unique du site, cf. model/model_admin.php).
+ * Accessible uniquement via l'écran de connexion caché (code clavier sur la home,
+ * desktop uniquement — cf. vue/secret-login.js).
+ */
 session_start();
 
-require_once('../model/db.php');
-require_once('../model/model_user.php');
+require_once('../model/model.php'); // ProtectInjection()
+require_once('../model/model_admin.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mail = ProtectInjection($_POST['mail'] ?? '');
-    $password = ProtectInjection($_POST['password'] ?? '');
+    $password = $_POST['password'] ?? '';
 
-    try {
-        $user = getUserByMail($mail);
-
-        if (!$user || !password_verify($password, $user['password'])) {
-            echo json_encode([
-                'success' => false,
-                'code' => 'INVALID_CREDENTIALS',
-                'message' => 'Adresse email ou mot de passe incorrect.'
-            ]);
-            exit;
-        }
-
-        // Création de la session utilisateur
-        $_SESSION['user'] = [
-            'id'        => $user['id'],
-            'name'      => $user['name'],
-            'firstname' => $user['firstname'],
-            'mail'      => $user['mail'],
-            'role'      => $user['role'] ?? ($user['isAdmin'] ? 'admin' : 'user'),
-            'avatar'    => $user['avatar'] ?? null,
-        ];
-
-        $role = $_SESSION['user']['role'];
-        echo json_encode([
-            'success'   => true,
-            'code'      => ($role === 'admin' || $role === 'vip') ? 'LOGIN_ADMIN' : 'LOGIN_SUCCESS',
-            'message'   => 'Connexion réussie.',
-            'firstname' => $user['firstname'],
-            'name'      => $user['name'],
-            'role'      => $role,
-        ]);
-    } catch (Exception $e) {
+    if (!verifyAdminCredentials($mail, $password)) {
         echo json_encode([
             'success' => false,
-            'code' => 'TECH_ERROR',
-            'message' => 'Une erreur technique est survenue.'
+            'code' => 'INVALID_CREDENTIALS',
+            'message' => 'Adresse email ou mot de passe incorrect.'
         ]);
+        exit;
     }
+
+    $_SESSION['admin'] = true;
+
+    echo json_encode([
+        'success' => true,
+        'code'    => 'LOGIN_ADMIN',
+        'message' => 'Connexion réussie.',
+    ]);
 } else {
     echo json_encode(['success' => false, 'message' => 'Méthode non autorisée.']);
 }

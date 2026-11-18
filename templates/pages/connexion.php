@@ -27,41 +27,12 @@
           <span class="icon iconEye" style="display: none"></span>
         </button>
       </div>
-      <label class="formCheckboxLabel">
-        <input type="checkbox" id="rememberMeConnexion" name="remember" />
-        <span class="formCheckbox"></span>
-        <span class="formCheckboxText" lang="FR" data-en="Remember me">Se souvenir de moi</span>
-      </label>
       <div class="btnMedium btnOff" id="btnLoginConnexion">
         <div class="btnLabel">
           <span class="icon iconConnect"></span>
           <span class="btnText" lang="FR" data-en="Connexion">Connexion</span>
         </div>
       </div>
-      <div class="linkClickGroup">
-        <span class="linkClickText" id="btnForgottenConnexion" lang="FR" data-en="forgotten password ?">Mot de passe oublié ?</span>
-        <div class="linkClickCombo">
-          <p class="introLinkClickText" lang="FR" data-en="No account yet ?">Pas encore de compte ?</p>
-          <span class="linkClickText" id="btnRegisterConnexion" lang="FR" data-en="Register now!">Inscrivez-vous !</span>
-        </div>
-      </div>
-    </form>
-    <!-- Mini-formulaire "mot de passe oublié" — masqué par défaut, basculé par btnForgottenConnexion -->
-    <form action="" method="POST" class="form" id="formForgotPassword" style="display: none">
-      <div class="formGroup">
-        <label class="formLabel" for="inputMailForgotPassword">Adresse e-mail</label>
-        <input class="formInput" type="text" id="inputMailForgotPassword" maxlength="100" placeholder="Entrez votre mail" />
-      </div>
-      <div class="btnMedium btnOff" id="btnSendForgotPassword">
-        <div class="btnLabel">
-          <span class="icon iconConnect"></span>
-          <span class="btnText" lang="FR" data-en="Send reset link">Envoyer le lien</span>
-        </div>
-      </div>
-      <div class="linkClickGroup">
-        <span class="linkClickText" id="btnCancelForgotPassword" lang="FR" data-en="Back to login">Retour à la connexion</span>
-      </div>
-      <div class="formMessage" id="msgForgotPassword" style="display: none"></div>
     </form>
     <div class="messageBox">
       <div class="message" id="messageLoginSuccess" style="display: none">

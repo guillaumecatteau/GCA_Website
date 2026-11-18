@@ -8,10 +8,9 @@
   const _SLUG = {
     'home':                  '/home',
     'connexion':             '/connexion',
-    'register':              '/register',
-    'userProfile':           '/me',
+    'search':                '/search',
     'adminTool':             '/admin',
-    'usersManagement':       '/admin/users',
+    'settingsManagement':    '/admin/settings',
     'tagsManagement':        '/admin/tags',
     'mediasManagement':      '/admin/medias',
     'pagesManagement':       '/admin/pages',
@@ -19,7 +18,6 @@
     'commentsManagement':    '/admin/comments',
     'analytics':             '/admin/analytics',
     'sceneEditor':           '/admin/scene',
-    'messagesManagement':    '/admin/messages',
   };
 
   // slug URL → page-key
@@ -27,10 +25,9 @@
     '':                  'home',
     'home':              'home',
     'connexion':         'connexion',
-    'register':          'register',
-    'me':                'userProfile',
+    'search':            'search',
     'admin':             'adminTool',
-    'admin/users':       'usersManagement',
+    'admin/settings':    'settingsManagement',
     'admin/tags':        'tagsManagement',
     'admin/medias':      'mediasManagement',
     'admin/pages':       'pagesManagement',
@@ -38,7 +35,6 @@
     'admin/comments':    'commentsManagement',
     'admin/analytics':   'analytics',
     'admin/scene':       'sceneEditor',
-    'admin/messages':    'messagesManagement',
   };
 
   // Empêche la boucle pushState ↔ popstate
@@ -89,10 +85,9 @@
       switch (key) {
         case 'home':                  accessHome(); break;
         case 'connexion':             accessConnexion(); break;
-        case 'register':              accessRegister(); break;
-        case 'userProfile':           accessUserProfile(); break;
+        case 'search':                accessSearch(); break;
         case 'adminTool':             accessAdminTool(); break;
-        case 'usersManagement':       accessUsersManagement(); break;
+        case 'settingsManagement':    accessSettingsManagement(); break;
         case 'tagsManagement':        accessTagsManagement(); break;
         case 'mediasManagement':      accessMediasManagement(); break;
         case 'pagesManagement':       accessPagesManagement(); break;
@@ -100,7 +95,6 @@
         case 'commentsManagement':    accessCommentsManagement(); break;
         case 'analytics':             accessAnalytics(); break;
         case 'sceneEditor':           accessSceneEditor(); break;
-        case 'messagesManagement':    accessMessagesManagement(); break;
       }
     } finally {
       // Ré-activer pushState après la transition (500ms max)

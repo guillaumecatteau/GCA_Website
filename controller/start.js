@@ -46,17 +46,6 @@ window.getAnimationDevice = getAnimationDevice;
 function startSequence() {
   startBackground();
 
-  // Lien de réinitialisation de mot de passe reçu par email — page dédiée, hors intro normale.
-  const _resetToken = new URLSearchParams(window.location.search).get('token');
-  if (_resetToken) {
-    setTimeout(() => {
-      displayMainLogo();
-      activateNavigation();
-      window.accessResetPassword?.(_resetToken);
-    }, 400);
-    return;
-  }
-
   // Deep link : sauter l'intro et aller directement à la page cible
   const deepPage = window._routerInit?.();
   if (deepPage) {
@@ -64,25 +53,35 @@ function startSequence() {
       displayMainLogo();
       displayConnexionBoxDesktop();
       displayLanguageSelectorDesktop();
+      displaySearchBoxDesktop();
       activateNavigation();
       window._routerNavigate(deepPage);
     }, 400);
     return;
   }
 
-  // Intro normale
-  setTimeout(() => {
-    displayMainLogo();
-  }, 2000);
-
-  setTimeout(() => {
+  // Intro normale — chaque élément révélé est désormais planifié via la chronologie
+  // d'intro configurable (cf. vue/intro-timeline.js, Settings admin tool → "Lancement du
+  // site"), relative au moment où la scène 3D commence à jouer son état "intro"
+  // (évènement 'gca-intro-start', PAS ce DOMContentLoaded). schedule() gère lui-même
+  // l'inapplicabilité par device (ex: "mainLogo" n'est pas planifié sur mobile).
+  window._introTimeline?.schedule('mainLogo', displayMainLogo);
+  window._introTimeline?.schedule('topInputs', () => {
     displayConnexionBoxDesktop();
     displayLanguageSelectorDesktop();
-  }, 2300);
+    displaySearchBoxDesktop();
+  });
+  window._introTimeline?.schedule('burgerIcon', displayBurgerIcon);
 
-  setTimeout(() => {
-    displayHome();
-  }, 3600);
+  // displayHome() construit IMMÉDIATEMENT (dès que possible) le contenu/scroller de la home —
+  // ce sont UNIQUEMENT les révélations visuelles qu'elle contient (titre principal, icônes
+  // latérales, icône de scroll) qui sont désormais planifiées individuellement en son sein
+  // via la même chronologie (cf. vue/navigation.js). setTimeout(…, 0) plutôt qu'un appel
+  // synchrone ici : navigation.js enregistre son propre listener 'DOMContentLoaded' (qui
+  // initialise CNT_HOME et les autres références globales qu'utilise displayHome()) APRÈS
+  // celui de ce fichier (cf. ordre des <script> dans templates/partials/scripts.php) — un
+  // appel synchrone s'exécuterait donc avant cette initialisation.
+  setTimeout(() => { displayHome(); }, 0);
 
   setTimeout(() => {
     activateNavigation();

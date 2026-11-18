@@ -1,214 +1,216 @@
 {
     "home": {
         "label": "Home",
+        "mode": "static",
         "duration": 0,
-        "subStates": [
-            {
-                "id": "ss_0",
-                "time": 0,
-                "easing": "linear",
-                "state": {
-                    "label": "Home",
-                    "camera": {
-                        "posX": 0.9,
-                        "posY": 5.95,
-                        "posZ": 8,
-                        "fov": 60,
-                        "near": 0.1,
-                        "far": 520,
-                        "lookAtOffsetX": -0.35,
-                        "lookAtOffsetY": 0.15,
-                        "lookAtOffsetZ": 0
-                    },
-                    "theme": {
-                        "wire": "#666666"
-                    },
-                    "parallax": {
-                        "strengthX": 0.7,
-                        "strengthY": 0.45,
-                        "mouseSmoothing": 0.06,
-                        "cameraLerp": 0.04
-                    },
-                    "lights": {
-                        "ambient": {
-                            "color": "#ffffff",
-                            "intensity": 1
-                        },
-                        "key": {
-                            "type": "AmbientLight",
-                            "label": "Key Light",
-                            "visible": true,
-                            "color": "#ffffff",
-                            "intensity": 1.1,
-                            "useLeadColor": false,
-                            "leadColorPos": 0
-                        },
-                        "rimLeft": {
-                            "type": "PointLight",
-                            "label": "Rim Light Left",
-                            "visible": true,
-                            "color": "#3366ff",
-                            "intensity": 10,
-                            "useLeadColor": true,
-                            "leadColorPos": 0.25,
-                            "castShadow": false,
-                            "shadowOpacity": 1,
-                            "shadowRadius": 1,
-                            "distance": 10,
-                            "decay": 2,
-                            "posX": -2.9,
-                            "posY": 3.4,
-                            "posZ": -0.8
-                        },
-                        "rimRight": {
-                            "type": "PointLight",
-                            "label": "Rim Light Right",
-                            "visible": true,
-                            "color": "#3366ff",
-                            "intensity": 2.65,
-                            "useLeadColor": true,
-                            "leadColorPos": 0.75,
-                            "castShadow": false,
-                            "shadowOpacity": 1,
-                            "shadowRadius": 1,
-                            "distance": 10,
-                            "decay": 2,
-                            "posX": 2.8,
-                            "posY": 2.2,
-                            "posZ": -1.7
-                        }
-                    },
-                    "logo": {
-                        "scale": 1,
-                        "posX": 0,
-                        "posY": 2.2,
-                        "posZ": 0,
-                        "rotX": 0,
-                        "rotY": -0.66159,
-                        "rotZ": 0
-                    },
-                    "logoBody": {
-                        "color": "#0a0a14",
-                        "metalness": 0.5,
-                        "roughness": 0.5,
-                        "emissiveIntensity": 0,
-                        "castShadow": true
-                    },
-                    "logoLight": {
-                        "stops": [
-                            "#4488ff",
-                            "#e770ff",
-                            "#ff6644",
-                            "#ffd642",
-                            "#88fe5d",
-                            "#4488ff"
-                        ],
-                        "stopPositions": [
-                            0,
-                            0.2,
-                            0.4,
-                            0.6,
-                            0.8,
-                            1
-                        ],
-                        "gradientSpeed": 0.3,
-                        "gradientReverse": true,
-                        "gradientPlayOnce": false,
-                        "uvOffset": 0,
-                        "texScale": 3.1,
-                        "emissiveIntensity": 1,
-                        "lightIntensity": 2.1,
-                        "lightRange": 30,
-                        "normalOffset": 0.4,
-                        "castShadow": false,
-                        "useLeadColor": true,
-                        "leadColorPos": 0.5,
-                        "rimTintBlend": 0.5,
-                        "keyTintBlend": 0
-                    },
-                    "ground": {
-                        "color": "#111122",
-                        "metalness": 0.5,
-                        "roughness": 0.73,
-                        "receiveShadow": true,
-                        "scale": 3
-                    },
-                    "environment": {
-                        "visible": true
-                    },
-                    "bloom": {
-                        "enabled": true,
-                        "threshold": 0.25,
-                        "strength": 0.3,
-                        "radius": 0,
-                        "exposure": 1
-                    },
-                    "dof": {
-                        "enabled": false,
-                        "focus": 11.7,
-                        "aperture": 0.00069,
-                        "maxblur": 0.05
-                    },
-                    "shadow": {
-                        "keyResolution": 64,
-                        "keyRadius": 3,
-                        "ptResolution": 64,
-                        "ptRadius": 3
-                    },
-                    "particles": {
-                        "count": 700,
-                        "colorNear": "#7d7d7d",
-                        "colorFar": "#000000",
-                        "colorMaxDist": 5.5,
-                        "size": 0.02,
-                        "opacity": 0.25,
-                        "orbitSpeed": 0.5,
-                        "orbitCurve": 2,
-                        "turbulence": 0.29,
-                        "lifeMin": 2.5,
-                        "lifeMax": 5,
-                        "mouseInfluence": 0.5,
-                        "mouseRadius": 2,
-                        "mouseDepth": 4
-                    },
-                    "renderer": {
-                        "clearColor": "#000000"
-                    },
-                    "reflection": {
-                        "enabled": true,
-                        "resolution": 128,
-                        "bodyIntensity": 0.85,
-                        "groundIntensity": 1,
-                        "updateEvery": 6
-                    },
-                    "extraLights": [
-                        {
-                            "id": "el_1781927568905",
-                            "type": "SpotLight",
-                            "label": "SpotLight",
-                            "visible": true,
-                            "color": "#ffffff",
-                            "intensity": 20,
-                            "useLeadColor": false,
-                            "leadColorPos": 0,
-                            "castShadow": true,
-                            "shadowOpacity": 0.99,
-                            "shadowRadius": 10,
-                            "distance": 8,
-                            "decay": 1.7,
-                            "posX": -0.2,
-                            "posY": 5.2,
-                            "posZ": -0.8,
-                            "angle": 1.12,
-                            "penumbra": 1,
-                            "rotX": -1.41159,
-                            "rotY": 0,
-                            "rotZ": 0
-                        }
-                    ]
+        "state": {
+            "label": "Home",
+            "camera": {
+                "posX": 0.9,
+                "posY": 5.95,
+                "posZ": 8,
+                "fov": 60,
+                "near": 0.1,
+                "far": 520,
+                "lookAtOffsetX": -0.075,
+                "lookAtOffsetY": 0.15,
+                "lookAtOffsetZ": 0
+            },
+            "theme": {
+                "wire": "#666666"
+            },
+            "parallax": {
+                "strengthX": 0.7,
+                "strengthY": 0.45,
+                "mouseSmoothing": 0.06,
+                "cameraLerp": 0.04
+            },
+            "lights": {
+                "ambient": {
+                    "color": "#ffffff",
+                    "intensity": 1
+                },
+                "key": {
+                    "type": "AmbientLight",
+                    "label": "Key Light",
+                    "visible": true,
+                    "color": "#ffffff",
+                    "intensity": 1.1,
+                    "useLeadColor": false,
+                    "leadColorPos": 0
+                },
+                "rimLeft": {
+                    "type": "PointLight",
+                    "label": "Rim Light Left",
+                    "visible": true,
+                    "color": "#3366ff",
+                    "intensity": 10,
+                    "useLeadColor": true,
+                    "leadColorPos": 0.25,
+                    "castShadow": false,
+                    "shadowOpacity": 1,
+                    "shadowRadius": 1,
+                    "distance": 10,
+                    "decay": 2,
+                    "posX": -2.9,
+                    "posY": 3.4,
+                    "posZ": -0.8
+                },
+                "rimRight": {
+                    "type": "PointLight",
+                    "label": "Rim Light Right",
+                    "visible": true,
+                    "color": "#3366ff",
+                    "intensity": 2.65,
+                    "useLeadColor": true,
+                    "leadColorPos": 0.75,
+                    "castShadow": false,
+                    "shadowOpacity": 1,
+                    "shadowRadius": 1,
+                    "distance": 10,
+                    "decay": 2,
+                    "posX": 2.8,
+                    "posY": 2.2,
+                    "posZ": -1.7
                 }
-            }
-        ]
+            },
+            "logo": {
+                "scale": 1,
+                "posX": 0,
+                "posY": 2.2,
+                "posZ": 0,
+                "rotX": 0,
+                "rotY": -0.66159,
+                "rotZ": 0
+            },
+            "logoBody": {
+                "color": "#0a0a14",
+                "metalness": 0.5,
+                "roughness": 0.5,
+                "emissiveIntensity": 0,
+                "castShadow": true
+            },
+            "logoLight": {
+                "stops": [
+                    "#4488ff",
+                    "#e770ff",
+                    "#ff6644",
+                    "#ffd642",
+                    "#88fe5d",
+                    "#4488ff"
+                ],
+                "stopPositions": [
+                    0,
+                    0.2,
+                    0.4,
+                    0.6,
+                    0.8,
+                    1
+                ],
+                "gradientSpeed": 0.3,
+                "gradientReverse": true,
+                "gradientPlayOnce": false,
+                "uvOffset": 0,
+                "texScale": 3.1,
+                "emissiveIntensity": 1,
+                "lightIntensity": 2.1,
+                "lightRange": 30,
+                "normalOffset": 0.4,
+                "castShadow": false,
+                "useLeadColor": true,
+                "leadColorPos": 0.5,
+                "rimTintBlend": 0.5,
+                "keyTintBlend": 0
+            },
+            "ground": {
+                "color": "#111122",
+                "metalness": 0.5,
+                "roughness": 0.73,
+                "receiveShadow": true,
+                "scale": 3
+            },
+            "environment": {
+                "visible": true
+            },
+            "bloom": {
+                "enabled": true,
+                "threshold": 0.25,
+                "strength": 0.3,
+                "radius": 0,
+                "exposure": 1
+            },
+            "dof": {
+                "enabled": false,
+                "focus": 11.7,
+                "aperture": 0.00069,
+                "maxblur": 0.05
+            },
+            "shadow": {
+                "keyResolution": 64,
+                "keyRadius": 3,
+                "ptResolution": 64,
+                "ptRadius": 3
+            },
+            "particles": {
+                "count": 700,
+                "colorNear": "#7d7d7d",
+                "colorFar": "#000000",
+                "colorMaxDist": 5.5,
+                "size": 0.02,
+                "opacity": 0.25,
+                "orbitSpeed": 0.5,
+                "orbitCurve": 2,
+                "turbulence": 0.29,
+                "lifeMin": 2.5,
+                "lifeMax": 5,
+                "mouseInfluence": 0.5,
+                "mouseRadius": 2,
+                "mouseDepth": 4
+            },
+            "renderer": {
+                "clearColor": "#000000"
+            },
+            "reflection": {
+                "enabled": true,
+                "resolution": 128,
+                "bodyIntensity": 0.85,
+                "groundIntensity": 1,
+                "updateEvery": 6
+            },
+            "extraLights": [
+                {
+                    "id": "el_1781927568905",
+                    "type": "SpotLight",
+                    "label": "SpotLight",
+                    "visible": true,
+                    "color": "#ffffff",
+                    "intensity": 20,
+                    "useLeadColor": false,
+                    "leadColorPos": 0,
+                    "castShadow": true,
+                    "shadowOpacity": 0.99,
+                    "shadowRadius": 10,
+                    "distance": 8,
+                    "decay": 1.7,
+                    "posX": -0.2,
+                    "posY": 5.2,
+                    "posZ": -0.8,
+                    "angle": 1.12,
+                    "penumbra": 1,
+                    "rotX": -1.41159,
+                    "rotY": 0,
+                    "rotZ": 0
+                }
+            ]
+        },
+        "exposedParams": [],
+        "tracks": [],
+        "assignment": null,
+        "transition": {
+            "duration": 1500,
+            "fadeIn": true,
+            "fadeOut": true
+        }
     },
     "state_1792730739761": {
         "label": "Intro",
@@ -220,7 +222,7 @@
                 "posX": 0.9,
                 "posY": 5.95,
                 "posZ": 8,
-                "lookAtOffsetX": -0.35,
+                "lookAtOffsetX": -0.075,
                 "lookAtOffsetY": 0.15,
                 "lookAtOffsetZ": 0
             },

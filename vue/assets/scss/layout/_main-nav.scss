@@ -104,6 +104,7 @@
   margin-top: -3px;
 
   span {
+    display: inline-block;
     font-family: $font-body;
     font-weight: 400;
     font-style: normal;
@@ -113,6 +114,9 @@
     text-transform: uppercase;
     transition: color $transition-fast;
     transform-origin: right center;
+    // Évite le flicker/bond au passage par l'angle "de profil" (90deg) pendant le flip.
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 }
 
@@ -133,9 +137,8 @@
   transition: opacity $transition-fast;
 }
 
-.btnConnexion,
 .btnDirectAdmin,
-.btnShareDesktop {
+.btnShareLateral {
   height: 36px;
   width: 36px;
   @include flex-center;
@@ -160,52 +163,33 @@
   &.active > .icon::after { opacity: 1; }
 }
 
-.btnUserLog,
-.btnAdminLog {
+// ---------------------------------------------------------------------------
+// Recherche du site — icône desktop, juste à gauche du sélecteur de langue
+// (cf. Recherche du site) : simple icône cliquable, même traitement que
+// .btnDirectAdmin/.btnShareLateral — pas de cercle ni de bordure pointillée.
+// ---------------------------------------------------------------------------
+.btnSearchDesktop {
   height: 36px;
-  width: fit-content;
-  @include flex-row;
-  justify-content: center;
-  align-items: center;
+  width: 36px;
+  @include flex-center;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
   opacity: 0;
   transform: scale(1);
   transform-origin: center;
-  transition: transform $transition-icon-bounce, opacity $transition-slow;
   cursor: pointer;
-  gap: 0.5rem;
+  transition: transform $transition-icon-bounce, opacity $transition-slow;
 
   > .icon {
+    width: 20px;
+    height: 20px;
     transform-origin: center;
-    transform: rotateX(0deg) var(--scale, scale(1));
-    transition: transform $transition-icon-bounce, opacity $transition-fast;
-  }
-
-  > .btnUserLogText {
-    font-family: $font-body;
-    font-weight: 400;
-    font-style: normal;
-    color: $color-text-muted;
-    transform: var(--scale, scale(1));
     transition: transform $transition-icon-bounce;
   }
 
-  &:hover { transform: scale(1.1); }
-}
-
-.btnUserLog {
-  &.pressed {
-    --scale: scale(1);
-
-    > .icon::after { opacity: 1; }
-    > .btnUserLogText { color: $color-text-primary; margin-left: 0; }
-  }
-
-  &.clicked {
-    --scale: scale(1.5);
-
-    > .icon::after { opacity: 1; }
-    > .btnUserLogText { color: $color-text-primary; }
-  }
+  &:hover { transform: scale(1.15); }
+  &:hover > .icon { transform: scale(1.15); }
 }
 
 // ---------------------------------------------------------------------------
@@ -266,6 +250,32 @@
   opacity: 0;
   overflow: hidden;
   transition: opacity $transition-fast, width $transition-fast;
+}
+
+// Recherche du site — même position relative (à gauche du sélecteur de langue) que le
+// desktop, révélée avec le reste de .tabletMenuTop (pas de fondu propre nécessaire).
+// Simple icône cliquable, sans cercle ni bordure pointillée.
+.btnSearchTablet {
+  height: 36px;
+  width: 36px;
+  flex-shrink: 0;
+  @include flex-center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transform: scale(1);
+  transform-origin: center;
+  transition: transform $transition-icon-bounce;
+
+  > .icon {
+    width: 20px;
+    height: 20px;
+    transform-origin: center;
+    transition: transform $transition-icon-bounce;
+  }
+
+  &:hover { transform: scale(1.15); }
+  &:hover > .icon { transform: scale(1.15); }
 }
 
 // Connexion (+ nom d'utilisateur si connecté) — à gauche du sélecteur de langue.
@@ -339,7 +349,9 @@
   width: fit-content;
   @include flex-column;
   justify-content: space-between;
-  padding: 0 0 2rem 16px; // aligné sur left: 16px de .sectionNav
+  // Même marge que .topBar (16px) et .sectionNav (left: 16px) — l'espace en bas de
+  // l'interface doit être strictement identique à celui du haut et des côtés.
+  padding: 0 0 16px 16px;
   gap: 1rem;
   pointer-events: auto;
 }
@@ -405,15 +417,47 @@
 }
 
 // ---------------------------------------------------------------------------
-// Social links Desktop
+// Social links Desktop — icône "social" dépliante + icône "share" (cf. Global
+// homepage et navigation). Le panneau déplié est en position absolute : il ne
+// modifie jamais le flux des icônes de navigation de section plus haut
+// (.navLinks est un sibling indépendant de .socialLinksDesktop).
 // ---------------------------------------------------------------------------
 .socialLinksDesktop {
+  position: relative;
   height: fit-content;
   width: fit-content;
   @include flex-column;
   align-items: center;
-  gap: 0.25rem; // réduit
+  // Même espacement que la colonne d'icônes de section (.sectionNav) juste au-dessus —
+  // la cohérence visuelle entre les deux groupes d'icônes est requise.
+  gap: 0.25rem;
   opacity: 1;
+}
+
+.socialExpandPanel {
+  position: absolute;
+  // Écart entre la dernière icône du panneau (la plus proche) et la flèche indicative
+  // (::before, cf. plus bas) : doit être identique à l'espacement ENTRE les icônes du
+  // panneau (0.5rem = 8px) — valeur calée empiriquement (13px) pour compenser la hauteur
+  // de la flèche elle-même (non comptée dans "100%").
+  bottom: calc(100% + 13px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: max-height $transition-fast, opacity $transition-fast;
+
+  &.socialExpandPanel--open {
+    max-height: 300px;
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .btnSocialLateral {
@@ -423,13 +467,10 @@
   align-items: center;
   width: 36px;
   height: 36px;
-  opacity: 0;   // caché par défaut — révélé par staggerReveal (style.opacity='1' inline)
-  // Non cliquable tant que non révélé : #socialLinksDesktop est rendu en permanence par
-  // nav-desktop.php (toutes pages), mais staggerReveal() n'est déclenché QUE depuis l'init de
-  // la home — sur les autres pages, ces liens restaient invisibles (opacity:0) mais cliquables
-  // (bug : cliquer dans le coin inférieur gauche de n'importe quelle page ouvrait un réseau
-  // social). staggerReveal() repasse ce pointer-events à "auto" une fois l'icône révélée.
-  pointer-events: none;
+  // Révélé/caché par .socialExpandPanel--open (plus par staggerReveal, réservé à
+  // .socialLinksDesktopItem — cf. vue/navigation.js), toujours opaque ici.
+  opacity: 1;
+  pointer-events: auto;
   transition: opacity $transition-slow;
   cursor: pointer;
   text-decoration: none;
@@ -445,6 +486,69 @@
   &:hover > .icon  { transform: scale(1.25); }
   &:active > .icon::after { opacity: 1; }
 }
+
+.btnSocialToggle,
+.btnShareLateral {
+  position: relative;
+  display: flex;
+  // flex-start (pas center) : l'icône doit démarrer au même x que celles de .sectionNavItem
+  // juste au-dessus (flex-start, icône en 1er enfant) — un centrage ici décalait l'icône de
+  // 8px vers la droite par rapport à elles (36px de large, icône 20px ⇒ (36-20)/2 = 8px de
+  // marge gauche involontaire), cf. Interface desktop : "spacing à gauche... plus grand".
+  justify-content: flex-start;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity $transition-fast, transform $transition-icon-bounce;
+
+  > .icon {
+    width: 20px;
+    height: 20px;
+    transform-origin: center;
+    transform: scale(1);
+    transition: transform $transition-icon-bounce;
+  }
+
+  &:hover > .icon { transform: scale(1.15); }
+}
+
+// Petite flèche indicative au-dessus de l'icône sociale — signale que le panneau se déplie
+// VERS LE HAUT (cf. demande utilisateur) ; partagée desktop + tablette (même classe).
+// Rapprochée de l'icône (top:-9px → -5px, cf. Interface desktop) : l'écart avec le panneau
+// déplié est désormais assuré par .socialExpandPanel (bottom: calc(100% + 1rem)) plutôt que
+// par cette flèche elle-même.
+.btnSocialToggle::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 5px solid $color-text-muted;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+// Desktop seulement : l'icône de .btnSocialToggle y est alignée à gauche (flex-start, cf.
+// .btnSocialToggle/.btnShareLateral plus haut — pour partager le même axe gauche que
+// .sectionNavItem), PAS centrée dans son bouton de 36px comme en tablette (flex-column
+// centré) — la flèche doit donc se recentrer sur le centre réel de l'ICÔNE (10px, moitié de
+// ses 20px de large) plutôt que sur le centre du bouton (18px), sous peine de paraître
+// décalée par rapport à l'icône (cf. Interface desktop).
+#socialLinksDesktop .btnSocialToggle::before {
+  left: 10px;
+}
+
+// Perd 50% de son opacité une fois le panneau déplié (cf. demande)
+.btnSocialToggle--active { opacity: 0.5; }
 
 .navRight { height: 100%; }
 
@@ -512,17 +616,40 @@
   justify-content: flex-start;
   align-items: center;
   // Pas de fond : seuls les items eux-mêmes doivent être visibles, pas un bloc plein.
-  // padding-top calé pour que l'écart entre le burger et "Accueil" (1er item) soit
-  // identique à celui entre le sélecteur de langue et le burger, cf. vue/interface.js.
-  padding: 20.9px 0 1.5rem;
+  // padding-top : calibré pour que l'espace burger→sommet icône Accueil soit identique à
+  // l'espace switch de langue→burger (symétrie demandée, cf. Interface tablette). La lueur
+  // pulsante de l'icône active n'était PAS rognée par ce conteneur (overflow:hidden) comme
+  // supposé à tort dans une correction précédente (qui avait porté ce padding à 30px) — le
+  // vrai bug était que ".btnTablet--active > .icon::after" n'avait pas opacity:1 (restait à
+  // 0 hérité de la base, l'animation de glow tournait mais restait invisible), cf. règle
+  // plus bas. Une fois CE bug corrigé, on peut revenir à la valeur calibrée pour la symétrie
+  // visuelle sans rogner quoi que ce soit (lueur max ~6.5px de spread, largement inférieure
+  // à ce padding).
+  // AUCUN padding-bottom : le JS (menuTabletDeploy()) calcule déjà la hauteur du container
+  // parent pour s'arrêter pile à 16px du bas d'écran (même marge que partout ailleurs,
+  // cf. .mainNavContainerDesktop) — un padding-bottom ici s'ajoutait PAR-DESSUS cette marge
+  // déjà correcte, repoussant le bouton Partager bien plus haut que prévu (cf. Interface
+  // tablette : "l'icône partager n'arrive pas jusqu'au bas de l'écran").
+  padding: 19.375px 0 0;
 }
 
-// Icône partager — tout en bas de l'écran (jamais simplement en bas du contenu : la hauteur
-// du container est plafonnée en JS à l'espace réellement disponible sous le burger, cf.
-// menuTabletDeploy() — le bouton reste donc toujours visible et ancré au bord de l'écran,
-// même si la liste de liens au-dessus doit scroller en interne pour tenir dans cet espace).
-.btnTablet.btnShare {
+// Groupe social dépliant + partager — tout en bas de l'écran (jamais simplement en bas du
+// contenu : la hauteur du container est plafonnée en JS à l'espace réellement disponible
+// sous le burger, cf. menuTabletDeploy() — le groupe reste donc toujours ancré au bord de
+// l'écran, avec le même padding qu'en haut et sur les côtés, même si la liste de liens
+// au-dessus doit scroller en interne pour tenir dans cet espace).
+.socialLinksTablet {
+  position: relative;
+  width: 100%;
+  flex-shrink: 0;
   margin-top: auto;
+  @include flex-column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btnTablet.btnSocialToggle,
+.btnTablet.btnShare {
   flex-shrink: 0;
   // height:auto plutôt que le height:100% hérité de .btnTablet : ce bouton est un enfant
   // direct du container (hauteur définie en JS), donc height:100% s'y résolvait littéralement
@@ -531,8 +658,12 @@
   // flex-shrink:0, il engloutissait tout l'espace disponible et réduisait la liste de liens
   // à 0px.
   height: auto;
+  width: 100%;
   padding: 0.5rem 0;
 }
+
+// Perd 50% de son opacité une fois le panneau social déplié (même règle que desktop)
+.btnTablet.btnSocialToggle.btnSocialToggle--active { opacity: 0.5; }
 
 .btnTablet {
   width: 100%;
@@ -543,26 +674,62 @@
   gap: 0.25rem;
   opacity: 0;
   transform-origin: center;
-  transform: rotateY(0deg) var(--scale, scale(1));
+  transform: scale(1);
   transition: all $transition-fast;
+  // <a> sans "href" (navigation gérée en JS) : pas de cursor:pointer natif du navigateur
+  // contrairement à l'icône recherche/langue/social qui l'ont (cf. Interface tablette).
+  cursor: pointer;
 
-  &:hover  { transform: var(--scale, scale(1.2)); }
-  > .icon  { transform-origin: center right; width: 36px; height: 36px; }
+  // PAS de scale up au survol en mode tablette (cf. Interface tablette : "il ne doit pas y
+  // avoir de scaling up sur les éléments du menu latéral — uniquement scale down au moment
+  // du clic") — contrairement au menu desktop, volontairement différent ici.
+  > .icon  {
+    transform-origin: center right;
+    width: 36px;
+    height: 36px;
+    filter: brightness(1);
+    transition: filter 0.3s ease;
+  }
 
+  // Enfoncement au clic — seule animation de scale autorisée ici.
   &.pressedTablet {
     color: $color-text-primary;
-    transform: var(--scale, scale(0.9));
+    transform: scale(0.9);
 
     .icon::after         { opacity: 1; }
     .linkTextTablet      { color: $color-text-primary; }
   }
 
   &.clickedTablet {
-    transform: var(--scale, scale(1));
+    transform: scale(1);
 
     .icon::after         { opacity: 1; }
     .linkTextTablet      { color: $color-text-primary; }
   }
+}
+
+// Section actuellement affichée sur la home : icône blanche + lueur pulsante, même
+// traitement que l'icône active du menu latéral desktop (cf. components/_sections.scss,
+// sectionIconActiveGlow) — cohérence demandée entre desktop/tablette/mobile (cf. Interface
+// tablette).
+.btnTablet--active {
+  > .icon {
+    filter: brightness(0) invert(1);
+
+    // opacity:1 manquait ici (contrairement à .sectionNavItem--active côté desktop,
+    // cf. _sections.scss) : le calque ::after (base opacity:0, cf. mixin icon-grey)
+    // ne devenait visible que via .pressedTablet/.clickedTablet (opacity:1 au clic),
+    // donc jamais pour l'item actif PAR DÉFAUT au chargement (ex. Accueil), qui n'a
+    // jamais été littéralement cliqué — la lueur pulsait bien (animation appliquée,
+    // confirmé par devtools) mais restait invisible, opacity:0 — PAS un problème de
+    // clipping par le conteneur, cf. Interface tablette (rapporté à tort comme tel).
+    &::after {
+      opacity: 1;
+      animation: sectionIconActiveGlow 2.6s ease-in-out infinite;
+    }
+  }
+
+  .linkTextTablet { color: $color-text-primary; }
 }
 
 .linkTextTablet {
@@ -624,12 +791,20 @@
   justify-content: flex-start;
   align-items: center;
   gap: 1.5rem;
-  padding: 12px 24px 24px;
+  // padding-bottom = hauteur du bouton burger (76px, cf. .burgerContainer en mode mobile) :
+  // le groupe nav+social (margin auto, cf. .mobileMenuNavGroup) doit se centrer entre le bas
+  // du logo et le bouton burger, qui est position:fixed/indépendant de ce flux — sans ce
+  // padding égal à sa hauteur, le bas "réel" de ce conteneur flex ne correspondait pas à la
+  // ligne du burger, et le centrage par marges auto donnait un résultat visuellement décalé
+  // (cf. Interface mobile "menu burger").
+  padding: 12px 24px 76px;
   overflow-y: auto;
 }
 
-// Rangée du haut : logo (identique à celui de la topBar desktop/tablette, qui n'existe
-// plus sur mobile) à gauche, sélecteur de langue au bord opposé, centré verticalement dessus.
+// Rangée du haut : logo à gauche, sélecteur de langue à droite (remis à sa position
+// d'origine, cf. Interface mobile "menu burger" — le switch FR/EN avait été déplacé en bas
+// à gauche puis ce changement a été annulé). Le logo garde tout de même toute la largeur
+// disponible restante (cf. demande précédente conservée).
 .mobileMenuTopRow {
   width: 100%;
   flex-shrink: 0;
@@ -640,11 +815,29 @@
   // Même classes que #mainLogo (topBar) pour un rendu identique — seule l'opacité de base
   // (0, pensée pour l'animation d'entrée de la topBar via displayMainLogo()) est réécrite
   // ici : cette instance est démasquée par l'ouverture du menu, pas par une entrée propre.
-  > .mainLogo { opacity: 1; }
+  > .mainLogo {
+    opacity: 1;
+    // flex:1 (pas width:100%) : occupe tout l'espace DISPONIBLE après le sélecteur de
+    // langue, sans le pousser hors écran — un width:100% dans un flex-row avec
+    // justify-content:space-between demande la largeur TOTALE du conteneur, quelle que soit
+    // la place déjà prise par le sélecteur de langue (72px), qui se retrouvait alors rejeté
+    // hors du viewport (cf. Interface mobile "menu burger").
+    flex: 1 1 auto;
+    min-width: 0; // laisse réellement la place au sélecteur de langue à droite
 
-  > .languageSelector {
-    opacity: 0;
-    transition: opacity $transition-fast;
+    // La 2ème ligne (mainLogoText) hérite de width:100% + justify-content:space-between
+    // (cf. .mainLogoText ci-dessous, partagée avec desktop/tablette) : une fois le logo
+    // étiré sur presque toute la largeur de l'écran, cela espaçait démesurément ses lettres
+    // par rapport à la 1ère ligne (h1, espacement naturel). Reproduit ici le même espacement
+    // que la 1ère ligne — un gap fixe plutôt qu'un étirement plein cadre.
+    .mainLogoText {
+      justify-content: flex-start;
+      gap: 0.4rem;
+    }
+  }
+
+  > .languageSwitchMobile {
+    flex-shrink: 0;
   }
 }
 
@@ -659,6 +852,20 @@
   gap: 0.75rem;
   opacity: 0;
   transition: opacity $transition-fast;
+}
+
+// Groupe unique boutons principaux + réseaux sociaux — centré dans l'espace disponible entre
+// le bas du logo et le haut du bouton burger (cf. Interface mobile), au lieu de ne centrer
+// que .navLinksMobile seul comme précédemment : les marges auto s'appliquent désormais au
+// groupe entier.
+.mobileMenuNavGroup {
+  width: 100%;
+  flex-shrink: 0;
+  @include flex-column;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .navLinksMobile {
@@ -678,15 +885,16 @@
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
+  background: transparent;
   border: 1px solid $color-text-muted;
   border-radius: $radius-lg;
   opacity: 0;
   transform-origin: center;
   transform: rotateY(0deg) var(--scale, scale(1));
   transition: transform $transition-fast, opacity $transition-fast,
-    background-color $transition-fast, color $transition-fast;
+    background-color $transition-fast, color $transition-fast, border-color $transition-fast;
 
-  > .icon { width: 32px; height: 32px; }
+  > .icon { width: 36px; height: 36px; }
 
   &.pressedMobile {
     background-color: $color-text-muted;
@@ -706,25 +914,51 @@
   }
 }
 
+// Section actuellement affichée sur la home : fond blanc, icône/texte sombres, stroke blanc
+// — glow externe blanc pulsant, même vitesse que la pulsation de l'icône active du menu
+// desktop (cf. components/_sections.scss, sectionIconActiveGlow) pour une cohérence
+// d'ensemble. Taille de la lueur réduite de moitié par rapport à l'originale (cf. Interface
+// mobile : "taille max du glow du bouton actif").
+@keyframes mobileActiveBtnGlow {
+  0%, 100% {
+    box-shadow: 0 0 1.5px 0.5px rgba(255, 255, 255, 0.3), 0 0 4px 1px rgba(255, 255, 255, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 6px 1.5px rgba(255, 255, 255, 0.95), 0 0 13px 3.5px rgba(255, 255, 255, 0.55);
+  }
+}
+
+.btnMobile--active {
+  background-color: $color-text-primary;
+  border-color: $color-text-primary;
+  transition: transform $transition-fast, opacity $transition-fast,
+    background-color $transition-fast, color $transition-fast, border-color $transition-fast;
+  animation: mobileActiveBtnGlow 2.6s ease-in-out infinite;
+
+  .icon::before   { opacity: 1; }
+  .linkTextMobile { color: #060609; }
+}
+
+// Bouton Recherche mobile — même apparence que les autres boutons de la grille (cf.
+// Page de recherche : "c'est juste une icone cliquable", pas de différenciation visuelle).
+
 .linkTextMobile {
   color: $color-text-muted;
   font-family: $font-body;
   font-style: normal;
   text-transform: uppercase;
   font-weight: 400;
-  // Réduit par rapport à l'ancienne grille 1 colonne : 3 tuiles par ligne laissent moins
-  // de place par libellé (le plus long, "Présentation", ne doit pas être coupé).
-  font-size: 9px;
+  font-size: 11px;
   text-align: center;
   transition: color $transition-fast;
 }
 
-// Libellé au-dessus des icônes de réseaux sociaux.
+// Libellé au-dessus des icônes de réseaux sociaux — espace réduit avant la grille des
+// réseaux (cf. Interface mobile), sans toucher à l'espacement nav → libellé (gap du groupe,
+// cf. .mobileMenuNavGroup) : marge négative qui ne réduit QUE l'écart avec l'élément suivant.
 .followMeLabel {
   width: 100%;
   flex-shrink: 0;
-  margin-top: auto;
-  margin-bottom: -0.75rem;
   color: $color-text-muted;
   font-family: $font-body;
   font-weight: 400;
@@ -733,32 +967,136 @@
   text-transform: uppercase;
   text-align: center;
   opacity: 0;
+  margin-bottom: -1rem;
   transition: opacity $transition-fast;
 }
 
+// Réseaux sociaux : même disposition/espacement que les boutons principaux (grille, même
+// gap), même apparence que le bouton Partager (fond sombre, stroke gris, border-radius) —
+// pas de lead-color ici, cf. règle d'exclusion plus haut. Hauteur = largeur (aspect-ratio
+// hérité de .btnMobile), calculée dynamiquement par le navigateur plutôt qu'en JS.
 .socialLinksMobile {
-  height: fit-content;
   width: 100%;
   flex-shrink: 0;
-  @include flex-row;
-  justify-content: space-around;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  // Marge à droite pour que la dernière icône ne passe jamais sous le bouton burger fixe
-  // (coin inférieur droit, 76px de large) qui flotte au-dessus de ce menu.
-  padding-right: 64px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
 }
 
 .btnSocialMobile {
-  height: 100%;
-  width: 100%;
-  display: flex;
   cursor: pointer;
-  opacity: 0;
-  transform-origin: center;
-  transform: rotateY(0deg) var(--scale, scale(1));
-  transition: transform $transition-fast, opacity $transition-fast;
+  background: $color-block-bg;
+  // Moitié du rayon hérité de .btnMobile ($radius-lg = 20px), cf. Interface mobile "menu
+  // burger" : "Réduit le border radius des boutons d'icon sociale de moitié".
+  border-radius: calc($radius-lg / 2);
+
+  > .icon { width: 28px; height: 28px; }
 }
+
+// Sélecteur de langue — switch FR/EN, remis dans le flux normal en haut à droite du menu,
+// à côté du logo (cf. .mobileMenuTopRow) — n'est plus positionné en fixed indépendamment du
+// flux (cf. Interface mobile "menu burger", retour sur le précédent changement).
+.languageSwitchMobile {
+  flex-shrink: 0;
+}
+
+// <select> natif conservé uniquement pour piloter le système de langue existant
+// (cf. controller/language.js, qui écoute #langMobile) — jamais affiché, le rendu visuel
+// est entièrement assuré par .languageSwitchBtn ci-dessous.
+.languageSwitchMobileNative {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.languageSwitchBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 72px;
+  height: 32px;
+  padding: 3px;
+  border: 1px solid $color-text-faint;
+  border-radius: $radius-lg;
+  background: $color-block-bg;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.languageSwitchOption {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  text-align: center;
+  font-family: $font-body;
+  font-size: 11px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: $color-text-muted;
+  transition: color $transition-fast;
+}
+
+.languageSwitchKnob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  height: calc(100% - 6px);
+  border-radius: $radius-lg;
+  background-color: $color-text-primary;
+  transition: transform $transition-fast;
+}
+
+// État "EN" : le knob glisse sur la seconde moitié, son propre libellé passe en sombre
+// (lisible sur fond blanc) tandis que l'autre repasse en gris.
+.languageSwitchBtn[aria-checked="true"] {
+  .languageSwitchKnob { transform: translateX(100%); }
+  .languageSwitchOption[data-lang="en"] { color: #060609; }
+}
+.languageSwitchBtn:not([aria-checked="true"]) {
+  .languageSwitchOption[data-lang="fr"] { color: #060609; }
+}
+
+// Partager le site — lien icône+texte, coin inférieur gauche du menu burger déplié,
+// symétrique au bouton burger (coin inférieur droit). Position fixe, indépendante du
+// flux/scroll interne du menu (même technique que l'ancien copyright/switch de langue qui
+// occupaient précédemment cet emplacement, cf. Interface mobile "menu burger").
+.shareWebsiteLink {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity $transition-fast;
+  cursor: pointer;
+
+  .icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  span:not(.icon) {
+    color: $color-text-muted;
+    font-family: $font-body;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color $transition-fast;
+  }
+
+  &:hover {
+    .icon::before { opacity: 1; }
+    span:not(.icon) { color: $color-text-primary; }
+  }
+}
+
 
 // ---------------------------------------------------------------------------
 // Boutons CTA
@@ -842,7 +1180,7 @@
   .topBar > .languageSelector { display: none; }
   .topBarContent        { display: flex; }
   .tabletMenuTop        { display: flex; }
-  .burgerMenu           { display: flex; }
+  .burgerMenu           { display: flex; opacity: 0; }
   .languageSelector     { opacity: 1; }
 
   .burgerContainer {
@@ -865,6 +1203,15 @@
   .navTablet    { display: none; }
   .topBarContent { display: none; }
 
+  // La topBar ELLE-MÊME doit cesser de réserver de l'espace sur mobile (elle garde sa
+  // hauteur et sa marge fixes — 36px + 16px — même quand son contenu est caché), sinon elle
+  // pousse le menu burger (#menuMobile, sibling suivant en flex-column) d'autant vers le bas
+  // et laisse un espace vide au-dessus du panneau une fois déployé (cf. Interface mobile :
+  // le menu doit occuper toute la hauteur de l'écran). On ne la passe PAS en display:none
+  // car .burgerContainer, bien que position:fixed (donc indépendant du flow), en est un
+  // enfant direct — il disparaîtrait avec elle.
+  .topBar { height: 0; margin: 0; overflow: visible; }
+
   // L'instance de la topBar (#mainLogo) est masquée en permanence sur mobile : il n'y a
   // plus de top bar — le logo réapparaît identique (même classes .mainLogo/.mainLogoText)
   // à l'intérieur du menu burger déplié, cf. #mainLogoMobile plus bas. On cible l'ID (pas
@@ -872,8 +1219,8 @@
   #mainLogo { display: none; }
 
   // Box "popup" collée au coin inférieur droit de l'écran : même langage visuel que les
-  // glass-block classiques, mais SEUL le coin haut-gauche a un radius et SEULS les bords
-  // haut/gauche ont un stroke (les bords bas/droit se confondent avec le bord de l'écran).
+  // glass-block classiques. Pas de stroke (demande explicite) : seul le fond vitré/flou la
+  // distingue de l'arrière-plan, et seul le coin haut-gauche conserve un radius.
   .burgerContainer {
     display: flex;
     align-items: center;
@@ -890,8 +1237,6 @@
     z-index: 1001;
     background-color: $color-block-bg;
     backdrop-filter: blur(12px);
-    border-top: solid 1px $color-border;
-    border-left: solid 1px $color-border;
     border-top-left-radius: $radius-lg;
     transition: all $transition-fast;
   }

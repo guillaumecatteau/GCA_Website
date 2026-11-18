@@ -1,0 +1,143 @@
+// =============================================================================
+// SEARCH — Page de recherche publique du site (projets / expertises / blog)
+// =============================================================================
+@use '../abstracts' as *;
+
+.searchContent {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  @include flex-column;
+  align-items: center;
+}
+
+.searchContainer {
+  width: 100%;
+  max-width: 640px;
+  @include flex-column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.searchSubtitle {
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-size: $font-size-md;
+  font-weight: 200;
+  text-align: center;
+}
+
+.searchForm {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.searchInput {
+  flex: 1;
+  // Retire le "x" natif Chrome d'un <input type="search"> : la croix de retour desktop
+  // (.btnPageBack) suffit, pas besoin d'un second bouton d'effacement natif incohérent
+  // avec le reste des champs du site (cf. .formInput).
+  &::-webkit-search-cancel-button { -webkit-appearance: none; }
+}
+
+.btnSearchSubmit {
+  flex-shrink: 0;
+  width: 48px;
+  height: 36px;
+  @include flex-center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform $transition-icon-bounce;
+
+  > .icon { width: 18px; height: 18px; }
+
+  &:hover {
+    transform: scale(1.08);
+  }
+}
+
+.searchResults {
+  width: 100%;
+}
+
+.searchMessage {
+  width: 100%;
+  color: $color-text-faint;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.searchResultsList {
+  width: 100%;
+  @include flex-column;
+  gap: 0.75rem;
+  list-style: none;
+}
+
+.searchResultItem {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem;
+  @include glass-block($radius-md);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    border-color: $color-border-active;
+    outline: none;
+  }
+}
+
+.searchResultMedia {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: $radius-sm;
+  overflow: hidden;
+  background: $color-block-bg-active;
+
+  img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+
+.searchResultInfo {
+  min-width: 0;
+  @include flex-column;
+  gap: 0.2rem;
+}
+
+.searchResultType {
+  color: $color-text-faint;
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  text-transform: uppercase;
+}
+
+.searchResultTitle {
+  color: $color-text-primary;
+  font-family: $font-body;
+  font-size: $font-size-md;
+}
+
+.searchResultExcerpt {
+  color: $color-text-muted;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+@include mobile {
+  .searchResultMedia { width: 56px; height: 56px; }
+}

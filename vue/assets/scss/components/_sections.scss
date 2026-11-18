@@ -232,6 +232,248 @@
 .pageCard--projet    {}
 .pageCard--blog       {}
 
+// ---------------------------------------------------------------------------
+// Carrousel générique (Portfolio, cf. vue/carousel.js + vue/portfolio-carousel.js) —
+// réutilisé par la Section Gallerie (mêmes classes pfSlot*, renderSlot différent).
+// ---------------------------------------------------------------------------
+.pfCarousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pfCarouselTrack {
+  position: relative;
+  width: 100%;
+  height: 70%;
+  // Fondu des extrémités gauche/droite — même procédé que le fondu bas de page lors d'un scroll.
+  mask-image: linear-gradient(to right, transparent 0%, black 64px, black calc(100% - 64px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 64px, black calc(100% - 64px), transparent 100%);
+}
+
+.pfCarouselArrow {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  @include flex-center;
+  background: $color-block-bg;
+  border: 1px solid $color-border-active;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform $transition-icon-bounce, border-color $transition-fast;
+
+  > .icon { width: 20px; height: 20px; }
+
+  &:hover { transform: scale(1.1); border-color: $color-text-primary; }
+}
+
+.pfSlot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(60%, 560px);
+  aspect-ratio: 16 / 10;
+  cursor: pointer;
+  border-radius: $radius-md;
+  overflow: hidden;
+  @include flex-column;
+}
+
+.pfSlot--active { cursor: default; }
+
+// Bounce à l'arrivée sur la taille finale — magnifie l'impact du projet highlighté.
+.pfSlot--bounce { animation: pfBounce 0.5s cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes pfBounce {
+  0%   { transform: translate(-50%, -50%) scale(1); }
+  40%  { transform: translate(-50%, -50%) scale(1.07); }
+  70%  { transform: translate(-50%, -50%) scale(0.97); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.pfSlotMedia {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: $color-block-bg;
+  border-radius: $radius-md;
+  overflow: hidden;
+
+  // Proportion complète de l'image (jamais recadrée), cf. demande.
+  img { width: 100%; height: 100%; object-fit: contain; display: block; }
+}
+
+.pfSlotDark {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity $transition-fast;
+}
+
+.pfSlotInfo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3.5rem;
+  @include flex-column;
+  align-items: center;
+  gap: 0.2rem;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity $transition-medium;
+
+  &.pfSlotInfo--visible { opacity: 1; pointer-events: auto; }
+}
+
+.pfSlotTitle {
+  font-family: $font-body;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.pfSlotYears,
+.pfSlotJobs {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+}
+
+.pfSlotViewBtn { margin-top: 0.4rem; }
+
+// ---------------------------------------------------------------------------
+// Section Gallerie — filtres par expertise + carrousel + détails + miniatures
+// (cf. vue/home-gallery.js, moteur partagé avec Portfolio : vue/carousel.js)
+// ---------------------------------------------------------------------------
+.sectionGalleryContent {
+  width: 100%;
+  height: 100%;
+  @include flex-column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.galleryFilters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.galleryFilterBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid $color-border;
+  background: $color-block-bg;
+  cursor: pointer;
+  @include flex-center;
+  transition: border-color $transition-fast, transform $transition-icon-bounce;
+
+  > .icon { width: 20px; height: 20px; }
+
+  &:hover { transform: scale(1.08); }
+  &.galleryFilterBtn--active { border-color: $color-text-primary; }
+}
+
+.galleryCarousel {
+  width: 100%;
+  height: 50vh; // cf. demande : hauteur max de l'image = moitié de la hauteur de l'écran
+  max-height: 50vh;
+
+  .pfSlot {
+    aspect-ratio: auto;
+    width: min(55%, 500px);
+    height: 100%;
+  }
+}
+
+.galleryDetails {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.galleryDetailsText {
+  @include flex-column;
+  gap: 0.2rem;
+}
+
+.galleryDetailsYear,
+.galleryDetailsDesc {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+}
+
+.galleryDetailsProject {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.galleryDetailsShare {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  @include flex-center;
+
+  > .icon { width: 20px; height: 20px; }
+}
+
+.galleryThumbsHolder {
+  width: 100%;
+  max-width: 700px;
+  max-height: 120px;
+}
+
+// ---------------------------------------------------------------------------
+// Visionneuse plein écran (cf. vue/gallery-common.js — openFullscreenViewer)
+// Réutilise le flou de fond du site (displayBackBlurMask) + superposition dark 50%.
+// ---------------------------------------------------------------------------
+.galleryFullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+
+  &.galleryFullscreen--open { display: flex; }
+}
+
+.galleryFullscreenImg {
+  max-width: 92vw;
+  max-height: 92vh;
+  object-fit: contain;
+  border-radius: $radius-md;
+}
+
+.galleryFullscreenBack {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid $color-border-active;
+  background: $color-block-bg;
+  cursor: pointer;
+  @include flex-center;
+
+  > .icon { width: 20px; height: 20px; }
+}
+
 
 // Bio — panel gauche (mainBlock) : timeline Expérience/Formation/Études, réutilise
 // .basicGrid/.mainBlock/.sideBlock/.tagGroup/.expCard (mêmes styles que l'éditeur
@@ -243,13 +485,104 @@
 // ---------------------------------------------------------------------------
 .scrollDownIndicator {
   position: absolute;
-  left: 50%;
-  bottom: 48px;
-  transform: translateX(-50%);
+  // Centrage horizontal via marges auto (left/right:0 + margin:0 auto + width:fit-content)
+  // plutôt que left:50% + transform:translateX(-50%) : ce dernier entrait en conflit avec
+  // l'animation d'apparition .rotateIn (cf. components/_animations.scss), dont les keyframes
+  // remplacent ENTIÈREMENT la valeur de "transform" (rotateY + scale, sans translateX) le
+  // temps de l'animation — l'icône apparaissait donc décentrée, puis "sautait" d'un coup vers
+  // sa position réellement centrée une fois l'animation terminée et la classe .rotateIn
+  // retirée (cf. Icon animée de scrolling : "elle se décale d'un coup vers la gauche").
+  // Les marges auto, elles, ne touchent jamais à "transform" : aucun conflit possible.
+  left: 0;
+  right: 0;
+  width: fit-content;
+  margin: 0 auto;
+  // Collée au padding bas standard de l'interface (16px, cf. .mainNavContainerDesktop,
+  // .burgerContainer...) — avant : bottom:48px, flottante sans réel ancrage au bord d'écran.
+  bottom: 16px;
   @include flex-column;
   align-items: center;
   cursor: pointer;
   z-index: 10;
+
+  // L'icône ne doit apparaître QUE lorsque la section a été scrollée jusqu'à son extrémité
+  // basse (ou intégralement affichée si son contenu n'est pas scrollable, cf.
+  // SectionScroller._syncScrollDownIndicator, vue/scroll.js) — sur TOUS les formats (pas
+  // seulement mobile, cf. Icon animée de scrolling) : sans ça, elle flottait en permanence
+  // par-dessus le contenu au lieu de signaler la fin réelle de la section. Un espace dédié
+  // est réservé en bas de chaque section pour l'accueillir sans jamais chevaucher le contenu.
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+
+  &.scrollDownIndicator--visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+// Garde-fou défensif : TOUTES les sections (actives ou non) sont superposées au même endroit
+// dans .homeContent (position:absolute; inset:0) — seule l'opacity de .section distingue
+// visuellement laquelle est affichée. "pointer-events:auto" posé par
+// .scrollDownIndicator--visible ci-dessus réactive explicitement les clics sur l'icône,
+// ÉCRASANT le pointer-events:none hérité d'une .section inactive (une valeur explicite sur un
+// enfant prime toujours sur la valeur héritée d'un ancêtre). Résultat observé : si plusieurs
+// indicateurs de sections DIFFÉRENTES (pas seulement celle visible à l'écran) se retrouvaient
+// "--visible" en même temps (cas fréquent : une section non scrollable est toujours considérée
+// "scrollée jusqu'en bas"), celui empilé au-dessus dans l'ordre du DOM interceptait le clic à
+// la place de celui réellement affiché — symptôme observé : cliquer sur l'icône de la section
+// Accueil menait vers Contact (cf. "Sur mobile l'icone ne dirige pas vers les bonnes
+// sections"). Cette règle garantit qu'une section inactive ne peut JAMAIS être cliquable ni
+// visible, quel que soit l'état de la classe --visible sur son propre indicateur.
+.section:not(.section--active) .scrollDownIndicator {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+// Espace réservé en bas de chaque zone scrollable d'une section home, sur tous les formats,
+// pour que l'icône de scroll (cf. ci-dessus) ne chevauche jamais le contenu une fois descendue
+// tout en bas.
+.section .mainBlock,
+.section .sideBlock,
+.section .sectionCardsGrid,
+.section .sectionContactLayout {
+  padding-bottom: 96px;
+}
+
+@include mobile {
+  // Zone tactile plus généreuse sur mobile (icône + marge de confort au-dessus du burger).
+  .section .mainBlock,
+  .section .sideBlock,
+  .section .sectionCardsGrid,
+  .section .sectionContactLayout {
+    padding-bottom: 140px;
+  }
+
+  // Le titre de section doit défiler avec le reste du contenu, pas rester figé au-dessus
+  // (cf. Interface mobile) : c'est désormais .section elle-même (titre + contenu) qui
+  // assure le scroll — les wraps internes (mainBlock/sideBlock/sectionCardsGrid/
+  // sectionContactLayout/grille Bio) ne doivent plus scroller indépendamment, sinon on se
+  // retrouverait avec deux niveaux de scroll imbriqués et le titre resterait figé.
+  .section {
+    overflow-y: auto;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .section .mainBlock,
+  .section .sideBlock,
+  .section .sectionCardsGrid,
+  .section .sectionContactLayout,
+  #sectionBioGrid {
+    overflow-y: visible !important;
+    height: auto !important;
+  }
+
+  // La scrollbar custom (cf. scroll.js, _ensureScrollBar) perd son sens dès lors que c'est
+  // .section elle-même qui scrolle en pleine largeur — masquée sur mobile.
+  .sectionScrollBar { display: none !important; }
 }
 
 .scrollDownChevrons {
@@ -303,7 +636,11 @@
 
 .scrollDownText {
   display: block;
-  margin-top: 70px;
+  // >= 31px (55px de translateY max de .scrollDownChevron moins les 24px de hauteur propre
+  // de .scrollDownChevrons) + marge de confort : sans ça, le chevron descendant chevauchait
+  // visuellement le texte (cf. Icon animée de scrolling : "les deux sont superposés"), un
+  // 1er ajustement à 20px s'étant révélé insuffisant.
+  margin-top: 40px;
   font-family: $font-body;
   font-size: $font-size-xs;
   color: $color-text-muted;
@@ -376,8 +713,17 @@
   cursor: pointer;
   opacity: 1;
   pointer-events: auto;
-  transform: scale(1);
-  transform-origin: left center;
+  // --scale permet à .rotateIn/.rotateOut (cf. components/_animations.scss) de connaître
+  // la taille de repos réelle de l'item PENDANT le flip d'apparition — sans ça, un item actif
+  // apparaissait toujours à l'échelle neutre puis "sautait" à 1.08 juste après la fin du flip
+  // (bond visuel au chargement initial / changement de section).
+  --scale: scale(1);
+  transform: var(--scale, scale(1));
+  // Centré sur le milieu de l'icône (20px de large, cf. .icon ci-dessous) et non sur le bord
+  // gauche de la ligne entière : l'icône reste ainsi visuellement à la même position
+  // horizontale d'un item à l'autre quelle que soit l'échelle appliquée (hover/actif), seul
+  // le libellé qui la suit s'étire vers la droite.
+  transform-origin: 10px center;
   transition: transform 0.25s ease-out; // ease-out au retour (pas de squash)
   // Icône + label forment un seul bloc cliquable : jamais de sélection de texte sur le
   // label qui intercepterait le clic (mousedown→drag même minime sur du texte réel) —
@@ -391,10 +737,21 @@
     flex-shrink: 0;
     transform-origin: center;
     transform: scale(1);
-    transition: transform $transition-icon-bounce;
+    // Icône active = blanche, via un simple filtre de luminosité sur l'icône grey (plus
+    // fiable qu'un calque ::after superposé, cf. ci-dessous la lueur qui anime elle aussi
+    // "filter" et écraserait un filtre couleur posé sur le même pseudo-élément) — transition
+    // fluide à chaque changement d'état (devient/cesse d'être active).
+    filter: brightness(1);
+    transition: filter 0.3s ease;
   }
 
   &:hover {
+    // Bug corrigé : var(--scale, scale(1.08)) ne retombe JAMAIS sur le fallback 1.08 car
+    // --scale est TOUJOURS défini (scale(1) par défaut ci-dessus) — un var() avec fallback
+    // n'utilise ce dernier que si la propriété custom est totalement absente/invalide, jamais
+    // selon la règle qui l'a définie. Résultat : le survol d'un item inactif ne grossissait
+    // jamais réellement. Valeur figée à 1.08 (identique à l'état actif) pour un vrai effet de
+    // scale up avec rebond, symétrique à l'enfoncement au clic.
     transition: transform $transition-icon-bounce; // bounce à l'aller
     transform: scale(1.08);
   }
@@ -411,7 +768,7 @@
   // pendant la durée de l'animation — nettoyée au transitionend, cf. scroll.js).
   &.sectionNavItem--released {
     transition: transform $transition-icon-bounce;
-    transform: scale(1);
+    transform: var(--scale, scale(1));
   }
 
   // Item actif : identification claire et STABLE — taille légèrement supérieure et
@@ -419,10 +776,13 @@
   // hover reste un aperçu/feedback transitoire). Sans ça, l'item actif grossissait encore
   // au survol exactement comme n'importe quel autre, rendant l'état actif ambigu.
   &.sectionNavItem--active {
-    transform: scale(1.08);
+    --scale: scale(1.08);
+    transform: var(--scale, scale(1.08));
     transition: transform $transition-icon-bounce;
 
-    &:hover { transform: scale(1.08); }
+    &:hover { transform: var(--scale, scale(1.08)); }
+
+    > .icon { filter: brightness(0) invert(1); } // icône blanche tant que la section est active
   }
 
   &.sectionNavItem--active > .icon::after {
@@ -466,6 +826,10 @@
   gap: 0;
   pointer-events: none;
   white-space: nowrap;
+  // Contexte 3D requis pour un rendu stable du flip des lettres (cf. .mainLogoText) —
+  // sans perspective, le navigateur n'a pas de référence de profondeur cohérente, ce qui
+  // contribuait au bond visuel de quelques pixels pendant l'apparition.
+  perspective: 500px;
 
   > span {
     display: inline-block;
@@ -484,10 +848,35 @@
     transform: rotateY(90deg);
     transform-origin: right center;
     transition: color $transition-fast;
+    // Évite le flicker/bond au passage par l'angle "de profil" (90deg) pendant le flip —
+    // cf. Interface desktop : bug des lettres qui sautent de quelques pixels.
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 }
 
-// Icône active : texte en blanc
+// Texte en blanc quand actif (l'icône reste blanche en permanence, cf. pulsation
+// ci-dessous ; le LABEL, lui, n'est plus jamais affiché en permanence — il obéit aux
+// mêmes règles d'apparition/disparition que les labels inactifs).
 .sectionNavItem--active .sectionNavLabel > span {
   color: $color-text-primary;
+}
+
+// ---------------------------------------------------------------------------
+// Lueur pulsante sur l'icône de la section active — effet "diode qui vacille
+// lentement". Appliquée sur le calque ::after (toujours blanc, cf. mixin icon-grey)
+// via un filtre drop-shadow (seul moyen de "glow" une image bitmap webp). Taille réduite
+// de moitié par rapport à l'originale (cf. Interface desktop : "effet de glow trop vaste").
+// ---------------------------------------------------------------------------
+@keyframes sectionIconActiveGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.35)) drop-shadow(0 0 2px rgba(255, 255, 255, 0.2));
+  }
+  50% {
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 6.5px rgba(255, 255, 255, 0.6));
+  }
+}
+
+.sectionNavItem--active > .icon::after {
+  animation: sectionIconActiveGlow 2.6s ease-in-out infinite;
 }

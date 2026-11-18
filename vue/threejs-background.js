@@ -839,6 +839,12 @@ function init() {
       const j = await r.json();
       const states = j.success ? j.states : null;
       if (!states) return;
+      // Signale le DÉBUT de la lecture de la séquence d'intro (état "intro" s'il existe,
+      // sinon directement Home) — c'est le t=0 de la chronologie d'intro configurable côté
+      // admin (cf. vue/intro-timeline.js, model/model_admin.php "intro_timeline") : PAS le
+      // chargement de la page, ni la levée du rideau noir (cf. 'gca-scene-ready' plus bas,
+      // qui dépend du chargement du GLB — un évènement DIFFÉRENT, déjà utilisé par le rideau).
+      window.dispatchEvent(new CustomEvent('gca-intro-start'));
       const home = states.home;
       // Un item peut être au nouveau schéma ({state, mode, tracks, transition, …}, cf. refonte
       // Master Scene/State Variation) ou à l'ancien format ({subStates:[{state},…]}) ou au tout
@@ -1088,6 +1094,11 @@ function _loadGLTFScene(attempt = 1) {
       // fois le GLB prêt, donc rien à faire de spécial ici dans ce cas.
       _glbLoaded = true;
       if (_pendingState && !_animDef) applyEditorState(_pendingState);
+
+      // Signale au rideau de lancement (cf. index.php, inline script) que la scène 3D est
+      // désormais chargée et affichable — condition nécessaire (avec le délai minimal réglable
+      // depuis l'admin tool) pour lever le rideau noir masquant le chargement.
+      window.dispatchEvent(new CustomEvent('gca-scene-ready'));
     },
     undefined,
     (err) => {
